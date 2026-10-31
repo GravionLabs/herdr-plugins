@@ -1,0 +1,15 @@
+id = "worktree-cleanup"
+name = "worktree-cleanup"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+platforms = ["macos", "linux"]
+description = "Removes the worktrees and local branches of merged PBIs"
+
+[[actions]]
+id = "cleanup"
+title = "Remove worktrees and branches of merged PBIs"
+command = ["node", "bin/cleanup.ts"]
+
+[[events]]
+on = "worktree.removed"
+command = ["node", "bin/removed.ts"]
