@@ -1,0 +1,19 @@
+id = "deliver-board"
+name = "deliver-board"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+platforms = ["macos", "linux"]
+description = "Popup with the open PBIs, claims and PR state of release/next"
+
+[[actions]]
+id = "open"
+title = "Open the deliver board"
+command = ["node", "bin/open.ts"]
+
+[[panes]]
+id = "board"
+title = "Deliver board"
+placement = "popup"
+width = "90%"
+height = "70%"
+command = ["node", "bin/board.ts"]
