@@ -10,15 +10,18 @@ export type State = {
   // 'open' keeps running, 'cancel' closes, 'pick' closes with `picked` set.
   status: 'open' | 'cancel' | 'pick';
   picked: Entry | null;
+  // One line shown under the query, e.g. a config problem.
+  hint: string | null;
 };
 
-export const initialState = (entries: Entry[]): State => ({
+export const initialState = (entries: Entry[], hint: string | null = null): State => ({
   entries,
   query: '',
   matches: filterEntries(entries, ''),
   selected: 0,
   status: 'open',
   picked: null,
+  hint,
 });
 
 const withQuery = (state: State, query: string): State => ({

@@ -4,7 +4,8 @@
 import { fileURLToPath } from 'node:url';
 import { herdrPlatform, parseActions } from '../lib/actions.ts';
 import { applyKey, initialState, type State } from '../lib/keys.ts';
-import { listActions, notify, spawnRunner } from '../lib/host.ts';
+import { configHint } from '../lib/config.ts';
+import { listActions, loadConfig, notify, spawnRunner } from '../lib/host.ts';
 import { failureTitle } from '../lib/run.ts';
 import { render } from '../lib/view.ts';
 
@@ -18,7 +19,11 @@ function restore(): void {
 process.on('exit', restore);
 
 const listed = await listActions();
-let state: State = initialState(listed === null ? [] : parseActions(listed, herdrPlatform()));
+const config = loadConfig();
+let state: State = initialState(
+  [...(listed === null ? [] : parseActions(listed, herdrPlatform())), ...config.entries],
+  configHint(config.problems),
+);
 
 const draw = (): void => {
   const lines = render(state, out.rows || 24, out.columns || 80);
