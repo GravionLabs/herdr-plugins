@@ -8,7 +8,8 @@
   },
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "changelog": "git-cliff -c cliff.toml -o CHANGELOG.md"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",

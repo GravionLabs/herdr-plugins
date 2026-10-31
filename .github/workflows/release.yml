@@ -1,0 +1,181 @@
+# Release on main, built from the versioning actions of GravionLabs/ci (the same building blocks as the `release` job
+# of its ci.yml; node-package.yml is not used because the plugins are not published to npm).
+#
+# push to main (the merge commit of the release PR release/next -> main):
+#   Test -> determine-version (GitVersion.yml) -> gh-release: git-cliff writes CHANGELOG.md and commits it to main
+#   ([skip ci]), tags v<version>, creates the GitHub Release and closes the issues delivered by the release PR.
+#
+# workflow_dispatch (one-time backfill of a release that was merged without a tag, e.g. 0.1.0 on b18dc98):
+#   tags v<version> on <ref>, creates the GitHub Release with the notes of that tag and regenerates CHANGELOG.md on
+#   main. It does not close issues: close-release-issues keys on GITHUB_SHA, which is the head of main here.
+#
+# GH_PAT: classic PAT with scope `repo` of a repository admin. The `main` ruleset requires a pull request and the
+# `Test` check; admins (RepositoryRole 5) are bypass actors, so the changelog commit is pushed with GH_PAT. The
+# GITHUB_TOKEN cannot bypass the ruleset.
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to tag and release, without the v prefix (e.g. 0.1.0)'
+        required: true
+        type: string
+      ref:
+        description: 'Commit on main to tag (e.g. the merge commit of the release PR)'
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      # Same composite action and inputs as ci.yml; ci.yml skips pushes to main, so the tests run here once.
+      - name: Install and test
+        uses: GravionLabs/ci/node/ci@main
+        with:
+          node-version: '26'
+          lint-command: 'npm run typecheck'
+          build-command: 'true'
+          test-command: 'npm test'
+          upload-results: 'false'
+          publish-results: 'false'
+
+  release:
+    name: Release
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # changelog commit, tag, GitHub Release
+      issues: write          # close-issues
+      pull-requests: read    # close-issues reads the release PR
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0       # required by GitVersion
+
+      - name: Determine version
+        id: version
+        uses: GravionLabs/ci/versioning/determine-version@main
+        with:
+          gitversion-config-file: GitVersion.yml
+
+      # Commits CHANGELOG.md to main, then tags that commit (create-version-tag runs inside gh-release; a tag created
+      # before it would leave git-cliff's --unreleased notes empty), creates the release and closes the issues.
+      - name: Create GitHub Release
+        uses: GravionLabs/ci/versioning/gh-release@main
+        with:
+          version: ${{ steps.version.outputs.semver }}
+          changelog-file: CHANGELOG.md
+          cliff-config: cliff.toml
+          update-changelog: 'true'
+          close-issues: 'true'
+          token: ${{ secrets.GH_PAT }}
+
+  backfill:
+    name: Backfill release
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ inputs.version }}
+      REF: ${{ inputs.ref }}
+      TAG: v${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Check inputs
+        id: target
+        run: |
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::version '$VERSION' is not MAJOR.MINOR.PATCH (no v prefix, no pre-release)"
+            exit 1
+          fi
+          if ! sha=$(git rev-parse --verify --quiet "$REF^{commit}"); then
+            echo "::error::ref '$REF' is not a commit"
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$sha" origin/main; then
+            echo "::error::$sha is not on main"
+            exit 1
+          fi
+          if tagged=$(git rev-parse --verify --quiet "$TAG^{commit}") && [ "$tagged" != "$sha" ]; then
+            echo "::error::$TAG already points at $tagged, not at $sha"
+            exit 1
+          fi
+          # the commit to tag predates cliff.toml, so the config of main is used for its notes
+          cp cliff.toml "$RUNNER_TEMP/cliff.toml"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Create version tag
+        env:
+          SHA: ${{ steps.target.outputs.sha }}
+        run: |
+          if git rev-parse --verify --quiet "$TAG" >/dev/null; then
+            echo "Tag $TAG already exists on $SHA — skipping."
+          else
+            git tag "$TAG" "$SHA"
+            git push origin "$TAG"
+            echo "Created and pushed tag $TAG on $SHA."
+          fi
+          git checkout -q --detach "$SHA"
+
+      - name: Release notes of the tag
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: ${{ runner.temp }}/cliff.toml
+          args: --current --strip header
+        env:
+          OUTPUT: ${{ runner.temp }}/release-notes.md
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NOTES_FILE: ${{ runner.temp }}/release-notes.md
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists — skipping."
+          else
+            gh release create "$TAG" --verify-tag --title "$TAG" --notes-file "$NOTES_FILE"
+          fi
+
+      - name: Back to main
+        run: git checkout -q main
+
+      - name: Regenerate CHANGELOG.md
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --verbose
+        env:
+          OUTPUT: CHANGELOG.md
+
+      - name: Commit CHANGELOG.md
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          if git diff --cached --quiet; then
+            echo "No changes to CHANGELOG.md — skipping commit."
+          else
+            git commit -m "docs: update CHANGELOG.md for $TAG [skip ci]"
+            git push origin HEAD:main
+          fi
