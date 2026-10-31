@@ -33,6 +33,18 @@ describe('trailing-punct link handler pattern', () => {
     expect(pattern.test(url)).toBe(false);
   });
 
+  it('declares the open action command as a non-empty argv array', () => {
+    const line = manifest.match(/^command = (\[.*\])$/m);
+    expect(line).not.toBeNull();
+    const argv = JSON.parse(line[1]);
+    expect(Array.isArray(argv)).toBe(true);
+    expect(argv.length).toBeGreaterThan(0);
+    for (const arg of argv) {
+      expect(typeof arg).toBe('string');
+      expect(arg.length).toBeGreaterThan(0);
+    }
+  });
+
   it('declares the open action and the handler id', () => {
     expect(manifest).toMatch(/^id = "open"$/m);
     expect(manifest).toMatch(/^id = "trailing-punct"$/m);
