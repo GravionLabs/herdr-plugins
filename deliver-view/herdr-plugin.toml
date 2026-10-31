@@ -1,0 +1,14 @@
+id = "deliver-view"
+name = "deliver-view"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+platforms = ["macos", "linux"]
+description = "Agent view that lists the deliver sessions first, blocked ones on top"
+
+[[startup]]
+command = ["node", "bin/startup.ts"]
+
+[[actions]]
+id = "apply"
+title = "Apply the deliver agent view"
+command = ["node", "bin/apply.ts"]
