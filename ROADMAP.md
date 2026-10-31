@@ -23,7 +23,7 @@ Order of work and release assignment for the open issues of Feature #1. Written 
 ## Releases
 
 - **0.1.0** (#11, #8): merged into `main` with #15 on 2026-10-31.
-- **0.2.0** (#16, #21, plus the takeover of GravionLabs/skills#17 in #24): release PR #26. #5 and #7 moved to 0.3.0 so the TypeScript and Node 26 base ships first.
+- **0.2.0** (#16, #21, plus the takeover of GravionLabs/skills#17 in #24): merged into `main` with #26 on 2026-10-31. #5 and #7 moved to 0.3.0 so the TypeScript and Node 26 base ships first.
 - Neither release has a tag, changelog or GitHub Release yet: the repository has no release workflow on `main`. #19 adds it and tags both afterwards.
 
 `skills#<n>` is an issue of [GravionLabs/skills](https://github.com/GravionLabs/skills): the `deliver` skill provides the pane tokens (skills#16) and `Switch-LogPane.ps1` (skills#13). #3, #22 and #23 took over GravionLabs/skills#17 (2026-10-31); the plugins live here, the scripts they call stay in the skill.
