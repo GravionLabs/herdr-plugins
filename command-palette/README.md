@@ -49,6 +49,10 @@ Own entries come from `$HERDR_PLUGIN_CONFIG_DIR/config.json` (`herdr plugin conf
 - A missing file is fine. Invalid JSON or an invalid entry shows one hint line `config.json: <problem>` (`(+N more)` for further problems) under the search field; valid entries still work.
 - Not supported: shell strings, per-entry environment variables, showing output.
 
+## Recently used
+
+One global history (all repositories) in `$HERDR_PLUGIN_STATE_DIR/recent.json`. The runner records an entry (`action:<plugin>.<action>` or `config:<title>`) after it ran successfully; a failed run is not recorded. With an empty search, used entries come first ordered by frecency (use count, halved every 7 days since the last use), unused ones follow in their normal order. With a search, usage only breaks ties between equal match quality. A missing or corrupt file counts as empty; keys of entries that no longer exist are dropped on write; the file is written via `recent.json.tmp` and a rename, and a failing write is ignored.
+
 ## Keys
 
 | Key | Action |
