@@ -10,11 +10,11 @@ herdr plugin install GravionLabs/herdr-plugins/deliver-log
 
 ## Keybinding
 
-Bind the `toggle-log` action in herdr's `config.toml`, for example to `prefix+shift+l`:
+Bind the `toggle-log` action in herdr's `config.toml`, for example to `prefix+shift+o` (`prefix+shift+l` swaps panes):
 
 ```toml
 [[keys.command]]
-key = "prefix+shift+l"
+key = "prefix+shift+o"
 type = "plugin_action"
 command = "deliver-log.toggle-log"
 description = "toggle the deliver log pane"

@@ -10,11 +10,11 @@ herdr plugin install GravionLabs/herdr-plugins/command-palette
 
 ## Keybinding
 
-Bind the `open` action in herdr's `config.toml`, for example to `prefix+p`:
+Bind the `open` action in herdr's `config.toml`, for example to `prefix+a` (`prefix+p` switches to the previous tab):
 
 ```toml
 [[keys.command]]
-key = "prefix+p"
+key = "prefix+a"
 type = "plugin_action"
 command = "command-palette.open"
 description = "command palette"
