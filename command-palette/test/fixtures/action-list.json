@@ -1,0 +1,124 @@
+{
+  "id": "cli:plugin",
+  "result": {
+    "actions": [
+      {
+        "action_id": "open",
+        "command": [
+          "node",
+          "bin/open.ts"
+        ],
+        "platforms": [
+          "macos",
+          "linux"
+        ],
+        "plugin_id": "deliver-board",
+        "title": "Open the deliver board"
+      },
+      {
+        "action_id": "toggle-log",
+        "command": [
+          "node",
+          "bin/toggle-log.ts"
+        ],
+        "platforms": [
+          "macos",
+          "linux"
+        ],
+        "plugin_id": "deliver-log",
+        "title": "Toggle the deliver log pane"
+      },
+      {
+        "action_id": "start",
+        "command": [
+          "node",
+          "bin/start.ts"
+        ],
+        "platforms": [
+          "macos",
+          "linux"
+        ],
+        "plugin_id": "deliver-starter",
+        "title": "Start /deliver"
+      },
+      {
+        "action_id": "start-link",
+        "command": [
+          "node",
+          "bin/start-link.ts"
+        ],
+        "platforms": [
+          "macos",
+          "linux"
+        ],
+        "plugin_id": "deliver-starter",
+        "title": "Start /deliver for a clicked issue link"
+      },
+      {
+        "action_id": "apply",
+        "command": [
+          "node",
+          "bin/apply.ts"
+        ],
+        "platforms": [
+          "macos",
+          "linux"
+        ],
+        "plugin_id": "deliver-view",
+        "title": "Apply the deliver agent view"
+      },
+      {
+        "action_id": "open",
+        "command": [
+          "node",
+          "bin/open.ts"
+        ],
+        "platforms": [
+          "macos",
+          "linux"
+        ],
+        "plugin_id": "link-trim",
+        "title": "Open link without trailing punctuation"
+      },
+      {
+        "action_id": "cleanup",
+        "command": [
+          "node",
+          "bin/cleanup.ts"
+        ],
+        "platforms": [
+          "macos",
+          "linux"
+        ],
+        "plugin_id": "worktree-cleanup",
+        "title": "Remove worktrees and branches of merged PBIs"
+      },
+      {
+        "action_id": "open",
+        "command": [
+          "node",
+          "bin/open.ts"
+        ],
+        "platforms": [
+          "macos",
+          "linux"
+        ],
+        "plugin_id": "command-palette",
+        "title": "Open the command palette"
+      },
+      {
+        "action_id": "win",
+        "command": [
+          "node",
+          "bin/win.ts"
+        ],
+        "platforms": [
+          "windows"
+        ],
+        "plugin_id": "win-only",
+        "title": "Windows only"
+      }
+    ],
+    "type": "plugin_action_list"
+  }
+}
