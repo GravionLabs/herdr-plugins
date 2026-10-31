@@ -24,8 +24,8 @@ Order and releases: [ROADMAP.md](ROADMAP.md).
 
 ## Development
 
-- Runtime: Node 24 (`engines.node` `>=24`, see `.nvmrc`). No runtime dependencies and no build step.
-- Language: TypeScript. Node 24 strips the types of `.ts` files at run time, so a plugin's `herdr-plugin.toml` runs its entry point directly, e.g. `command = ["node", "bin/open.ts"]`. Type stripping does not apply under `node_modules`, and herdr installs plugins from git, so plugin code stays out of `node_modules`.
+- Runtime: Node 26 (`engines.node` `>=26`, see `.nvmrc`). No runtime dependencies and no build step.
+- Language: TypeScript. Node 26 strips the types of `.ts` files at run time, so a plugin's `herdr-plugin.toml` runs its entry point directly, e.g. `command = ["node", "bin/open.ts"]`. Type stripping does not apply under `node_modules`, and herdr installs plugins from git, so plugin code stays out of `node_modules`.
 - Erasable syntax only (`erasableSyntaxOnly`): no `enum`, no `namespace`, no parameter properties. Use plain objects, unions and classes with explicit fields.
 - Imports: relative imports carry the `.ts` extension (`import { x } from '../lib/trim.ts'`); type-only imports use `import type`, which `verbatimModuleSyntax` enforces.
 - Install: `npm install`
