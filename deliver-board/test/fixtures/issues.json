@@ -1,0 +1,70 @@
+[
+  {
+    "assignees": [],
+    "labels": [
+      {
+        "id": "LA_kwDOVdDpaM8AAAADALwpmw",
+        "name": "merged",
+        "description": "Merged into a release branch; closes when the release lands on the default branch",
+        "color": "0E8A16"
+      },
+      {
+        "id": "LA_kwDOVdDpaM8AAAADALwqsg",
+        "name": "pbi",
+        "description": "Product backlog item - a scoped, demoable slice of a Feature",
+        "color": "5319E7"
+      }
+    ],
+    "number": 73,
+    "title": "[PBI] fix: GitVersion bumps the minor version on a release merge into main",
+    "url": "https://github.com/GravionLabs/skills/issues/73"
+  },
+  {
+    "assignees": [],
+    "labels": [
+      {
+        "id": "LA_kwDOVdDpaM8AAAADALwqsg",
+        "name": "pbi",
+        "description": "Product backlog item - a scoped, demoable slice of a Feature",
+        "color": "5319E7"
+      }
+    ],
+    "number": 72,
+    "title": "[PBI] build: move to Node.js 26",
+    "url": "https://github.com/GravionLabs/skills/issues/72"
+  },
+  {
+    "assignees": [],
+    "labels": [
+      {
+        "id": "LA_kwDOVdDpaM8AAAADALwqsg",
+        "name": "pbi",
+        "description": "Product backlog item - a scoped, demoable slice of a Feature",
+        "color": "5319E7"
+      }
+    ],
+    "number": 16,
+    "title": "[PBI] feat(delivery): deliver reports step, issue and PR as herdr pane tokens",
+    "url": "https://github.com/GravionLabs/skills/issues/16"
+  },
+  {
+    "assignees": [],
+    "labels": [
+      {
+        "id": "LA_kwDOVdDpaM8AAAADALwp5g",
+        "name": "needs-decision",
+        "description": "Blocked on an owner decision",
+        "color": "C2E0C6"
+      },
+      {
+        "id": "LA_kwDOVdDpaM8AAAADALwqsg",
+        "name": "pbi",
+        "description": "Product backlog item - a scoped, demoable slice of a Feature",
+        "color": "5319E7"
+      }
+    ],
+    "number": 10,
+    "title": "[PBI] feat(jvm): jvm package for Java and Kotlin with jvm-implementation and jvm-test",
+    "url": "https://github.com/GravionLabs/skills/issues/10"
+  }
+]
