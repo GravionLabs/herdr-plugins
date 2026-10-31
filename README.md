@@ -16,7 +16,7 @@ herdr plugin install GravionLabs/herdr-plugins/<plugin>
 | `agent-notify` | Notification when an agent pane turns done or blocked | available |
 | `layout-bootstrap` | Opens a project workspace with agent, test and log panes | planned |
 | `review-popup` | Shows the `code-review` result of the current branch | planned |
-| `deliver-starter` | Starts `/deliver` from a popup or an issue link, in a herdr worktree or through the loop | planned |
+| `deliver-starter` | Starts `/deliver` from a popup or an issue link, in a herdr worktree or through the loop | available |
 | `deliver-view` | Agent view with the `deliver` sessions first, blocked ones on top | planned |
 | `deliver-log` | Shows or hides the log pane of `Invoke-DeliverLoop.ps1` | available |
 
