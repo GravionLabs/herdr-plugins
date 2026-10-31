@@ -45,4 +45,4 @@ Adjust the rule if you already define `hyperlink_rules`: keep your rules and add
 
 ## Development
 
-Trimming lives in `lib/trim.ts` and runs without herdr. The action entry point is `bin/open.ts`, run by Node 24 directly. Run the tests from the repository root with `npm test`.
+Trimming lives in `lib/trim.ts` and runs without herdr. The action entry point is `bin/open.ts`, run by Node 26 directly. Run the tests from the repository root with `npm test`.
