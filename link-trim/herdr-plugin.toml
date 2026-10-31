@@ -1,6 +1,8 @@
 id = "link-trim"
+name = "link-trim"
 version = "0.1.0"
 min_herdr_version = "0.9.5"
+platforms = ["macos", "linux"]
 description = "Opens links without the trailing punctuation that URL detection picks up"
 
 [[actions]]

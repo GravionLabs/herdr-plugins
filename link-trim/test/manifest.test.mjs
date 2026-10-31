@@ -45,6 +45,19 @@ describe('trailing-punct link handler pattern', () => {
     }
   });
 
+  it('declares the top-level id, name, version and min_herdr_version', () => {
+    expect(manifest).toMatch(/^id = "link-trim"$/m);
+    expect(manifest).toMatch(/^name = "link-trim"$/m);
+    expect(manifest).toMatch(/^version = "0\.1\.0"$/m);
+    expect(manifest).toMatch(/^min_herdr_version = "0\.9\.5"$/m);
+  });
+
+  it('declares platforms as macos and linux', () => {
+    const line = manifest.match(/^platforms = (\[.*\])$/m);
+    expect(line).not.toBeNull();
+    expect(JSON.parse(line[1])).toEqual(['macos', 'linux']);
+  });
+
   it('declares the open action and the handler id', () => {
     expect(manifest).toMatch(/^id = "open"$/m);
     expect(manifest).toMatch(/^id = "trailing-punct"$/m);
