@@ -3,8 +3,15 @@ import { describe, expect, it } from 'vitest';
 
 const manifest = readFileSync(new URL('../herdr-plugin.toml', import.meta.url), 'utf8');
 
+// Returns the first capture group of a manifest line; fails the test when the line is missing.
+function valueOf(pattern: RegExp): string {
+  const match = manifest.match(pattern);
+  if (!match?.[1]) throw new Error(`manifest line not found: ${pattern}`);
+  return match[1];
+}
+
 // The TOML pattern is a basic string; JSON string syntax covers the escapes used here.
-const patternSource = JSON.parse(manifest.match(/^pattern = (".*")$/m)[1]);
+const patternSource: string = JSON.parse(valueOf(/^pattern = (".*")$/m));
 const pattern = new RegExp(patternSource);
 
 describe('trailing-punct link handler pattern', () => {
@@ -34,15 +41,18 @@ describe('trailing-punct link handler pattern', () => {
   });
 
   it('declares the open action command as a non-empty argv array', () => {
-    const line = manifest.match(/^command = (\[.*\])$/m);
-    expect(line).not.toBeNull();
-    const argv = JSON.parse(line[1]);
+    const argv: unknown = JSON.parse(valueOf(/^command = (\[.*\])$/m));
     expect(Array.isArray(argv)).toBe(true);
-    expect(argv.length).toBeGreaterThan(0);
-    for (const arg of argv) {
+    const args = argv as unknown[];
+    expect(args.length).toBeGreaterThan(0);
+    for (const arg of args) {
       expect(typeof arg).toBe('string');
-      expect(arg.length).toBeGreaterThan(0);
+      expect(String(arg).length).toBeGreaterThan(0);
     }
+  });
+
+  it('runs the open action as a TypeScript entry point under Node', () => {
+    expect(JSON.parse(valueOf(/^command = (\[.*\])$/m))).toEqual(['node', 'bin/open.ts']);
   });
 
   it('declares the top-level id, name, version and min_herdr_version', () => {
@@ -53,9 +63,7 @@ describe('trailing-punct link handler pattern', () => {
   });
 
   it('declares platforms as macos and linux', () => {
-    const line = manifest.match(/^platforms = (\[.*\])$/m);
-    expect(line).not.toBeNull();
-    expect(JSON.parse(line[1])).toEqual(['macos', 'linux']);
+    expect(JSON.parse(valueOf(/^platforms = (\[.*\])$/m))).toEqual(['macos', 'linux']);
   });
 
   it('declares the open action and the handler id', () => {

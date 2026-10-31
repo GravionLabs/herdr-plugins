@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { trimTrailingPunctuation } from '../lib/trim.mjs';
+import { trimTrailingPunctuation } from '../lib/trim.ts';
 
 describe('trimTrailingPunctuation', () => {
   it('removes a trailing ) that has no opening partner', () => {

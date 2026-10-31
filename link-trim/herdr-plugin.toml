@@ -8,7 +8,7 @@ description = "Opens links without the trailing punctuation that URL detection p
 [[actions]]
 id = "open"
 title = "Open link without trailing punctuation"
-command = ["node", "bin/open.mjs"]
+command = ["node", "bin/open.ts"]
 
 [[link_handlers]]
 id = "trailing-punct"

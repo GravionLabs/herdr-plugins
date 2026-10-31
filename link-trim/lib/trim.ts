@@ -2,13 +2,13 @@
 // picks up from the surrounding text. No herdr or Node I/O here, so it is testable on its own.
 
 const PLAIN = new Set(['.', ',', ';', ':', "'", '"']);
-const OPENER_FOR_CLOSER = { ')': '(', ']': '[' };
+const OPENER_FOR_CLOSER: Record<string, string | undefined> = { ')': '(', ']': '[' };
 
-function count(text, char) {
+function count(text: string, char: string): number {
   return text.split(char).length - 1;
 }
 
-export function trimTrailingPunctuation(input) {
+export function trimTrailingPunctuation(input?: string | null): string {
   let url = String(input ?? '');
   for (;;) {
     const last = url.slice(-1);
