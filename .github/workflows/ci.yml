@@ -13,14 +13,14 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      # The composite action checks out the code, sets up Node 24, installs with npm ci and runs npm test.
+      # The composite action checks out the code, sets up Node 26, installs with npm ci and runs npm test.
       # Plugins are installed from git, so there is no npm publish.
       - name: Install and test
         uses: GravionLabs/ci/node/ci@main
         with:
-          node-version: '24'
-          # no lint or build step in this repository yet
-          lint-command: 'true'
+          node-version: '26'
+          # the type check (TypeScript 7, noEmit) runs as the lint step; there is no build step
+          lint-command: 'npm run typecheck'
           build-command: 'true'
           test-command: 'npm test'
           upload-results: 'false'

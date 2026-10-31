@@ -1,6 +1,6 @@
 # herdr-plugins
 
-[herdr](https://herdr.dev) plugins for the GravionLabs agent workflow (the `deliver` skill of [apm-hub](https://github.com/GravionLabs/apm-hub)). Each plugin lives in its own directory with a `herdr-plugin.toml` and installs on its own:
+[herdr](https://herdr.dev) plugins for the GravionLabs agent workflow (the `deliver` skill of [GravionLabs/skills](https://github.com/GravionLabs/skills), successor of the archived apm-hub). Each plugin lives in its own directory with a `herdr-plugin.toml` and installs on its own:
 
 ```bash
 herdr plugin install GravionLabs/herdr-plugins/<plugin>
@@ -16,15 +16,21 @@ herdr plugin install GravionLabs/herdr-plugins/<plugin>
 | `agent-notify` | Notification when an agent pane turns done or blocked | planned |
 | `layout-bootstrap` | Opens a project workspace with agent, test and log panes | planned |
 | `review-popup` | Shows the `code-review` result of the current branch | planned |
-| `deliver-starter` | Asks for an issue number and starts `/deliver` in a new tab | planned |
+| `deliver-starter` | Starts `/deliver` from a popup or an issue link, in a herdr worktree or through the loop | planned |
+| `deliver-view` | Agent view with the `deliver` sessions first, blocked ones on top | planned |
+| `deliver-log` | Shows or hides the log pane of `Invoke-DeliverLoop.ps1` | planned |
 
 Order and releases: [ROADMAP.md](ROADMAP.md).
 
 ## Development
 
-- Runtime: Node 24 (`engines.node` `>=24`, see `.nvmrc`).
+- Runtime: Node 26 (`engines.node` `>=26`, see `.nvmrc`). No runtime dependencies and no build step.
+- Language: TypeScript. Node 26 strips the types of `.ts` files at run time, so a plugin's `herdr-plugin.toml` runs its entry point directly, e.g. `command = ["node", "bin/open.ts"]`. Type stripping does not apply under `node_modules`, and herdr installs plugins from git, so plugin code stays out of `node_modules`.
+- Erasable syntax only (`erasableSyntaxOnly`): no `enum`, no `namespace`, no parameter properties. Use plain objects, unions and classes with explicit fields.
+- Imports: relative imports carry the `.ts` extension (`import { x } from '../lib/trim.ts'`); type-only imports use `import type`, which `verbatimModuleSyntax` enforces.
 - Install: `npm install`
-- Test: `npm test` runs Vitest from the repository root over every plugin directory (`<plugin>/**/*.test.{js,mjs}`) and `test/`.
+- Type check: `npm run typecheck` runs `tsc` (TypeScript 7, native compiler) with `noEmit`. It runs in CI as the lint step.
+- Test: `npm test` runs Vitest from the repository root over every plugin directory (`<plugin>/**/*.test.ts`) and `test/`.
 
 ## Conventions
 
