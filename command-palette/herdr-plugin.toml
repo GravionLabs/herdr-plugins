@@ -1,0 +1,19 @@
+id = "command-palette"
+name = "command-palette"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+platforms = ["macos", "linux"]
+description = "Popup to search and run plugin actions and own commands with one key"
+
+[[actions]]
+id = "open"
+title = "Open the command palette"
+command = ["node", "bin/open.ts"]
+
+[[panes]]
+id = "palette"
+title = "Command palette"
+placement = "popup"
+width = "60%"
+height = "50%"
+command = ["node", "bin/palette.ts"]

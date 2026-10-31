@@ -4,7 +4,7 @@ import { startFromLink } from '../lib/link-start.ts';
 import { startInteractive, startUnattended, validate, type Deps } from '../lib/start.ts';
 import type { Result } from '../lib/run.ts';
 
-const config = { harness: 'claude', mode: 'interactive' } as const;
+const config = { harness: 'claude', mode: 'interactive', suggestLimit: 100 } as const;
 const created = JSON.stringify({ result: { root_pane: { pane_id: 'w2:p1' } } });
 const issue = (state: string, title: string, labels: string[] = []) =>
   JSON.stringify({ state, title, labels: labels.map((name) => ({ name })) });

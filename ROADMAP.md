@@ -1,49 +1,50 @@
 # Roadmap
 
-Order of work and release assignment for the open issues of Feature #1. Written 2026-10-31. Work runs on `release/next`, the release PR into `main` is the review point. Releases are cut per milestone below; each release has a GitHub milestone of the same name. Runtime: Node 26 (switched from 24 on 2026-10-31, #21).
+Order of work and release assignment for the open issues of Epic #10: Feature #1 (herdr plugins for the `deliver` workflow) and Feature #39 (`command-palette`). Updated 2026-10-31. Work runs on `release/next`, the release PR into `main` is the review point. Each release has a GitHub milestone named like its tag; GitVersion computes the next tag, so the next milestone is `0.3.0`. Runtime: Node 26.
 
 ## Order
 
-| Order | Release | Issue | Plugin | Size | Depends on |
-| ----- | ------- | ----- | ------ | ---- | ---------- |
-| 1 | 0.1.0 | #11 | repository setup: Node 24, Vitest, CI and the `GravionLabs/ci` issue, project and release-branch workflows | S | — |
-| 2 | 0.1.0 | #8 | `link-trim`: open links without trailing punctuation | S | #11 |
-| 3 | 0.2.0 | #16 | `chore(repo)`: TypeScript 7 for plugin development (type check only, Node runs `.ts` directly) | S | #11 |
-| 4 | 0.2.0 | #21 | `chore(repo)`: Node 26 as runtime | S | #11 |
-| 5 | 0.3.0 | #19 | `ci(repo)`: tag, changelog and GitHub Release on `main`; tags 0.1.0 and 0.2.0 afterwards | S | #11 |
-| 6 | 0.3.0 | #5 | `agent-notify`: notification when an agent pane is done or blocked; `deliver` panes named by their tokens | S | #11, #16, skills#16 |
-| 7 | 0.3.0 | #7 | `worktree-cleanup`: remove worktrees and branches of merged PBIs | S | #11, #16 |
-| 8 | 0.3.0 | #3 | `deliver-starter`: start `/deliver` from a popup or an issue link, interactive in a herdr worktree or through the loop | M | #11, skills#16 |
-| 8 | 0.3.0 | #22 | `deliver-view`: agent view with the `deliver` sessions first, blocked on top | S | skills#16 |
-| 8 | 0.3.0 | #23 | `deliver-log`: action `toggle-log` for the log pane of `Invoke-DeliverLoop.ps1` | S | skills#13 |
-| 9 | 0.3.0 | #2 | `deliver-board`: popup with PBIs, claims and PR state | M | #11, after #3 |
-| 10 | 0.4.0 | #6 | `layout-bootstrap`: apply a project layout to a workspace | S | #11 |
-| 11 | 0.4.0 | #4 | `review-popup`: show the code-review result of the current branch | M | #11, decision in #4 |
+Next release: **0.3.0**.
+
+| Order | Issue | Plugin | Size | Depends on |
+| ----- | ----- | ------ | ---- | ---------- |
+| 1 | #45 | `docs(roadmap)`: align roadmap, README and milestones with the released tags | S | — |
+| 2 | #36 | `deliver-starter`: suggest open issues when typing `#` in the start popup | S | — |
+| 3 | #6 | `layout-bootstrap`: apply a project layout to a workspace | S | — |
+| 4 | #40 | `command-palette`: plugin skeleton with action `open` and popup | S | — |
+| 5 | #41 | `command-palette`: palette TUI with fuzzy filter and keyboard navigation | M | #40 |
+| 6 | #42 | `command-palette`: list and run plugin actions | S | #41 |
+| 7 | #43 | `command-palette`: own entries from `config.json` | S | #41, #42 |
+| 7 | #44 | `command-palette`: rank recently used entries first | S | #42 |
+| 8 | #4 | `review-popup`: show the code-review result of the current branch | M | skills#53 |
+
+Unscheduled: #18 (`ci`: adopt the bundled `pr-checks.yml`, waits for GravionLabs/ci#92).
 
 ## Releases
 
-- **0.1.0** (#11, #8): merged into `main` with #15 on 2026-10-31.
-- **0.2.0** (#16, #21, plus the takeover of GravionLabs/skills#17 in #24): merged into `main` with #26 on 2026-10-31. #5 and #7 moved to 0.3.0 so the TypeScript and Node 26 base ships first.
-- Neither release has a tag, changelog or GitHub Release yet: the repository has no release workflow on `main`. #19 adds it and tags both afterwards.
+| Tag | Released | Tag commit | Release PR | Content |
+| --- | -------- | ---------- | ---------- | ------- |
+| `v0.1.0` | 2026-10-31 | `3e37625` | #35 | repository setup (#11), TypeScript 7 (#16), Node 26 (#21), release workflow (#19), `link-trim` (#8), `deliver-board` (#2), `worktree-cleanup` (#7), `deliver-log` (#23), `agent-notify` (#5), `deliver-starter` (#3) |
+| `v0.2.0` | 2026-10-31 | `c9f11ba` | #38 | `deliver-view` (#22) |
 
-`skills#<n>` is an issue of [GravionLabs/skills](https://github.com/GravionLabs/skills): the `deliver` skill provides the pane tokens (skills#16) and `Switch-LogPane.ps1` (skills#13). #3, #22 and #23 took over GravionLabs/skills#17 (2026-10-31); the plugins live here, the scripts they call stay in the skill.
+Release notes: [CHANGELOG.md](CHANGELOG.md) and the GitHub Releases. The earlier plan tagged the first two merges into `main` (`b18dc98`, `a3ecd7c`) as 0.1.0 and 0.2.0 by hand; that backfill was not done, the release workflow tagged the releases above instead, and the milestones were renamed to match (#45).
+
+`skills#<n>` is an issue of [GravionLabs/skills](https://github.com/GravionLabs/skills): `review-popup` reads the review file that the `deliver` skill writes (skills#53).
 
 ## Why this order
 
-- **#11 first**: runtime, test setup, CI and the issue/project/release workflows are set up once; every plugin PBI is blocked by it. Split from #8 so the plugins can start in parallel.
-- **#8 next**: smallest plugin with an everyday annoyance behind it.
-- **#16 before #5 and #7**: the TypeScript setup (type check with TypeScript 7, `.ts` entry points run by Node 26) is the base the plugins after 0.1.0 are written on.
-- **#21 with #16**: switching the runtime before the next plugins are written avoids touching them twice.
-- **#19 first in 0.3.0**: every release from 0.3.0 on gets its tag, changelog and GitHub Release on merge; the two releases before it are tagged once afterwards.
-- **#5 and #7 next**: both are event hooks without their own UI and pay off as soon as several `deliver` sessions run in parallel: one says when a session needs attention, the other clears what aborted or hand-merged sessions leave behind.
-- **#3 before #2**: the starter is the smaller popup and establishes the popup pattern (input, keys, error line) that the board reuses; the board is the largest UI piece.
-- **#6 late**: convenience, the manual splits work today.
-- **#4 last**: needs an open decision first (where the `code-review` result comes from, possibly a change in GravionLabs/skills). It moves up as soon as that is decided.
+- **#45 first**: the roadmap, README and milestones describe the released state before new work lands on it.
+- **#36 next**: small follow-up to the shipped `deliver-starter` popup, used in every delivery.
+- **#6 before `command-palette`**: small and independent; the manual splits work today, so it is a quick win rather than a blocker.
+- **`command-palette` (#40 → #44)**: one key instead of one keybinding per action. #40 settles how a run reaches the original pane; #42 builds the runner that #43 reuses; #44 ranks on top of #42.
+- **#4 last**: blocked by skills#53 (the `deliver` skill writes the review result to a file); it moves up as soon as that ships.
 
 ## Open decisions
 
-Decided during refinement.
+None open. Decided during refinement:
 
 | Issue | Decision |
 | ----- | -------- |
-| #4 | Source of the review result: file written by `deliver`, own headless review, or PR comment |
+| #4 | Source of the review result: a file written by `deliver` (skills#53), no own review, no PR comment |
+| #39 | `command-palette`: own entries in `config.json`, the popup closes before an entry runs, one global usage history |
+| #45 | Released tags are the source of truth; milestones renamed to match, published tags untouched |

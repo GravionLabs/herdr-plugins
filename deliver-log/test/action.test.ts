@@ -5,7 +5,7 @@ import { toggleCommand } from '../lib/toggle.ts';
 
 const script = (dir: string) => `${dir}/scripts/Switch-LogPane.ps1`;
 
-function setup(present: string[], result: Result = { ok: true, stdout: '' }) {
+function setup(present: string[], result: Result = { ok: true, stdout: '', stderr: '' }) {
   const calls: { command: string; args: string[]; cwd: string }[] = [];
   const notes: { title: string; body?: string }[] = [];
   const deps: Deps = {
@@ -73,5 +73,18 @@ describe('toggleLog', () => {
     const { deps, notes } = setup([dir, script(dir)], failed);
     expect(await toggleLog(deps, '/repo', '/repo')).toBe(false);
     expect(notes).toEqual([{ title: 'deliver-log: toggle failed', body: 'no log pane' }]);
+  });
+
+  it('notifies the reason when the script succeeds without a pane and writes to stderr', async () => {
+    const dir = '/repo/.claude/skills/deliver';
+    const silent: Result = { ok: true, stdout: '', stderr: 'deliver log: no .agents/deliver-loop.log under /repo\n' };
+    const { deps, notes } = setup([dir, script(dir)], silent);
+    expect(await toggleLog(deps, '/repo', '/repo')).toBe(true);
+    expect(notes).toEqual([
+      {
+        title: 'deliver-log: no log to show',
+        body: 'deliver log: no .agents/deliver-loop.log under /repo',
+      },
+    ]);
   });
 });
