@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseConfig } from '../lib/config.ts';
 
-const defaults = { harness: 'claude', mode: 'interactive' };
+const defaults = { harness: 'claude', mode: 'interactive', suggestLimit: 100 };
 
 describe('config fallback', () => {
   it('uses the defaults without a file', () => {
@@ -20,12 +20,18 @@ describe('config fallback', () => {
     expect(parseConfig('{"harness":"claude --model opus","mode":"unattended"}')).toEqual({
       harness: 'claude --model opus',
       mode: 'unattended',
+      suggestLimit: 100,
     });
   });
 
+  it('reads suggestLimit and ignores invalid values', () => {
+    expect(parseConfig('{"suggestLimit":25}').suggestLimit).toBe(25);
+    for (const bad of ['0', '-3', '2.5', '"9"']) expect(parseConfig(`{"suggestLimit":${bad}}`).suggestLimit).toBe(100);
+  });
+
   it('falls back key by key on wrong values', () => {
-    expect(parseConfig('{"harness":"codex","mode":"fast"}')).toEqual({ harness: 'codex', mode: 'interactive' });
-    expect(parseConfig('{"harness":"  ","mode":"unattended"}')).toEqual({ harness: 'claude', mode: 'unattended' });
+    expect(parseConfig('{"harness":"codex","mode":"fast"}')).toEqual({ ...defaults, harness: 'codex' });
+    expect(parseConfig('{"harness":"  ","mode":"unattended"}')).toEqual({ ...defaults, mode: 'unattended' });
     expect(parseConfig('{"harness":3}')).toEqual(defaults);
   });
 });
