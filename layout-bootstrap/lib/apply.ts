@@ -2,9 +2,10 @@
 import type { Layout } from './layout.ts';
 import { failureLine, type Run } from './run.ts';
 
-export type Pane = { id: string; label: string | null; cwd: string | null; agent: boolean };
+export type Pane = { id: string; label: string | null; cwd: string | null; agent: boolean; tabId: string | null };
 
-export type Outcome = { created: string[]; reused: string[] };
+// `misplaced`: layout panes whose known cwd is not the repository root (an agent root pane cannot be moved, a reused pane is left alone).
+export type Outcome = { created: string[]; reused: string[]; misplaced: string[] };
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -24,7 +25,7 @@ export function parsePanes(json: string): Pane[] {
   for (const raw of list) {
     if (!isObject(raw)) continue;
     const id = text(raw.pane_id);
-    if (id) panes.push({ id, label: text(raw.label), cwd: text(raw.cwd), agent: text(raw.agent) !== null });
+    if (id) panes.push({ id, label: text(raw.label), cwd: text(raw.cwd), agent: text(raw.agent) !== null, tabId: text(raw.tab_id) });
   }
   return panes;
 }
@@ -65,15 +66,19 @@ export async function applyLayout(
   };
 
   const listArgs = ['pane', 'list', ...(workspaceId ? ['--workspace', workspaceId] : [])];
-  const existing = parsePanes(await call(listArgs));
+  const all = parsePanes(await call(listArgs));
+  // `pane list --workspace` covers every tab; only the tab of the root pane counts for name reuse.
+  const rootTab = all.find((pane) => pane.id === rootId)?.tabId ?? null;
+  const existing = rootTab ? all.filter((pane) => pane.tabId === rootTab) : all;
   const ids = new Map<string, string>(); // layout name -> pane id
-  const outcome: Outcome = { created: [], reused: [] };
+  const outcome: Outcome = { created: [], reused: [], misplaced: [] };
 
   for (const [index, spec] of layout.panes.entries()) {
     const found = existing.find((pane) => pane.label === spec.name);
     if (found) {
       ids.set(spec.name, found.id);
       outcome.reused.push(spec.name);
+      if (found.cwd !== null && found.cwd !== repo) outcome.misplaced.push(spec.name);
       continue;
     }
     let paneId: string;
@@ -81,7 +86,10 @@ export async function applyLayout(
       paneId = rootId;
       await call(['pane', 'rename', paneId, spec.name]);
       const root = existing.find((pane) => pane.id === rootId);
-      if (root && root.cwd !== repo && !root.agent) await call(['pane', 'run', paneId, `cd -- ${shellQuote(repo)}`]);
+      if (root && root.cwd !== repo) {
+        if (!root.agent) await call(['pane', 'run', paneId, `cd -- ${shellQuote(repo)}`]);
+        else if (root.cwd !== null) outcome.misplaced.push(spec.name);
+      }
     } else {
       const from = ids.get(spec.split.from);
       if (!from) throw new Error(`pane "${spec.name}": split.from "${spec.split.from}" has no pane`);

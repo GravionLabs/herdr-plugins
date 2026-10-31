@@ -45,9 +45,10 @@ async function main(): Promise<void> {
   });
   const outcome = await applyLayout(run, herdr, layout, repo, paneId, workspaceId);
   process.stdout.write(
-    `${repo}: ${source} layout, created ${outcome.created.join(', ') || '-'}, reused ${outcome.reused.join(', ') || '-'}\n`,
+    `${repo}: ${source} layout, created ${outcome.created.join(', ') || '-'}, reused ${outcome.reused.join(', ') || '-'}${outcome.misplaced.length ? `, not in repo root ${outcome.misplaced.join(', ')}` : ''}\n`,
   );
-  await notify(`Layout applied: ${outcome.created.length} created, ${outcome.reused.length} reused`);
+  const away = outcome.misplaced.length ? `; not in the repository root: ${outcome.misplaced.join(', ')}` : '';
+  await notify(`Layout applied: ${outcome.created.length} created, ${outcome.reused.length} reused${away}`);
 }
 
 main().catch(async (error: unknown) => {

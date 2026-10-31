@@ -10,11 +10,11 @@ herdr plugin install GravionLabs/herdr-plugins/layout-bootstrap
 
 ## Keybinding
 
-Bind the `apply` action in herdr's `config.toml`, for example to `prefix+shift+l`:
+Bind the `apply` action in herdr's `config.toml`, for example to `prefix+shift+a`:
 
 ```toml
 [[keys.command]]
-key = "prefix+shift+l"
+key = "prefix+shift+a"
 type = "plugin_action"
 command = "layout-bootstrap.apply"
 description = "apply the project layout"
@@ -26,9 +26,10 @@ Without a keybinding: `herdr plugin action invoke layout-bootstrap.apply`.
 
 Action `apply` works on the workspace of the focused pane. The repository root is the git toplevel of the focused pane's cwd; every pane it creates starts there.
 
-- The first pane of the layout is the focused pane itself. It is renamed to the pane name; a plain shell outside the repository root gets a `cd` to it (an agent pane is left alone).
+- The first pane of the layout is the focused pane itself. It is renamed to the pane name; a plain shell outside the repository root gets a `cd` to it. An agent pane cannot be moved (herdr has no way to change a running pane's cwd), so it stays where it is.
 - Every other pane is a split of an earlier pane, created with the repository root as cwd, renamed to its name, and its `command` is run.
-- Panes are matched by name (herdr pane label). A pane that already exists is reused: nothing is split, renamed or run again, so applying twice does not duplicate the layout.
+- Panes are matched by name (herdr pane label). A pane that already exists is reused: nothing is split, renamed or run again, so applying twice does not duplicate the layout. Only panes of the focused tab count; the same name in another tab is ignored. Reused panes keep their cwd.
+- Not every pane is guaranteed to be in the repository root: an agent root pane and reused panes that are elsewhere are kept as they are, and the notification lists them ("not in the repository root: ...").
 
 ## Layout resolution
 

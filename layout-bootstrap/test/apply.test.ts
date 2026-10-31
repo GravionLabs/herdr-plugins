@@ -22,8 +22,8 @@ function fake(panes: object[], splitIds: string[]): { run: Run; calls: string[][
 
 describe('parsePanes / parseSplit', () => {
   it('reads id, label, cwd and agent presence', () => {
-    expect(parsePanes(paneList([{ pane_id: 'p1', label: 'tests', cwd: '/a', agent: 'claude' }, { x: 1 }]))).toEqual([
-      { id: 'p1', label: 'tests', cwd: '/a', agent: true },
+    expect(parsePanes(paneList([{ pane_id: 'p1', label: 'tests', cwd: '/a', agent: 'claude', tab_id: 't1' }, { x: 1 }]))).toEqual([
+      { id: 'p1', label: 'tests', cwd: '/a', agent: true, tabId: 't1' },
     ]);
   });
   it('rejects invalid output', () => {
@@ -36,7 +36,7 @@ describe('applyLayout', () => {
   it('splits the default layout with the repo as cwd and runs the test command', async () => {
     const { run, calls } = fake([{ pane_id: 'p1', cwd: REPO, agent: 'claude' }], ['p2', 'p3']);
     const outcome = await applyLayout(run, 'herdr', defaultLayout('npm test'), REPO, 'p1', 'w1');
-    expect(outcome).toEqual({ created: ['agent', 'tests', 'shell'], reused: [] });
+    expect(outcome).toEqual({ created: ['agent', 'tests', 'shell'], reused: [], misplaced: [] });
     expect(calls).toEqual([
       ['pane', 'list', '--workspace', 'w1'],
       ['pane', 'rename', 'p1', 'agent'],
@@ -56,14 +56,14 @@ describe('applyLayout', () => {
     ];
     const { run, calls } = fake(panes, []);
     const outcome = await applyLayout(run, 'herdr', defaultLayout('npm test'), REPO, 'p1', null);
-    expect(outcome).toEqual({ created: [], reused: ['agent', 'tests', 'shell'] });
+    expect(outcome).toEqual({ created: [], reused: ['agent', 'tests', 'shell'], misplaced: [] });
     expect(calls).toEqual([['pane', 'list']]);
   });
 
   it('splits from a reused pane and only creates the missing one', async () => {
     const { run, calls } = fake([{ pane_id: 'p1', label: 'agent' }, { pane_id: 'p2', label: 'tests' }], ['p3']);
     const outcome = await applyLayout(run, 'herdr', defaultLayout(null), REPO, 'p1', null);
-    expect(outcome).toEqual({ created: ['shell'], reused: ['agent', 'tests'] });
+    expect(outcome).toEqual({ created: ['shell'], reused: ['agent', 'tests'], misplaced: [] });
     expect(calls[1]).toEqual(['pane', 'split', 'p2', '--direction', 'down', '--ratio', '0.5', '--cwd', REPO, '--no-focus']);
   });
 
@@ -74,6 +74,39 @@ describe('applyLayout', () => {
     const agent = fake([{ pane_id: 'p1', cwd: '/work/repo/sub', agent: 'claude' }], []);
     await applyLayout(agent.run, 'herdr', { panes: [{ name: 'a', command: null, split: null }] }, REPO, 'p1', null);
     expect(agent.calls.some((c) => c[1] === 'run')).toBe(false);
+  });
+
+  it('ignores panes with the same label in another tab', async () => {
+    const panes = [
+      { pane_id: 'p1', tab_id: 't1' },
+      { pane_id: 'p9', tab_id: 't2', label: 'shell' },
+      { pane_id: 'p8', tab_id: 't2', label: 'agent' },
+    ];
+    const { run, calls } = fake(panes, ['p2']);
+    const layout = { panes: [
+      { name: 'agent', command: null, split: null },
+      { name: 'shell', command: null, split: { from: 'agent', direction: 'down' as const, ratio: 0.5 } },
+    ] };
+    const outcome = await applyLayout(run, 'herdr', layout, REPO, 'p1', 'w1');
+    expect(outcome).toEqual({ created: ['agent', 'shell'], reused: [], misplaced: [] });
+    expect(calls).toContainEqual(['pane', 'rename', 'p1', 'agent']);
+    expect(calls.some((c) => c[1] === 'split')).toBe(true);
+  });
+
+  it('reuses a same-tab pane', async () => {
+    const { run } = fake([{ pane_id: 'p1', tab_id: 't1' }, { pane_id: 'p2', tab_id: 't1', label: 'shell' }], []);
+    const layout = { panes: [{ name: 'shell', command: null, split: null }] };
+    expect((await applyLayout(run, 'herdr', layout, REPO, 'p1', null)).reused).toEqual(['shell']);
+  });
+
+  it('reports agent root and reused panes that are not in the repo root', async () => {
+    const { run } = fake([
+      { pane_id: 'p1', cwd: '/elsewhere', agent: 'claude' },
+      { pane_id: 'p2', label: 'shell', cwd: '/other' },
+      { pane_id: 'p3', label: 'tests', cwd: REPO },
+    ], []);
+    const outcome = await applyLayout(run, 'herdr', defaultLayout(null), REPO, 'p1', null);
+    expect(outcome.misplaced).toEqual(['agent', 'shell']);
   });
 
   it('reports a failing herdr call', async () => {
