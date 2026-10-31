@@ -1,0 +1,15 @@
+{
+  "name": "herdr-plugins",
+  "version": "0.1.0",
+  "private": true,
+  "description": "herdr plugins for the GravionLabs agent workflow",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.5"
+  }
+}
