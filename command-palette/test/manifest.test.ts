@@ -34,7 +34,7 @@ describe('command-palette manifest', () => {
     expect(readme).toContain('herdr plugin install GravionLabs/herdr-plugins/command-palette');
     expect(readme).toContain('type = "plugin_action"');
     expect(readme).toContain('command = "command-palette.open"');
-    expect(readme).toContain('key = "prefix+p"');
+    expect(readme).toContain('key = "prefix+a"');
   });
 
   it('is listed in the repository README', () => {

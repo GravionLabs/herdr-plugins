@@ -10,11 +10,11 @@ herdr plugin install GravionLabs/herdr-plugins/deliver-starter
 
 ## Keybinding
 
-Bind the `start` action in herdr's `config.toml`, for example to `prefix+shift+d`:
+Bind the `start` action in herdr's `config.toml`, for example to `prefix+d` (`prefix+shift+d` closes the workspace):
 
 ```toml
 [[keys.command]]
-key = "prefix+shift+d"
+key = "prefix+d"
 type = "plugin_action"
 command = "deliver-starter.start"
 description = "start /deliver"
