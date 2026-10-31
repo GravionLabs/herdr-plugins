@@ -27,7 +27,7 @@ describe('popup form', () => {
   });
 
   it('shows text, mode and message', () => {
-    const lines = render({ text: '3', mode: 'unattended', message: '#3 is closed' });
+    const lines = render({ ...initialForm('unattended'), text: '3', message: '#3 is closed' });
     expect(lines.join('\n')).toContain('Arguments: 3');
     expect(lines.join('\n')).toContain('unattended');
     expect(lines).toContain('#3 is closed');
