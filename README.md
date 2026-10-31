@@ -10,7 +10,7 @@ herdr plugin install GravionLabs/herdr-plugins/<plugin>
 
 | Plugin | Purpose | Status |
 |:--|:--|:--|
-| `link-trim` | Opens links without trailing `)`, `.`, `,` picked up by URL detection | planned |
+| `link-trim` | Opens links without trailing `)`, `.`, `,` picked up by URL detection | available |
 | `deliver-board` | Popup with the open PBIs, claims and PR state of `release/next` | planned |
 | `worktree-cleanup` | Removes worktrees and branches of merged PBIs | planned |
 | `agent-notify` | Notification when an agent pane turns done or blocked | planned |
