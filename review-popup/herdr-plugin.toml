@@ -1,0 +1,19 @@
+id = "review-popup"
+name = "review-popup"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+platforms = ["macos", "linux"]
+description = "Popup with the last deliver review of the PBI behind the focused pane's branch"
+
+[[actions]]
+id = "open"
+title = "Open the review popup"
+command = ["node", "bin/open.ts"]
+
+[[panes]]
+id = "review"
+title = "Review"
+placement = "popup"
+width = "90%"
+height = "70%"
+command = ["node", "bin/review.ts"]
