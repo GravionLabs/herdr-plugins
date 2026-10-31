@@ -13,7 +13,7 @@ herdr plugin install GravionLabs/herdr-plugins/<plugin>
 | `link-trim` | Opens links without trailing `)`, `.`, `,` picked up by URL detection | available |
 | `deliver-board` | Popup with the open PBIs, claims and PR state of `release/next` | available |
 | `worktree-cleanup` | Removes worktrees and branches of merged PBIs | available |
-| `agent-notify` | Notification when an agent pane turns done or blocked | planned |
+| `agent-notify` | Notification when an agent pane turns done or blocked | available |
 | `layout-bootstrap` | Opens a project workspace with agent, test and log panes | planned |
 | `review-popup` | Shows the `code-review` result of the current branch | planned |
 | `deliver-starter` | Starts `/deliver` from a popup or an issue link, in a herdr worktree or through the loop | planned |
