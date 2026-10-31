@@ -1,0 +1,10 @@
+id = "agent-notify"
+name = "agent-notify"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+platforms = ["macos", "linux"]
+description = "Notifies when an agent pane turns done or blocked"
+
+[[events]]
+on = "pane.agent_status_changed"
+command = ["node", "bin/changed.ts"]
