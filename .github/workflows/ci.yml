@@ -19,8 +19,8 @@ jobs:
         uses: GravionLabs/ci/node/ci@main
         with:
           node-version: '24'
-          # no lint or build step in this repository yet
-          lint-command: 'true'
+          # the type check (TypeScript 7, noEmit) runs as the lint step; there is no build step
+          lint-command: 'npm run typecheck'
           build-command: 'true'
           test-command: 'npm test'
           upload-results: 'false'

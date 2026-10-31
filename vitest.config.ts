@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config';
 // and the repository tests in test/.
 export default defineConfig({
   test: {
-    include: ['*/**/*.test.{js,mjs}', 'test/**/*.test.{js,mjs}'],
+    include: ['*/**/*.test.ts', 'test/**/*.test.ts'],
     exclude: ['node_modules/**', 'coverage/**'],
   },
 });
