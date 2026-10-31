@@ -1,6 +1,6 @@
 # command-palette
 
-A popup to search and run plugin actions and own commands with one key. This is the skeleton: the `open` action opens the popup, which shows a placeholder and closes with Escape or Ctrl+C. Entries, filter and running come in later releases.
+A popup to search and run plugin actions and own commands with one key. The `open` action opens the popup with a search field and a fuzzy-filtered list of example entries (real entries and running come in later releases).
 
 ## Install
 
@@ -30,6 +30,9 @@ The `open` action passes the focused pane's id and cwd to the popup as `PALETTE_
 
 | Key | Action |
 |:--|:--|
+| type, Backspace | filter live, case-insensitive (prefix first, then word starts such as `dl` for `deliver-log`, then scattered letters) |
+| Up, Down, Ctrl+P, Ctrl+N | move the selection |
+| Enter | pick the selected entry (running it comes later) |
 | Escape, Ctrl+C | close (exit code 0, cursor and screen restored) |
 
 ## Development

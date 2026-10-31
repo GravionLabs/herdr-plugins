@@ -1,25 +1,41 @@
 #!/usr/bin/env node
-// herdr pane `palette` (popup): placeholder loop until the entries land (#41-#43).
-// Escape and Ctrl+C close it with exit code 0 and restore cursor and screen.
+// herdr pane `palette` (popup): raw-mode loop over the pure modules. Enter returns the selected entry
+// (running it comes in #42); Escape and Ctrl+C close with exit code 0.
 import { parsePaletteContext } from '../lib/context.ts';
+import { exampleEntries } from '../lib/entries.ts';
+import { applyKey, initialState, type State } from '../lib/keys.ts';
+import { render } from '../lib/view.ts';
 
 const out = process.stdout;
 const context = parsePaletteContext(process.env.PALETTE_CONTEXT);
+void context; // used by the entry sources (#42, #43)
 
-function exit(code = 0): never {
+// Runs on every exit path (process.exit, uncaught exception, end of stdin), so it must be idempotent.
+function restore(): void {
   out.write('\x1b[?25h\x1b[?1049l');
-  process.exit(code);
 }
+process.on('exit', restore);
+
+let state: State = initialState(exampleEntries);
+
+const draw = (): void => {
+  const lines = render(state, out.rows || 24, out.columns || 80);
+  out.write(`\x1b[H\x1b[2J${lines.join('\r\n')}`);
+};
 
 out.write('\x1b[?1049h\x1b[?25l');
-const where = context?.cwd ? `${context.cwd}${context.paneId ? ` (${context.paneId})` : ''}` : 'no context';
-out.write(`\x1b[H\x1b[2JCommand palette\r\n\r\n${where}\r\n\r\nEscape or Ctrl+C closes`);
+draw();
 
 if (process.stdin.isTTY) process.stdin.setRawMode(true);
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (data: string) => {
-  if (data === '\x1b' || data === '\x03') exit(0);
+  state = applyKey(state, data);
+  if (state.status !== 'open') process.exit(0);
+  draw();
 });
+process.stdin.on('end', () => process.exit(0));
+process.stdin.on('error', () => process.exit(0));
 process.stdin.resume();
-process.on('SIGINT', () => exit(0));
-process.on('SIGTERM', () => exit(0));
+out.on('resize', draw);
+process.on('SIGWINCH', draw);
+for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) process.on(signal, () => process.exit(0));
