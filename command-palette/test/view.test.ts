@@ -7,6 +7,11 @@ const strip = (s: string) => s.replace(/\x1b\[[0-9;]*m/g, '');
 const many: Entry[] = Array.from({ length: 10 }, (_, i) => ({ id: `${i}`, group: 'grp', title: `item${i}` }));
 
 describe('render', () => {
+  it('shows the hint under the query line', () => {
+    const lines = render(initialState(many, 'config.json: invalid JSON'), 4, 40).map(strip);
+    expect(lines).toEqual(['> █', '  config.json: invalid JSON', '> grp · item0', '  grp · item1']);
+  });
+
   it('shows the query line and rows as "<group> · <title>"', () => {
     const lines = render(initialState(many), 5, 40).map(strip);
     expect(lines).toEqual(['> █', '> grp · item0', '  grp · item1', '  grp · item2', '  grp · item3']);

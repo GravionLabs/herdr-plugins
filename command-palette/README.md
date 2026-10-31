@@ -32,6 +32,23 @@ Entry sources: every action from `herdr plugin action list`, shown as `<plugin_i
 
 Enter starts `bin/run.ts` detached with the entry and `PALETTE_CONTEXT`, then the popup exits (if the runner cannot be started: notification and exit code 1). The runner calls `herdr plugin action invoke <action> --plugin <plugin>` with the original pane given explicitly: cwd of the pane and `HERDR_PANE_ID`. A failing or timed-out (10 s) invoke shows the notification `command-palette: <title> failed`; nothing is shown on success.
 
+## Own commands (config.json)
+
+Own entries come from `$HERDR_PLUGIN_CONFIG_DIR/config.json` (`herdr plugin config-dir command-palette`) and appear as `config · <title>` next to the plugin actions:
+
+```json
+{
+  "commands": [
+    { "title": "show agent-log", "command": ["herdr", "pane", "split", "--current"], "cwd": "/path/optional" }
+  ]
+}
+```
+
+- `title`: non-empty string. `command`: non-empty array of strings, run without a shell. `cwd`: optional.
+- Enter runs the command via the detached runner in the entry `cwd`, else the cwd of `PALETTE_CONTEXT`, else `$HOME`. Output is discarded; a non-zero exit, timeout (10 s) or spawn error shows the notification `command-palette: <title> failed`.
+- A missing file is fine. Invalid JSON or an invalid entry shows one hint line `config.json: <problem>` (`(+N more)` for further problems) under the search field; valid entries still work.
+- Not supported: shell strings, per-entry environment variables, showing output.
+
 ## Keys
 
 | Key | Action |

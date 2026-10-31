@@ -20,6 +20,9 @@ async function main(): Promise<void> {
   await notify(failureTitle(entry)).catch(() => false);
 }
 
-main().catch(() => {
-  process.exitCode = 1;
-});
+// Exit explicitly: the spawn timeout timer of a failed spawn would keep the process alive for 10 s.
+main()
+  .catch(() => {
+    process.exitCode = 1;
+  })
+  .finally(() => process.exit());

@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -33,6 +33,30 @@ describe('invokeCommand', () => {
 
   it('returns null for an entry that cannot be run', () => {
     expect(invokeCommand({ id: 'x', group: 'g', title: 't' }, null, 'herdr')).toBeNull();
+  });
+
+  describe('config command', () => {
+    const cmd = (cwd?: string): Entry => ({
+      id: 'config.0',
+      group: 'config',
+      title: 'show agent-log',
+      run: { kind: 'command', command: ['herdr', 'pane', 'split', '--current'], ...(cwd ? { cwd } : {}) },
+    });
+
+    it('spawns the array without a shell in the entry cwd first', () => {
+      expect(invokeCommand(cmd('/entry'), { paneId: 'p_1', cwd: '/ctx' }, 'herdr', '/home/u')).toEqual({
+        command: 'herdr',
+        args: ['pane', 'split', '--current'],
+        cwd: '/entry',
+        env: {},
+      });
+    });
+
+    it('falls back to the context cwd, then to home', () => {
+      expect(invokeCommand(cmd(), { paneId: 'p_1', cwd: '/ctx' }, 'herdr', '/home/u')?.cwd).toBe('/ctx');
+      expect(invokeCommand(cmd(), null, 'herdr', '/home/u')?.cwd).toBe('/home/u');
+      expect(invokeCommand(cmd(), { paneId: 'p_1', cwd: '' }, 'herdr', '/home/u')?.cwd).toBe('/home/u');
+    });
   });
 
   it('names the failure notification', () => {
@@ -70,5 +94,41 @@ describe('bin/run.ts', () => {
   it('swallows a failing notification and still exits 1', () => {
     const { bin } = fakeHerdr('exit 3');
     expect(start(bin).status).toBe(1);
+  });
+});
+
+describe('bin/run.ts with a config command', () => {
+  const runner = new URL('../bin/run.ts', import.meta.url).pathname;
+  const start = (command: string[], bin: string) =>
+    spawnSync(
+      process.execPath,
+      [runner, JSON.stringify({ id: 'config.0', group: 'config', title: 't', run: { kind: 'command', command } })],
+      { env: { ...process.env, HERDR_BIN_PATH: bin, PALETTE_CONTEXT: '{"paneId":"p_1","cwd":"/tmp"}' } },
+    );
+  const notifier = () => {
+    const dir = mkdtempSync(join(tmpdir(), 'palette-'));
+    const bin = join(dir, 'herdr');
+    const log = join(dir, 'log');
+    writeFileSync(bin, `#!/bin/sh\necho "$@" >> ${log}\n`);
+    chmodSync(bin, 0o755);
+    return { bin, log };
+  };
+
+  it('runs silently on success', () => {
+    const { bin, log } = notifier();
+    expect(start(['true'], bin).status).toBe(0);
+    expect(existsSync(log)).toBe(false);
+  });
+
+  it('notifies on a non-zero exit', () => {
+    const { bin, log } = notifier();
+    expect(start(['false'], bin).status).toBe(1);
+    expect(readFileSync(log, 'utf8')).toBe('notification show command-palette: t failed\n');
+  });
+
+  it('notifies on a spawn error', () => {
+    const { bin, log } = notifier();
+    expect(start(['/nonexistent/binary'], bin).status).toBe(1);
+    expect(readFileSync(log, 'utf8')).toContain('notification show');
   });
 });
