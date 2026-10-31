@@ -1,6 +1,6 @@
 # Roadmap
 
-Order of work and release assignment for the open issues of Feature #1. Written 2026-10-31. Work runs on `release/next`, the release PR into `main` is the review point. Releases are cut per milestone below.
+Order of work and release assignment for the open issues of Feature #1. Written 2026-10-31. Work runs on `release/next`, the release PR into `main` is the review point. Releases are cut per milestone below; each release has a GitHub milestone of the same name. Runtime: Node 24 (switch to 26 once Angular supports it).
 
 ## Order
 
@@ -24,8 +24,8 @@ Order of work and release assignment for the open issues of Feature #1. Written 
 
 ## Open decisions
 
+Decided during refinement.
+
 | Issue | Decision |
 | ----- | -------- |
-| #8 | Runtime for all plugins (proposal: Node ≥ 22 with Vitest) |
 | #4 | Source of the review result: file written by `deliver`, own headless review, or PR comment |
-| — | Visibility of the repository: the herdr marketplace indexes public repositories only |
