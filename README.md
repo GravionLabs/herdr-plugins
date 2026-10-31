@@ -18,7 +18,7 @@ herdr plugin install GravionLabs/herdr-plugins/<plugin>
 | `review-popup` | Shows the `code-review` result of the current branch | planned |
 | `deliver-starter` | Starts `/deliver` from a popup or an issue link, in a herdr worktree or through the loop | planned |
 | `deliver-view` | Agent view with the `deliver` sessions first, blocked ones on top | planned |
-| `deliver-log` | Shows or hides the log pane of `Invoke-DeliverLoop.ps1` | planned |
+| `deliver-log` | Shows or hides the log pane of `Invoke-DeliverLoop.ps1` | available |
 
 Order and releases: [ROADMAP.md](ROADMAP.md).
 
