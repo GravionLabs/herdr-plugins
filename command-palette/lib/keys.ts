@@ -1,9 +1,12 @@
 // State of the palette and its key handling. Pure; the terminal side lives in bin/palette.ts.
 import type { Entry } from './entries.ts';
 import { filterEntries } from './filter.ts';
+import type { RecentState } from './recent.ts';
 
 export type State = {
   entries: Entry[];
+  recent: RecentState;
+  now: number;
   query: string;
   matches: Entry[];
   selected: number;
@@ -14,10 +17,17 @@ export type State = {
   hint: string | null;
 };
 
-export const initialState = (entries: Entry[], hint: string | null = null): State => ({
+export const initialState = (
+  entries: Entry[],
+  hint: string | null = null,
+  recent: RecentState = {},
+  now: number = 0,
+): State => ({
   entries,
+  recent,
+  now,
   query: '',
-  matches: filterEntries(entries, ''),
+  matches: filterEntries(entries, '', recent, now),
   selected: 0,
   status: 'open',
   picked: null,
@@ -27,7 +37,7 @@ export const initialState = (entries: Entry[], hint: string | null = null): Stat
 const withQuery = (state: State, query: string): State => ({
   ...state,
   query,
-  matches: filterEntries(state.entries, query),
+  matches: filterEntries(state.entries, query, state.recent, state.now),
   selected: 0,
 });
 

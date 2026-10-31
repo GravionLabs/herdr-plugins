@@ -6,6 +6,7 @@ import { herdrPlatform, parseActions } from '../lib/actions.ts';
 import { applyKey, initialState, type State } from '../lib/keys.ts';
 import { configHint } from '../lib/config.ts';
 import { listActions, loadConfig, notify, spawnRunner } from '../lib/host.ts';
+import { readState } from '../lib/recent.ts';
 import { failureTitle } from '../lib/run.ts';
 import { render } from '../lib/view.ts';
 
@@ -23,6 +24,8 @@ const config = loadConfig();
 let state: State = initialState(
   [...(listed === null ? [] : parseActions(listed, herdrPlatform())), ...config.entries],
   configHint(config.problems),
+  readState(process.env.HERDR_PLUGIN_STATE_DIR),
+  Date.now(),
 );
 
 const draw = (): void => {
