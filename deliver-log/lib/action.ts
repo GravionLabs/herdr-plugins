@@ -1,5 +1,5 @@
 import { findDeliverSkill, INSTALL_COMMAND } from './skill.ts';
-import { failureLine, type Run } from './run.ts';
+import { failureLine, firstStderrLine, type Run } from './run.ts';
 import { scriptPath, toggleCommand } from './toggle.ts';
 
 export type Deps = {
@@ -18,7 +18,12 @@ export async function toggleLog(deps: Deps, repo: string | null, cwd: string): P
   }
   const { command, args } = toggleCommand(skill);
   const result = await deps.run(command, args, repo ?? cwd);
-  if (result.ok) return true;
+  if (result.ok) {
+    // The script exits 0 without a pane (no log, outside herdr) and names the reason on stderr.
+    const reason = firstStderrLine(result);
+    if (reason) await deps.notify('deliver-log: no log to show', reason);
+    return true;
+  }
   await deps.notify('deliver-log: toggle failed', failureLine(result));
   return false;
 }
