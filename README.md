@@ -20,6 +20,12 @@ herdr plugin install GravionLabs/herdr-plugins/<plugin>
 
 Order and releases: [ROADMAP.md](ROADMAP.md).
 
+## Development
+
+- Runtime: Node 24 (`engines.node` `>=24`, see `.nvmrc`).
+- Install: `npm install`
+- Test: `npm test` runs Vitest from the repository root over every plugin directory (`<plugin>/**/*.test.{js,mjs}`) and `test/`.
+
 ## Conventions
 
 - Plugin authoring: [herdr plugin docs](https://herdr.dev/docs/plugins/). Commands call herdr through `HERDR_BIN_PATH`; state goes to `HERDR_PLUGIN_STATE_DIR`, user config to `HERDR_PLUGIN_CONFIG_DIR`.
