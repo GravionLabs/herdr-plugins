@@ -1,14 +1,15 @@
 #!/usr/bin/env node
-// herdr pane `palette` (popup): raw-mode loop over the pure modules. Enter returns the selected entry
-// (running it comes in #42); Escape and Ctrl+C close with exit code 0.
-import { parsePaletteContext } from '../lib/context.ts';
-import { exampleEntries } from '../lib/entries.ts';
+// herdr pane `palette` (popup): raw-mode loop over the pure modules. Enter starts the detached runner
+// (bin/run.ts) for the selected entry and exits, which closes the popup; Escape and Ctrl+C close with exit code 0.
+import { fileURLToPath } from 'node:url';
+import { herdrPlatform, parseActions } from '../lib/actions.ts';
 import { applyKey, initialState, type State } from '../lib/keys.ts';
+import { listActions, notify, spawnRunner } from '../lib/host.ts';
+import { failureTitle } from '../lib/run.ts';
 import { render } from '../lib/view.ts';
 
 const out = process.stdout;
-const context = parsePaletteContext(process.env.PALETTE_CONTEXT);
-void context; // used by the entry sources (#42, #43)
+const contextJson = process.env.PALETTE_CONTEXT;
 
 // Runs on every exit path (process.exit, uncaught exception, end of stdin), so it must be idempotent.
 function restore(): void {
@@ -16,12 +17,22 @@ function restore(): void {
 }
 process.on('exit', restore);
 
-let state: State = initialState(exampleEntries);
+const listed = await listActions();
+let state: State = initialState(listed === null ? [] : parseActions(listed, herdrPlatform()));
 
 const draw = (): void => {
   const lines = render(state, out.rows || 24, out.columns || 80);
   out.write(`\x1b[H\x1b[2J${lines.join('\r\n')}`);
 };
+
+// The popup exits only after the runner was spawned; a failing spawn notifies and exits 1.
+async function pick(): Promise<void> {
+  const entry = state.picked!;
+  const runner = fileURLToPath(new URL('./run.ts', import.meta.url));
+  if (await spawnRunner(runner, JSON.stringify(entry), contextJson)) process.exit(0);
+  await notify(failureTitle(entry)).catch(() => false);
+  process.exit(1);
+}
 
 out.write('\x1b[?1049h\x1b[?25l');
 draw();
@@ -30,6 +41,11 @@ if (process.stdin.isTTY) process.stdin.setRawMode(true);
 process.stdin.setEncoding('utf8');
 process.stdin.on('data', (data: string) => {
   state = applyKey(state, data);
+  if (state.status === 'pick') {
+    process.stdin.pause();
+    void pick();
+    return;
+  }
   if (state.status !== 'open') process.exit(0);
   draw();
 });

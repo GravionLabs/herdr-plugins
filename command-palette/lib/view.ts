@@ -22,7 +22,7 @@ export function render(state: State, rows: number, cols: number): string[] {
   const lines = [`> ${state.query}█`];
   const visible = Math.max(0, rows - 1);
   if (state.matches.length === 0) {
-    lines.push('  No matches');
+    lines.push(state.entries.length === 0 ? '  No plugin actions found' : '  No matches');
     return lines.slice(0, Math.max(1, rows));
   }
   const start = Math.max(0, state.selected - visible + 1);
