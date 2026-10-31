@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  pull_request:
+    branches: ['release/**', 'main']
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      # The composite action checks out the code, sets up Node 24, installs with npm ci and runs npm test.
+      # Plugins are installed from git, so there is no npm publish.
+      - name: Install and test
+        uses: GravionLabs/ci/node/ci@main
+        with:
+          node-version: '24'
+          # no lint or build step in this repository yet
+          lint-command: 'true'
+          build-command: 'true'
+          test-command: 'npm test'
+          upload-results: 'false'
+          publish-results: 'false'
