@@ -3,7 +3,9 @@ name: CI
 on:
   pull_request:
     branches: ['release/**', 'main']
+  # pushes to main run the tests in release.yml (the Release job needs them), tag pushes run nothing
   push:
+    branches-ignore: [main]
 
 permissions:
   contents: read

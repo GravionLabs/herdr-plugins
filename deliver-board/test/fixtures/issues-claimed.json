@@ -1,0 +1,42 @@
+[
+  {
+    "assignees": [
+      {
+        "id": "MDQ6VXNlcjE=",
+        "login": "GravionLabs",
+        "name": "Jerome Kaufmann"
+      }
+    ],
+    "labels": [
+      {
+        "id": "LA_1",
+        "name": "pbi",
+        "description": "Product backlog item",
+        "color": "5319E7"
+      },
+      {
+        "id": "LA_2",
+        "name": "in-progress",
+        "description": "",
+        "color": "FBCA04"
+      }
+    ],
+    "number": 2,
+    "title": "[PBI] feat(deliver-board): popup with PBIs, claims and PR state",
+    "url": "https://github.com/GravionLabs/herdr-plugins/issues/2"
+  },
+  {
+    "assignees": [],
+    "labels": [
+      {
+        "id": "LA_1",
+        "name": "pbi",
+        "description": "Product backlog item",
+        "color": "5319E7"
+      }
+    ],
+    "number": 7,
+    "title": "[PBI] feat(worktree-cleanup): remove worktrees and branches of merged PBIs",
+    "url": "https://github.com/GravionLabs/herdr-plugins/issues/7"
+  }
+]

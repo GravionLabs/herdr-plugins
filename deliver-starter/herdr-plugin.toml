@@ -1,0 +1,30 @@
+id = "deliver-starter"
+name = "deliver-starter"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+platforms = ["macos", "linux"]
+description = "Starts /deliver from a popup or an issue link, in a herdr worktree or through the loop"
+
+[[actions]]
+id = "start"
+title = "Start /deliver"
+command = ["node", "bin/start.ts"]
+
+[[actions]]
+id = "start-link"
+title = "Start /deliver for a clicked issue link"
+command = ["node", "bin/start-link.ts"]
+
+[[panes]]
+id = "form"
+title = "Start /deliver"
+placement = "popup"
+width = "70%"
+height = "40%"
+command = ["node", "bin/form.ts"]
+
+[[link_handlers]]
+id = "github-issue"
+title = "Start /deliver for this issue"
+pattern = "^https://github\\.com/[^/]+/[^/]+/issues/\\d+$"
+action = "start-link"

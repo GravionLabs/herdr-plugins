@@ -1,0 +1,11 @@
+id = "deliver-log"
+name = "deliver-log"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+platforms = ["macos", "linux"]
+description = "Shows or hides the log pane of Invoke-DeliverLoop.ps1"
+
+[[actions]]
+id = "toggle-log"
+title = "Toggle the deliver log pane"
+command = ["node", "bin/toggle-log.ts"]

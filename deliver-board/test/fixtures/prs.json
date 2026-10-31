@@ -1,0 +1,404 @@
+[
+  {
+    "headRefName": "docs/72-roadmap-open-issues",
+    "number": 76,
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:40:13Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41177467071/job/124467880422",
+        "name": "Build & Test",
+        "startedAt": "2026-10-31T06:38:54Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:39:00Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41177467313/job/124467881929",
+        "name": "issues / Add to project",
+        "startedAt": "2026-10-31T06:38:55Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:38:52Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41177467313/job/124467883065",
+        "name": "issues / Issue conventions",
+        "startedAt": "2026-10-31T06:38:53Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:39:43Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41177467071/job/124467880333",
+        "name": "Test",
+        "startedAt": "2026-10-31T06:38:54Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:38:52Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41177467071/job/124467881035",
+        "name": "Determine Version",
+        "startedAt": "2026-10-31T06:38:52Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:39:05Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41177467313/job/124467882024",
+        "name": "issues / Project Needs",
+        "startedAt": "2026-10-31T06:38:54Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:40:13Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41177467071/job/124468139104",
+        "name": "Release",
+        "startedAt": "2026-10-31T06:40:13Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      }
+    ],
+    "url": "https://github.com/GravionLabs/skills/pull/76"
+  },
+  {
+    "headRefName": "docs/17-roadmap-plugin-moved",
+    "number": 75,
+    "state": "MERGED",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:28:23Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41176740826/job/124465756044",
+        "name": "issues / Add to project",
+        "startedAt": "2026-10-31T06:28:23Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:27:49Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41176618035/job/124465386527",
+        "name": "Build & Test",
+        "startedAt": "2026-10-31T06:26:36Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:26:42Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41176618347/job/124465388111",
+        "name": "issues / Add to project",
+        "startedAt": "2026-10-31T06:26:37Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:26:34Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41176618347/job/124465388914",
+        "name": "issues / Issue conventions",
+        "startedAt": "2026-10-31T06:26:35Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:28:23Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41176740826/job/124465756147",
+        "name": "issues / Issue conventions",
+        "startedAt": "2026-10-31T06:28:23Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:27:59Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41176618035/job/124465386659",
+        "name": "Test",
+        "startedAt": "2026-10-31T06:26:43Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:26:34Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41176618035/job/124465387230",
+        "name": "Determine Version",
+        "startedAt": "2026-10-31T06:26:34Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:26:48Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41176618347/job/124465388258",
+        "name": "issues / Project Needs",
+        "startedAt": "2026-10-31T06:26:36Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:28:31Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41176740826/job/124465755361",
+        "name": "issues / Project Needs",
+        "startedAt": "2026-10-31T06:28:24Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:27:59Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41176618035/job/124465675415",
+        "name": "Release",
+        "startedAt": "2026-10-31T06:28:00Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      }
+    ],
+    "url": "https://github.com/GravionLabs/skills/pull/75"
+  },
+  {
+    "headRefName": "docs/73-roadmap-1.0.2",
+    "number": 74,
+    "state": "MERGED",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:14:00Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41175740155/job/124462809590",
+        "name": "issues / Add to project",
+        "startedAt": "2026-10-31T06:14:00Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:13:45Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41175621875/job/124462451764",
+        "name": "Build & Test",
+        "startedAt": "2026-10-31T06:12:18Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:12:24Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41175622110/job/124462452966",
+        "name": "issues / Add to project",
+        "startedAt": "2026-10-31T06:12:19Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:12:17Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41175622110/job/124462453854",
+        "name": "issues / Issue conventions",
+        "startedAt": "2026-10-31T06:12:17Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:14:00Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41175740155/job/124462809391",
+        "name": "issues / Issue conventions",
+        "startedAt": "2026-10-31T06:14:00Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:13:27Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41175621875/job/124462451638",
+        "name": "Test",
+        "startedAt": "2026-10-31T06:12:19Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:14:08Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41175740155/job/124462808709",
+        "name": "issues / Project Needs",
+        "startedAt": "2026-10-31T06:14:01Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:12:16Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41175621875/job/124462452528",
+        "name": "Determine Version",
+        "startedAt": "2026-10-31T06:12:17Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:12:26Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41175622110/job/124462453110",
+        "name": "issues / Project Needs",
+        "startedAt": "2026-10-31T06:12:19Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T06:13:45Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41175621875/job/124462756824",
+        "name": "Release",
+        "startedAt": "2026-10-31T06:13:45Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      }
+    ],
+    "url": "https://github.com/GravionLabs/skills/pull/74"
+  },
+  {
+    "headRefName": "chore/14-sync-main",
+    "number": 69,
+    "state": "MERGED",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T05:26:00Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41172572049/job/124453462354",
+        "name": "issues / Add to project",
+        "startedAt": "2026-10-31T05:26:01Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T05:25:39Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41172465352/job/124453141730",
+        "name": "Build & Test",
+        "startedAt": "2026-10-31T05:24:23Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T05:24:28Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41172465538/job/124453143480",
+        "name": "issues / Add to project",
+        "startedAt": "2026-10-31T05:24:24Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T05:24:22Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41172465538/job/124453144492",
+        "name": "issues / Issue conventions",
+        "startedAt": "2026-10-31T05:24:23Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T05:26:00Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41172572049/job/124453462249",
+        "name": "issues / Issue conventions",
+        "startedAt": "2026-10-31T05:26:01Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T05:25:48Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41172465352/job/124453141872",
+        "name": "Test",
+        "startedAt": "2026-10-31T05:24:34Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T05:24:22Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41172465352/job/124453142734",
+        "name": "Determine Version",
+        "startedAt": "2026-10-31T05:24:22Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T05:24:35Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41172465538/job/124453143691",
+        "name": "issues / Project Needs",
+        "startedAt": "2026-10-31T05:24:25Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T05:26:09Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41172572049/job/124453461436",
+        "name": "issues / Project Needs",
+        "startedAt": "2026-10-31T05:26:03Z",
+        "status": "COMPLETED",
+        "workflowName": "Issues"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-31T05:25:48Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/GravionLabs/skills/actions/runs/41172465352/job/124453422388",
+        "name": "Release",
+        "startedAt": "2026-10-31T05:25:48Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      }
+    ],
+    "url": "https://github.com/GravionLabs/skills/pull/69"
+  }
+]
