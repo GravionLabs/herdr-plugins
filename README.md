@@ -1,6 +1,6 @@
 # herdr-plugins
 
-[herdr](https://herdr.dev) plugins for the GravionLabs agent workflow (the `deliver` skill of [apm-hub](https://github.com/GravionLabs/apm-hub)). Each plugin lives in its own directory with a `herdr-plugin.toml` and installs on its own:
+[herdr](https://herdr.dev) plugins for the GravionLabs agent workflow (the `deliver` skill of [GravionLabs/skills](https://github.com/GravionLabs/skills), successor of the archived apm-hub). Each plugin lives in its own directory with a `herdr-plugin.toml` and installs on its own:
 
 ```bash
 herdr plugin install GravionLabs/herdr-plugins/<plugin>
@@ -16,7 +16,9 @@ herdr plugin install GravionLabs/herdr-plugins/<plugin>
 | `agent-notify` | Notification when an agent pane turns done or blocked | planned |
 | `layout-bootstrap` | Opens a project workspace with agent, test and log panes | planned |
 | `review-popup` | Shows the `code-review` result of the current branch | planned |
-| `deliver-starter` | Asks for an issue number and starts `/deliver` in a new tab | planned |
+| `deliver-starter` | Starts `/deliver` from a popup or an issue link, in a herdr worktree or through the loop | planned |
+| `deliver-view` | Agent view with the `deliver` sessions first, blocked ones on top | planned |
+| `deliver-log` | Shows or hides the log pane of `Invoke-DeliverLoop.ps1` | planned |
 
 Order and releases: [ROADMAP.md](ROADMAP.md).
 
