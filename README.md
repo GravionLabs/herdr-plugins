@@ -37,3 +37,13 @@ Order and releases: [ROADMAP.md](ROADMAP.md).
 - Plugin authoring: [herdr plugin docs](https://herdr.dev/docs/plugins/). Commands call herdr through `HERDR_BIN_PATH`; state goes to `HERDR_PLUGIN_STATE_DIR`, user config to `HERDR_PLUGIN_CONFIG_DIR`.
 - Issues: `[Epic]`, `[Feature]`, `[PBI]`, `[Task]`, `[Bug]` titles, native sub-issues.
 - Branches: work branches from and into `release/next`, release PR into `main`; conventional commits.
+
+## Releases
+
+- Work branches merge into `release/next`; the `Release branch` workflow keeps the release PR `release/next` → `main` open and current (`github-release` skill).
+- A release is made by merging that release PR into `main` with a **merge commit, never squash**. The release commit on `release/next` carries `+semver: minor`, so GitVersion (`GitVersion.yml`) computes the next minor on `main`.
+- On the push to `main`, `.github/workflows/release.yml` runs the tests, determines the version, commits `CHANGELOG.md` (git-cliff, `cliff.toml`) to `main`, tags `v<version>`, creates the GitHub Release and closes the issues the release delivered. The changelog commit is pushed with the `GH_PAT` secret (a repository admin, bypass actor of the `main` ruleset).
+- Tags are `v<major>.<minor>.<patch>`, as in the other GravionLabs repositories.
+- Backfill of the releases shipped without a tag: `0.1.0` (merge commit `b18dc98`) and `0.2.0` (merge commit `a3ecd7c` of #26). The order is fixed:
+  1. Push both tags by hand **before** the release PR that carries `release.yml` is merged into `main`, because that merge already starts the push release and GitVersion needs both tags to compute the next version (with only `v0.1.0` it would publish `v0.2.0` again): `git tag v0.1.0 b18dc98 && git tag v0.2.0 a3ecd7c && git push origin v0.1.0 v0.2.0`.
+  2. Only after that merge, run the workflow manually for the GitHub Releases and the changelog: `gh workflow run release.yml -f version=0.1.0 -f ref=b18dc98` and `gh workflow run release.yml -f version=0.2.0 -f ref=a3ecd7c`. Each run creates the GitHub Release with the notes of its tag and regenerates `CHANGELOG.md`; the backfill does not close issues.
