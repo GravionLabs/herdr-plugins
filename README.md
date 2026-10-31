@@ -15,7 +15,7 @@ herdr plugin install GravionLabs/herdr-plugins/<plugin>
 | `worktree-cleanup` | Removes worktrees and branches of merged PBIs | available |
 | `agent-notify` | Notification when an agent pane turns done or blocked | available |
 | `layout-bootstrap` | Opens a project workspace with agent, test and log panes | available |
-| `review-popup` | Shows the `code-review` result of the current branch | planned |
+| `review-popup` | Shows the last `deliver` review of the current branch | available |
 | `deliver-starter` | Starts `/deliver` from a popup or an issue link, in a herdr worktree or through the loop | available |
 | `deliver-view` | Agent view with the `deliver` sessions first, blocked ones on top | available |
 | `deliver-log` | Shows or hides the log pane of `Invoke-DeliverLoop.ps1` | available |

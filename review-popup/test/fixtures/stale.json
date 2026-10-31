@@ -1,0 +1,1 @@
+{"pbi":4,"branch":"feat/4-show-review-result-popup","sha":"deadbee","round":2,"unmet":["Header shows the round"],"review":{"blocking":[{"file":"lib/review.ts","line":12,"title":"Missing check","why":"The sha is not validated."},{"file":"bin/open.ts","line":3,"title":"Second","why":"Because."}],"notes":["Consider a shorter title"]}}
