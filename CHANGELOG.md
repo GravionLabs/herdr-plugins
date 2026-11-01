@@ -5,6 +5,18 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.3.2] — 2026-11-01
+
+### Bug Fixes
+- **ci**: Recreate release/next after the release (#128) (#129)
+
+
+## [0.3.1] — 2026-11-01
+
+### Documentation
+- Update CHANGELOG.md for v0.3.1 [skip ci]
+
+
 ## [0.3.0] — 2026-11-01
 
 ### Bug Fixes
