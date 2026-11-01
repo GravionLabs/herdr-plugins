@@ -10,6 +10,11 @@ describe('repository setup', () => {
     expect(read('.nvmrc').trim()).toBe('26');
   });
 
+  it('declares the MIT license in package.json and LICENSE', () => {
+    expect(JSON.parse(read('package.json')).license).toBe('MIT');
+    expect(read('LICENSE')).toMatch(/^MIT License\r?\n\r?\nCopyright \(c\) 2026 GravionLabs/);
+  });
+
   it('sets coverage thresholds in vitest.config.ts', () => {
     const config = read('vitest.config.ts');
 
