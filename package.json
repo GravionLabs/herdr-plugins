@@ -2,6 +2,7 @@
   "name": "herdr-plugins",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "herdr plugins for the GravionLabs agent workflow",
   "engines": {
     "node": ">=26"
