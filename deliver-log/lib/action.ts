@@ -1,3 +1,4 @@
+import { noticeFor } from './errors.ts';
 import { findDeliverSkill, INSTALL_COMMAND } from './skill.ts';
 import { failureLine, firstStderrLine, type Run } from './run.ts';
 import { scriptPath, toggleCommand } from './toggle.ts';
@@ -24,6 +25,7 @@ export async function toggleLog(deps: Deps, repo: string | null, cwd: string): P
     if (reason) await deps.notify('deliver-log: no log to show', reason);
     return true;
   }
-  await deps.notify('deliver-log: toggle failed', failureLine(result));
+  const shown = noticeFor('deliver-log', failureLine(result), 'deliver-log: toggle failed');
+  await deps.notify(shown.title, shown.body);
   return false;
 }

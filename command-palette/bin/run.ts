@@ -4,6 +4,7 @@
 import { parsePaletteContext } from '../lib/context.ts';
 import type { Entry } from '../lib/entries.ts';
 import { herdrPlatform, parseActions } from '../lib/actions.ts';
+import { notice } from '../lib/errors.ts';
 import { herdrBin, invokeAction, listActions, loadConfig, notify } from '../lib/host.ts';
 import { entryKey, prune, readState, record, writeState } from '../lib/recent.ts';
 import { failureTitle, invokeCommand } from '../lib/run.ts';
@@ -35,12 +36,14 @@ async function main(): Promise<void> {
     return;
   }
   const command = invokeCommand(entry, parsePaletteContext(process.env.PALETTE_CONTEXT), herdrBin());
-  if (command && (await invokeAction(command))) {
+  const outcome = command ? await invokeAction(command) : null;
+  if (outcome?.ok) {
     await recordRun(entry);
     return;
   }
   process.exitCode = 1;
-  await notify(failureTitle(entry)).catch(() => false);
+  const shown = outcome?.error ? notice('command-palette', outcome.error) : { title: failureTitle(entry), body: '' };
+  await notify(shown.title, shown.body).catch(() => false);
 }
 
 // Exit explicitly: the spawn timeout timer of a failed spawn would keep the process alive for 10 s.

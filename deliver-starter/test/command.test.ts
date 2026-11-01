@@ -1,9 +1,12 @@
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import type { Target } from '../lib/args.ts';
 import { branchName, interactiveCommand, quote, tabLabel, unattendedCommand } from '../lib/command.ts';
 
 const numbers: Target = { numbers: [3, 4], milestone: null };
 const milestone: Target = { numbers: [], milestone: "my 'rel'" };
+
+const loop = join('/s/deliver', 'scripts', 'Invoke-DeliverLoop.ps1');
 
 describe('command building per mode', () => {
   it('interactive: the harness with the quoted /deliver prompt', () => {
@@ -18,12 +21,12 @@ describe('command building per mode', () => {
   });
 
   it('unattended: the loop script with -Target numbers', () => {
-    expect(unattendedCommand('/s/deliver', numbers)).toBe("pwsh '/s/deliver/scripts/Invoke-DeliverLoop.ps1' -Target 3 4");
+    expect(unattendedCommand('/s/deliver', numbers)).toBe(`pwsh '${loop}' -Target 3 4`);
   });
 
   it('unattended: -Milestone with the quoted name', () => {
     expect(unattendedCommand('/s/deliver', milestone)).toBe(
-      "pwsh '/s/deliver/scripts/Invoke-DeliverLoop.ps1' -Milestone 'my '\\''rel'\\'''",
+      `pwsh '${loop}' -Milestone 'my '\\''rel'\\'''`,
     );
   });
 

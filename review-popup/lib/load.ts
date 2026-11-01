@@ -1,6 +1,7 @@
 // Finds and reads the review file of the focused pane's branch. Never throws; every outcome is a State.
 import { readFile } from 'node:fs/promises';
 import { isAbsolute, join } from 'node:path';
+import { classifyFailure, noRepository } from './errors.ts';
 import { isStale, message, parseReview, pbiFromBranch, type State } from './review.ts';
 import type { Run } from './run.ts';
 
@@ -11,7 +12,11 @@ export const realRead: ReadFile = (path) => readFile(path, 'utf8');
 
 export async function load(run: Run, read: ReadFile, cwd: string): Promise<Loaded> {
   const common = await run('git', ['rev-parse', '--git-common-dir'], cwd);
-  if (!common.ok) return { state: message(`Not a git repository: ${cwd}`), toplevel: null };
+  if (!common.ok) {
+    const found = classifyFailure('git', common.code, common.stderr) ?? noRepository();
+    const first = found.kind === 'no-repository' ? `${found.message}: ${cwd}` : found.message;
+    return { state: message(first, found.hint), toplevel: null };
+  }
   const top = await run('git', ['rev-parse', '--show-toplevel'], cwd);
   const toplevel = top.ok ? top.stdout.trim() : cwd;
   const branchResult = await run('git', ['rev-parse', '--abbrev-ref', 'HEAD'], cwd);

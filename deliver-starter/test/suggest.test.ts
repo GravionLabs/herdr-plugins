@@ -85,7 +85,7 @@ describe('loadIssues', () => {
   });
 
   it('reports failures as a reason', async () => {
-    expect(await loadIssues(fail('ENOENT', ''), '/r', 5)).toEqual({ ok: false, reason: 'gh is not installed' });
+    expect(await loadIssues(fail('ENOENT', ''), '/r', 5)).toEqual({ ok: false, reason: 'gh is not installed. Install it and make sure it is on your PATH.' });
     expect(await loadIssues(fail(1, '\ndial tcp: no such host\n'), '/r', 5)).toEqual({
       ok: false,
       reason: 'dial tcp: no such host',

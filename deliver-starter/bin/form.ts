@@ -4,6 +4,7 @@
 import { parseArgs } from '../lib/args.ts';
 import { cwdFromContext } from '../lib/context.ts';
 import { applyKey, initialForm, render, type Form } from '../lib/form.ts';
+import { describe, noRepository, noticeFor } from '../lib/errors.ts';
 import { gitToplevel, notify } from '../lib/host.ts';
 import { loadConfig, realDeps } from '../lib/runtime.ts';
 import { start, validate } from '../lib/start.ts';
@@ -39,7 +40,7 @@ async function main(): Promise<void> {
       if (parsed.reason === 'empty') exit(0);
       return say(parsed.reason);
     }
-    if (!repo) return say(`Not a git repository: ${cwd}`);
+    if (!repo) return say(`${describe(noRepository())} (${cwd})`);
     busy = true;
     say('Checking…');
     const problem = await validate(deps, repo, parsed.target);
@@ -78,7 +79,9 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error: unknown) => {
-  out.write(`deliver-starter: ${error instanceof Error ? error.message : String(error)}\r\n`);
+main().catch(async (error: unknown) => {
+  const shown = noticeFor('deliver-starter', error instanceof Error ? error.message : String(error), 'deliver-starter failed');
+  await notify(shown.title, shown.body).catch(() => undefined);
+  out.write(`${shown.title}\r\n${shown.body}\r\n`);
   setTimeout(() => exit(1), 3000);
 });

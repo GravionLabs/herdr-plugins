@@ -1,28 +1,21 @@
 #!/usr/bin/env node
 // herdr action `open`: opens the clicked URL without trailing punctuation.
 // Input: HERDR_PLUGIN_CLICKED_URL (set by herdr for a matching [[link_handlers]] entry).
-import { spawn } from 'node:child_process';
+import { execFile } from 'node:child_process';
+import { opener } from '../lib/open.ts';
 import { trimTrailingPunctuation } from '../lib/trim.ts';
-
-function opener(platform: NodeJS.Platform): string | null {
-  if (platform === 'darwin') return 'open';
-  if (platform === 'linux') return 'xdg-open';
-  return null;
-}
 
 function run(command: string, args: string[]): Promise<boolean> {
   return new Promise((resolve) => {
-    const child = spawn(command, args, { stdio: 'ignore' });
-    child.on('error', () => resolve(false));
-    child.on('exit', (code) => resolve(code === 0));
+    execFile(command, args, (error) => resolve(!error));
   });
 }
 
 async function main(): Promise<void> {
   const clicked = process.env.HERDR_PLUGIN_CLICKED_URL ?? '';
   const url = trimTrailingPunctuation(clicked);
-  const command = opener(process.platform);
-  const opened = url !== '' && command !== null && (await run(command, [url]));
+  const open = url === '' ? null : opener(process.platform, url);
+  const opened = open !== null && (await run(open.command, open.args));
   if (opened) return;
 
   process.exitCode = 1;

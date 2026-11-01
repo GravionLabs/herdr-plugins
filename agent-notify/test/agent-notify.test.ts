@@ -1,11 +1,19 @@
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { parseConfig } from '../lib/config.ts';
 import { check, WINDOW_MS, type Seen } from '../lib/dedupe.ts';
 import { statusEvent } from '../lib/event.ts';
-import { quote } from '../lib/host.ts';
+import { quote, show, TOAST_SCRIPT } from '../lib/host.ts';
 import { compose } from '../lib/message.ts';
 import { handle, type Deps } from '../lib/notify.ts';
+
+const calls = vi.hoisted(() => ({ list: [] as { command: string; args: string[]; env?: Record<string, string> }[], missing: '' }));
+vi.mock('node:child_process', () => ({
+  execFile: (command: string, args: string[], options: { env?: Record<string, string> }, done: (e: Error | null, out: string) => void) => {
+    calls.list.push({ command, args, env: options.env });
+    done(command === calls.missing ? Object.assign(new Error('spawn ENOENT'), { code: 'ENOENT' }) : null, '');
+  },
+}));
 
 const fixture = (name: string): string => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8');
 const off = { systemNotification: false, sound: false };
@@ -122,5 +130,64 @@ describe('agent-notify manifest', () => {
     expect(readme).toContain('herdr plugin install GravionLabs/herdr-plugins/agent-notify');
     expect(readme).toContain('system_notification');
     expect(readme).toContain('"sound"');
+  });
+});
+
+describe('system notification per platform', () => {
+  const on = { systemNotification: true, sound: false };
+  const platform = Object.getOwnPropertyDescriptor(process, 'platform')!;
+  const setPlatform = (value: string): void => void Object.defineProperty(process, 'platform', { value });
+  const msg = { title: 'He said "hi"', body: "it's 'done'" };
+  const run = async (os: string, config = on): Promise<typeof calls.list> => {
+    setPlatform(os);
+    await show(msg, 'done', config);
+    return calls.list.slice(1);
+  };
+  afterEach(() => {
+    Object.defineProperty(process, 'platform', platform);
+    calls.list = [];
+    calls.missing = '';
+  });
+
+  it('darwin sends osascript', async () => {
+    const [c] = await run('darwin');
+    expect(c.command).toBe('osascript');
+    expect(c.args).toEqual(['-e', 'display notification "it\'s \'done\'" with title "He said \\"hi\\""']);
+  });
+
+  it('linux sends notify-send with title and body unchanged', async () => {
+    const [c] = await run('linux');
+    expect(c.command).toBe('notify-send');
+    expect(c.args).toEqual(['--', 'He said "hi"', "it's 'done'"]);
+  });
+
+  it('linux passes a title starting with a dash after the -- separator', async () => {
+    setPlatform('linux');
+    await show({ title: '-x', body: 'b' }, 'done', on);
+    const c = calls.list[1];
+    expect(c.command).toBe('notify-send');
+    expect(c.args).toEqual(['--', '-x', 'b']);
+  });
+
+  it('win32 sends a fixed toast script and passes title and body through env', async () => {
+    const [c] = await run('win32');
+    expect(c.command).toBe('powershell.exe');
+    expect(c.args).toEqual(['-NoProfile', '-NonInteractive', '-Command', TOAST_SCRIPT]);
+    expect(c.args[3]).not.toContain(msg.title);
+    expect(c.args[3]).not.toContain(msg.body);
+    expect(c.env?.HERDR_NOTIFY_TITLE).toBe('He said "hi"');
+    expect(c.env?.HERDR_NOTIFY_BODY).toBe("it's 'done'");
+  });
+
+  it('sends nothing but the herdr notification when disabled', async () => {
+    expect(await run('linux', off)).toEqual([]);
+    expect(calls.list[0].args.slice(0, 2)).toEqual(['notification', 'show']);
+  });
+
+  it('a missing tool (ENOENT) leaves the herdr notification and does not throw', async () => {
+    calls.missing = 'notify-send';
+    await expect(run('linux')).resolves.toHaveLength(1);
+    expect(calls.list[0].args.slice(0, 2)).toEqual(['notification', 'show']);
+    expect(calls.list[0].args.slice(0, 3)).toEqual(['notification', 'show', 'He said "hi"']);
   });
 });

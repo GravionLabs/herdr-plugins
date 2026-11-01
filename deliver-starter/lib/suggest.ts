@@ -1,4 +1,5 @@
 // Suggestions for the popup: the open PBIs, Features and Epics from `gh issue list`. Pure except `loadIssues`.
+import { classifyFailure, describe } from './errors.ts';
 import { failureLine, type Run } from './run.ts';
 
 export type Issue = {
@@ -79,8 +80,8 @@ export async function loadIssues(run: Run, repo: string, limit: number): Promise
   const args = ['issue', 'list', '--state', 'open', '--json', 'number,title,labels,assignees', '--limit', String(limit)];
   const result = await run('gh', args, repo);
   if (!result.ok) {
-    if (result.code === 'ENOENT') return { ok: false, reason: 'gh is not installed' };
-    return { ok: false, reason: failureLine(result) };
+    const found = classifyFailure('gh', result.code, result.stderr);
+    return { ok: false, reason: found ? describe(found) : failureLine(result) };
   }
   const issues = parseIssues(result.stdout);
   return issues ? { ok: true, issues } : { ok: false, reason: 'unreadable gh output' };

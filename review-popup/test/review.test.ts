@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { load } from '../lib/load.ts';
 import {
@@ -19,6 +20,9 @@ const fixture = (name: string): string => readFileSync(new URL(`./fixtures/${nam
 const schema = (name: string): Record<string, unknown> =>
   JSON.parse(readFileSync(new URL(`../schema/${name}.schema.json`, import.meta.url), 'utf8'));
 
+// The code builds paths with join(); join() turns a posix literal into the separators of the platform.
+const p = (path: string): string => join(path);
+
 const ok = (stdout: string): Result => ({ ok: true, stdout });
 const fail = (stderr: string): Result => ({ ok: false, code: 1, stdout: '', stderr });
 
@@ -35,7 +39,7 @@ function fakeRun(opts: { branch?: string; head?: string; common?: string; notRep
   };
 }
 const reading = (text: string | null) => async (path: string): Promise<string> => {
-  if (text === null || !path.endsWith('/.agents/state/review-4.json')) throw new Error('ENOENT');
+  if (text === null || !path.replaceAll('\\', '/').endsWith('/.agents/state/review-4.json')) throw new Error('ENOENT');
   return text;
 };
 
@@ -112,16 +116,16 @@ describe('load', () => {
     const { state } = await load(fakeRun({}), reading(fixture('invalid')), '/repo/wt');
     expect(state).toEqual({
       kind: 'message',
-      lines: ['Invalid review file /repo/.git/.agents/state/review-4.json:', 'round must be an integer >= 1'],
+      lines: [`Invalid review file ${p('/repo/.git/.agents/state/review-4.json')}:`, 'round must be an integer >= 1'],
     });
   });
   it('says so when the file is missing (path under the git common dir)', async () => {
     const { state } = await load(fakeRun({}), reading(null), '/repo/wt');
-    expect(state.kind === 'message' && state.lines[0]).toBe('No review file for #4: /repo/.git/.agents/state/review-4.json');
+    expect(state.kind === 'message' && state.lines[0]).toBe(`No review file for #4: ${p('/repo/.git/.agents/state/review-4.json')}`);
   });
   it('resolves a relative common dir against the cwd', async () => {
     const { state } = await load(fakeRun({ common: '.git' }), reading(null), '/repo');
-    expect(state.kind === 'message' && state.lines[0]).toContain('/repo/.git/.agents/state/review-4.json');
+    expect(state.kind === 'message' && state.lines[0]).toContain(p('/repo/.git/.agents/state/review-4.json'));
   });
   it('says so for a branch without a PBI number', async () => {
     const { state } = await load(fakeRun({ branch: 'main' }), reading(fixture('valid')), '/repo');
@@ -130,7 +134,7 @@ describe('load', () => {
   it('says so outside a repository', async () => {
     const { state, toplevel } = await load(fakeRun({ notRepo: true }), reading(null), '/tmp/x');
     expect(toplevel).toBeNull();
-    expect(state.kind === 'message' && state.lines[0]).toBe('Not a git repository: /tmp/x');
+    expect(state.kind === 'message' && state.lines[0]).toBe('not a git repository: /tmp/x');
   });
 });
 
@@ -206,7 +210,7 @@ describe('opening a finding', () => {
     };
     expect(await openFinding(run, 'herdr', '/repo/wt', 'p1', 'nvim', finding)).toBeNull();
     expect(calls[0]).toEqual(['pane', 'split', 'p1', '--direction', 'right', '--cwd', '/repo/wt', '--focus']);
-    expect(calls[1]).toEqual(['pane', 'run', 'p9', "nvim +7 '/repo/wt/lib/a b.ts'"]);
+    expect(calls[1]).toEqual(['pane', 'run', 'p9', `nvim +7 '${p('/repo/wt/lib/a b.ts')}'`]);
   });
   it('reports a failing split and a missing pane id', async () => {
     expect(await openFinding(async () => fail('boom'), 'herdr', '/r', undefined, 'vi', finding)).toBe(

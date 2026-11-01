@@ -2,7 +2,8 @@
 // herdr action `open`: opens the `review` popup for the branch of the focused pane.
 // Input: HERDR_PLUGIN_CONTEXT_JSON (focused pane cwd and id), passed on to the pane as REVIEW_POPUP_CWD / REVIEW_POPUP_PANE.
 import { cwdFromContext, paneFromContext } from '../lib/context.ts';
-import { herdrBin } from '../lib/host.ts';
+import { noticeFor } from '../lib/errors.ts';
+import { herdrBin, notify } from '../lib/host.ts';
 import { run } from '../lib/run.ts';
 
 async function main(): Promise<void> {
@@ -16,7 +17,12 @@ async function main(): Promise<void> {
   const result = await run(herdrBin(), args, cwd || process.cwd());
   if (result.ok) return;
   process.exitCode = 1;
-  await run(herdrBin(), ['notification', 'show', 'review-popup: could not open the popup'], process.cwd());
+  const shown = noticeFor('review-popup', result.stderr, 'review-popup: could not open the popup');
+  await notify(shown.title, shown.body);
 }
 
-main();
+main().catch(async (error: unknown) => {
+  const shown = noticeFor('review-popup', error instanceof Error ? error.message : String(error), 'review-popup failed');
+  process.exitCode = 1;
+  await notify(shown.title, shown.body);
+});

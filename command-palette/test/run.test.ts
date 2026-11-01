@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import type { Entry } from '../lib/entries.ts';
 import { failureTitle, invokeCommand } from '../lib/run.ts';
@@ -64,8 +65,10 @@ describe('invokeCommand', () => {
   });
 });
 
-describe('bin/run.ts', () => {
-  const runner = new URL('../bin/run.ts', import.meta.url).pathname;
+// The fake herdr is a POSIX shell script and the config commands are POSIX binaries (true, false): a Windows
+// process cannot run them, so these suites run on POSIX only.
+describe.skipIf(process.platform === 'win32')('bin/run.ts', () => {
+  const runner = fileURLToPath(new URL('../bin/run.ts', import.meta.url));
   const fakeHerdr = (script: string): { bin: string; log: string } => {
     const dir = mkdtempSync(join(tmpdir(), 'palette-'));
     const bin = join(dir, 'herdr');
@@ -97,8 +100,8 @@ describe('bin/run.ts', () => {
   });
 });
 
-describe('bin/run.ts with a config command', () => {
-  const runner = new URL('../bin/run.ts', import.meta.url).pathname;
+describe.skipIf(process.platform === 'win32')('bin/run.ts with a config command', () => {
+  const runner = fileURLToPath(new URL('../bin/run.ts', import.meta.url));
   const start = (command: string[], bin: string) =>
     spawnSync(
       process.execPath,
