@@ -2,7 +2,7 @@ id = "agent-notify"
 name = "agent-notify"
 version = "0.1.0"
 min_herdr_version = "0.9.5"
-platforms = ["macos", "linux"]
+platforms = ["macos", "linux", "windows"]
 description = "Notifies when an agent pane turns done or blocked"
 
 [[events]]

@@ -1,4 +1,4 @@
-// herdr and OS side: pane lookup, herdr notification, optional macOS notification, seen-state file. No background
+// herdr and OS side: pane lookup, herdr notification, optional OS notification, seen-state file. No background
 // process is started: every command is awaited before the hook exits.
 import { execFile } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -10,9 +10,10 @@ import type { Message, PaneFacts } from './message.ts';
 
 const herdrBin = (): string => process.env.HERDR_BIN_PATH || 'herdr';
 
-const exec = (command: string, args: string[]): Promise<string> =>
+const exec = (command: string, args: string[], env?: Record<string, string>): Promise<string> =>
   new Promise((resolve) => {
-    execFile(command, args, { maxBuffer: 8 * 1024 * 1024 }, (error, stdout) => resolve(error ? '' : String(stdout)));
+    const options = { maxBuffer: 8 * 1024 * 1024, ...(env ? { env: { ...process.env, ...env } } : {}) };
+    execFile(command, args, options, (error, stdout) => resolve(error ? '' : String(stdout)));
   });
 
 const record = (value: unknown): Record<string, unknown> =>
@@ -36,14 +37,38 @@ export async function lookup(paneId: string, workspaceId: string): Promise<PaneF
 // The AppleScript string literal of `value`.
 export const quote = (value: string): string => `"${value.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`;
 
+// Fixed WinRT toast script: title and body arrive through the environment, never interpolated into the script.
+export const TOAST_SCRIPT = [
+  "$t = [Security.SecurityElement]::Escape($env:HERDR_NOTIFY_TITLE)",
+  "$b = [Security.SecurityElement]::Escape($env:HERDR_NOTIFY_BODY)",
+  "[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null",
+  "[Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null",
+  "$x = New-Object Windows.Data.Xml.Dom.XmlDocument",
+  "$x.LoadXml(\"<toast><visual><binding template='ToastGeneric'><text>$t</text><text>$b</text></binding></visual></toast>\")",
+  "$id = '{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\\WindowsPowerShell\\v1.0\\powershell.exe'",
+  "[Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($id).Show([Windows.UI.Notifications.ToastNotification]::new($x))",
+].join('; ');
+
+// The OS notification of `message`. A missing tool resolves quietly: the herdr notification is already shown.
+export async function systemNotify(message: Message): Promise<void> {
+  if (process.platform === 'darwin') {
+    await exec('osascript', ['-e', `display notification ${quote(message.body)} with title ${quote(message.title)}`]);
+  } else if (process.platform === 'linux') {
+    await exec('notify-send', ['--', message.title, message.body]);
+  } else if (process.platform === 'win32') {
+    await exec('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', TOAST_SCRIPT], {
+      HERDR_NOTIFY_TITLE: message.title,
+      HERDR_NOTIFY_BODY: message.body,
+    });
+  }
+}
+
 export async function show(message: Message, state: NotifyState, config: Config): Promise<void> {
   const args = ['notification', 'show', message.title];
   if (message.body) args.push('--body', message.body);
   if (config.sound) args.push('--sound', state === 'done' ? 'done' : 'request');
   await exec(herdrBin(), args);
-  if (config.systemNotification && process.platform === 'darwin') {
-    await exec('osascript', ['-e', `display notification ${quote(message.body)} with title ${quote(message.title)}`]);
-  }
+  if (config.systemNotification) await systemNotify(message);
 }
 
 const dir = (name: string): string => process.env[name] || process.cwd();
