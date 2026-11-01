@@ -42,7 +42,10 @@ Order and releases: [ROADMAP.md](ROADMAP.md).
 ## Releases
 
 - Work branches merge into `release/next`; the `Release branch` workflow keeps the release PR `release/next` → `main` open and current (`github-release` skill).
-- A release is made by merging that release PR into `main` with a **merge commit, never squash**. The release commit on `release/next` carries `+semver: minor`, so GitVersion (`GitVersion.yml`) computes the next minor on `main`.
+- Work PRs into `release/**` are **squash** merged; their PR title must be a Conventional Commit (`pr-checks` title job) and becomes the one commit of the change.
+- A release is made by merging that release PR into `main` with a **merge commit, never squash** (the `main` ruleset allows only merge commits), so GitVersion sees every commit. A hotfix PR into `main` is merged the same way, and every commit of it must be a Conventional Commit.
+- The version comes from Conventional Commits (`versioning/determine-version` of GravionLabs/ci, `GitVersion.yml`): `fix:`/`perf:`/`revert:` → patch, `feat:` → minor, `type!:` or `BREAKING CHANGE:` → major. A release with only fixes is a patch, one with a `feat:` a minor.
+- While the version is 0.x, use **no** `!` and no `BREAKING CHANGE:` until 1.0 is intended: either one jumps the version to 1.0.0.
 - On the push to `main`, `.github/workflows/release.yml` runs the tests, determines the version, commits `CHANGELOG.md` (git-cliff, `cliff.toml`) to `main`, tags `v<version>`, creates the GitHub Release and closes the issues the release delivered. The changelog commit is pushed with the `GH_PAT` secret (a repository admin, bypass actor of the `main` ruleset).
 - Tags are `v<major>.<minor>.<patch>`, as in the other GravionLabs repositories.
 - `v0.1.0` and `v0.2.0` were tagged by the release workflow; the GitHub milestones carry the same names as the tags (released content: [ROADMAP.md](ROADMAP.md#releases)).
