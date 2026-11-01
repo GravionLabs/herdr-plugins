@@ -13,7 +13,7 @@ describe('pr-checks workflow', () => {
 
   it('calls the bundled workflow of GravionLabs/ci from the job id the rulesets require', () => {
     expect(workflow).toMatch(/jobs:\n\s+pr-checks:\n/);
-    expect(workflow).toContain('uses: GravionLabs/ci/.github/workflows/pr-checks.yml@main');
+    expect(workflow).toContain('uses: GravionLabs/ci/.github/workflows/pr-checks.yml@v1');
   });
 
   it('grants nothing at the top and only read access to the job', () => {
