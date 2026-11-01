@@ -47,4 +47,24 @@ describe('repository setup', () => {
       expect(headings, `docs/acceptance.md has no "## \`${plugin}\`" section`).toContain(plugin);
     }
   });
+
+  it('ships a bug report form whose plugin dropdown lists every plugin directory', () => {
+    expect(existsSync(new URL('.github/ISSUE_TEMPLATE/bug_report.md', root))).toBe(false);
+    const form = read('.github/ISSUE_TEMPLATE/bug_report.yml').replace(/\r\n/g, '\n');
+    const plugins = readdirSync(root, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && existsSync(new URL(`${entry.name}/herdr-plugin.toml`, root)))
+      .map((entry) => entry.name)
+      .sort();
+    const block = /- type: dropdown\n(?:(?!\n {2}- type:)[\s\S])*?options:\n((?: {8}- .+\n?)+)/.exec(form);
+
+    expect(block, 'no dropdown with options').not.toBeNull();
+    const options = block![1].trim().split('\n').map((line) => line.replace(/^\s*- /, '').trim());
+    expect(options.sort()).toEqual(plugins);
+    expect(plugins).toHaveLength(10);
+    expect(form).toMatch(/^title: '\[Bug\] '$/m);
+    expect(form).toMatch(/^labels: \[bug\]$/m);
+    for (const id of ['plugin-version', 'herdr-version', 'node-version', 'os']) {
+      expect(form).toContain(`id: ${id}`);
+    }
+  });
 });
