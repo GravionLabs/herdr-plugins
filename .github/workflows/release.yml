@@ -44,7 +44,7 @@ jobs:
     steps:
       # Same composite action and inputs as ci.yml; ci.yml skips pushes to main, so the tests run here once.
       - name: Install and test
-        uses: GravionLabs/ci/node/ci@main
+        uses: GravionLabs/ci/node/ci@v1
         with:
           node-version: '26'
           lint-command: 'npm run typecheck'
@@ -69,14 +69,14 @@ jobs:
 
       - name: Determine version
         id: version
-        uses: GravionLabs/ci/versioning/determine-version@main
+        uses: GravionLabs/ci/versioning/determine-version@v1
         with:
           gitversion-config-file: GitVersion.yml
 
       # Commits CHANGELOG.md to main, then tags that commit (create-version-tag runs inside gh-release; a tag created
       # before it would leave git-cliff's --unreleased notes empty), creates the release and closes the issues.
       - name: Create GitHub Release
-        uses: GravionLabs/ci/versioning/gh-release@main
+        uses: GravionLabs/ci/versioning/gh-release@v1
         with:
           version: ${{ steps.version.outputs.semver }}
           changelog-file: CHANGELOG.md

@@ -1,7 +1,8 @@
 mode: ContinuousDeployment
 next-version: 0.1.0
 
+# The bump comes from Conventional Commits (versioning/determine-version of GravionLabs/ci): fix = patch, feat = minor,
+# type! or BREAKING CHANGE = major. release/next has no fixed increment.
 branches:
   release:
     regex: ^release/next$
-    increment: Minor
