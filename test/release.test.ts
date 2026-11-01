@@ -76,8 +76,14 @@ describe.skipIf(!gitversion)('GitVersion.yml', () => {
     ),
   );
   const git = (...args: string[]): string => execFileSync('git', args, { cwd: dir, encoding: 'utf8', env });
+  // The Conventional Commit bump rules that versioning/determine-version of GravionLabs/ci passes as override config.
+  const bumpRules = [
+    'major-version-bump-message=\\+semver:\\s?(breaking|major)|^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([^)\\n]+\\))?(!:|:.*\\n\\n((.+\\n)+\\n)?BREAKING[ -]CHANGE:\\s.+)',
+    'minor-version-bump-message=\\+semver:\\s?(feature|minor)|^(feat)(\\([^)\\n]+\\))?:',
+    'patch-version-bump-message=\\+semver:\\s?(fix|patch)|^(fix|perf|revert)(\\([^)\\n]+\\))?:',
+  ].flatMap((rule) => ['/overrideconfig', rule]);
   const version = (): string =>
-    execFileSync(gitversion as string, ['.', '/output', 'json', '/showvariable', 'SemVer'], {
+    execFileSync(gitversion as string, ['.', '/output', 'json', '/showvariable', 'SemVer', ...bumpRules], {
       cwd: dir,
       encoding: 'utf8',
       env,
@@ -85,10 +91,10 @@ describe.skipIf(!gitversion)('GitVersion.yml', () => {
       .trim()
       .split('\n')
       .at(-1) as string;
-  const releaseMerge = (pr: number): void => {
+  const releaseMerge = (pr: number, ...messages: string[]): void => {
     git('checkout', '-q', 'release/next');
-    git('commit', '-q', '--allow-empty', '-m', 'feat: new thing');
-    git('commit', '-q', '--allow-empty', '-m', 'chore: release minor', '-m', '+semver: minor');
+    git('merge', '-q', '--ff-only', 'main');
+    for (const message of messages) git('commit', '-q', '--allow-empty', '-m', message);
     git('checkout', '-q', 'main');
     git('merge', '-q', '--no-ff', 'release/next', '-m', `Merge pull request #${pr} from GravionLabs/release/next`);
   };
@@ -113,22 +119,29 @@ describe.skipIf(!gitversion)('GitVersion.yml', () => {
     expect(version()).toBe('0.1.0');
   });
 
-  it('makes release/next a minor pre-release after the last tag', () => {
+  it('makes release/next a minor pre-release after a feat commit', () => {
     git('tag', 'v0.1.0');
     git('checkout', '-q', 'release/next');
     git('merge', '-q', '--ff-only', 'main');
     git('commit', '-q', '--allow-empty', '-m', 'feat: next thing');
     expect(version()).toMatch(/^0\.2\.0-/);
+    git('checkout', '-q', 'main');
   });
 
-  it('gives main the next minor after merging the release PR with +semver: minor', () => {
-    releaseMerge(1);
+  it('gives main the next minor after merging a release with a feat commit', () => {
+    releaseMerge(1, 'feat(plugin): new thing (#2)');
     expect(version()).toBe('0.2.0');
   });
 
-  it('keeps a hotfix on main a patch', () => {
+  it('gives main the next patch after merging a fix-only release', () => {
     git('tag', 'v0.2.0');
-    git('commit', '-q', '--allow-empty', '-m', 'fix: hotfix');
+    releaseMerge(3, 'fix(plugin): repair a thing (#4)', 'ci: tidy up (#5)');
     expect(version()).toBe('0.2.1');
+  });
+
+  it('keeps a hotfix on main a patch', () => {
+    git('tag', 'v0.2.1');
+    git('commit', '-q', '--allow-empty', '-m', 'fix: hotfix');
+    expect(version()).toBe('0.2.2');
   });
 });
