@@ -15,6 +15,13 @@ describe('repository setup', () => {
     expect(read('LICENSE')).toMatch(/^MIT License\r?\n\r?\nCopyright \(c\) 2026 GravionLabs/);
   });
 
+  it('ships SECURITY.md, CONTRIBUTING.md and CODE_OF_CONDUCT.md without an e-mail address in SECURITY.md', () => {
+    for (const name of ['SECURITY.md', 'CONTRIBUTING.md', 'CODE_OF_CONDUCT.md']) {
+      expect(existsSync(new URL(name, root)), `${name} is missing`).toBe(true);
+    }
+    expect(read('SECURITY.md')).not.toMatch(/[^\s@]+@[^\s@]+\.[a-z]{2,}/i);
+  });
+
   it('sets coverage thresholds in vitest.config.ts', () => {
     const config = read('vitest.config.ts');
 
