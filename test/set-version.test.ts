@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { setVersion } from '../scripts/set-version.ts';
 
@@ -40,13 +41,20 @@ describe('set-version', () => {
     expect(JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).version).toBe('1.0.0-rc.1');
   });
 
+  it('keeps CRLF line endings', () => {
+    const file = join(dir, 'alpha', 'herdr-plugin.toml');
+    writeFileSync(file, manifest('alpha').replace(/\n/g, '\r\n'));
+    setVersion(dir, '0.5.0');
+    expect(readFileSync(file, 'utf8')).toContain('version = "0.5.0"\r\nmin_herdr_version = "0.9.5"\r\n');
+  });
+
   it('rejects a version that is not SemVer and changes nothing', () => {
     expect(() => setVersion(dir, 'v1.0')).toThrow(/not a SemVer/);
     expect(readFileSync(join(dir, 'alpha', 'herdr-plugin.toml'), 'utf8')).toBe(manifest('alpha'));
   });
 
   it('runs as a command with the version as argument or $VERSION', () => {
-    const script = new URL('scripts/set-version.ts', repo).pathname;
+    const script = fileURLToPath(new URL('scripts/set-version.ts', repo));
     execFileSync('node', [script, '2.0.0'], { cwd: dir });
     expect(JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).version).toBe('2.0.0');
     execFileSync('node', [script], { cwd: dir, env: { ...process.env, VERSION: '2.1.0-rc.1' } });

@@ -67,6 +67,11 @@ jobs:
         with:
           fetch-depth: 0       # required by GitVersion
 
+      # version-command runs `node scripts/set-version.ts`, which needs Node with type stripping (same version as the test job)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+
       - name: Determine version
         id: version
         uses: GravionLabs/ci/versioning/determine-version@v1
