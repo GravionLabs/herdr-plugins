@@ -37,6 +37,11 @@ describe('release workflow', () => {
     expect(step).toContain('token: ${{ secrets.GH_PAT }}');
   });
 
+  it('passes set-version.ts as the version command of gh-release', () => {
+    const step = workflow.slice(workflow.indexOf('uses: GravionLabs/ci/versioning/gh-release@v1'));
+    expect(step).toContain('version-command: node scripts/set-version.ts "$VERSION"');
+  });
+
   it('grants the permissions gh-release and close-release-issues need', () => {
     const job = workflow.slice(workflow.indexOf('  release:\n'), workflow.indexOf('  backfill:\n'));
     expect(job).toMatch(/contents: write/);

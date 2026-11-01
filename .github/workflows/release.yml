@@ -73,7 +73,8 @@ jobs:
         with:
           gitversion-config-file: GitVersion.yml
 
-      # Commits CHANGELOG.md to main, then tags that commit (create-version-tag runs inside gh-release; a tag created
+      # Runs version-command (VERSION set) to write the version into the plugin manifests and package.json, commits them
+      # with CHANGELOG.md to main, then tags that commit (create-version-tag runs inside gh-release; a tag created
       # before it would leave git-cliff's --unreleased notes empty), creates the release and closes the issues.
       - name: Create GitHub Release
         uses: GravionLabs/ci/versioning/gh-release@v1
@@ -82,6 +83,7 @@ jobs:
           changelog-file: CHANGELOG.md
           cliff-config: cliff.toml
           update-changelog: 'true'
+          version-command: node scripts/set-version.ts "$VERSION"
           close-issues: 'true'
           token: ${{ secrets.GH_PAT }}
 
