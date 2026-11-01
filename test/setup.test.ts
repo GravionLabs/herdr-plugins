@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const root = new URL('../', import.meta.url);
@@ -19,5 +19,20 @@ describe('repository setup', () => {
 
   it('lists @vitest/coverage-v8 as a devDependency', () => {
     expect(JSON.parse(read('package.json')).devDependencies).toHaveProperty('@vitest/coverage-v8');
+  });
+
+  it('has a section in docs/acceptance.md for every plugin directory', () => {
+    const plugins = readdirSync(root, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && existsSync(new URL(`${entry.name}/herdr-plugin.toml`, root)))
+      .map((entry) => entry.name);
+    const headings = read('docs/acceptance.md')
+      .split('\n')
+      .filter((line) => line.startsWith('## '))
+      .map((line) => line.slice(3).replaceAll('`', '').trim());
+
+    expect(plugins.length).toBeGreaterThan(0);
+    for (const plugin of plugins) {
+      expect(headings, `docs/acceptance.md has no "## \`${plugin}\`" section`).toContain(plugin);
+    }
   });
 });
