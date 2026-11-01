@@ -1,14 +1,16 @@
 import { describe, expect, it } from 'vitest';
+import { join } from 'node:path';
 import { deliverSkillCandidates, findDeliverSkill, INSTALL_COMMAND } from '../lib/skill.ts';
 
 // The same cases pin the copies of this lookup in deliver-starter and deliver-log.
 describe('deliver skill lookup', () => {
+  // join() turns the posix literals into the separators of the platform, like the lookup does.
   const order = [
     '/repo/.claude/skills/deliver',
     '/repo/.agents/skills/deliver',
     '/home/u/.claude/skills/deliver',
     '/home/u/.agents/skills/deliver',
-  ];
+  ].map((dir) => join(dir));
 
   it('looks in the repository first, then in the home directory, .claude before .agents', () => {
     expect(deliverSkillCandidates('/repo', '/home/u')).toEqual(order);
