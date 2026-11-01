@@ -90,6 +90,8 @@ jobs:
           update-changelog: 'true'
           version-command: node scripts/set-version.ts "$VERSION"
           close-issues: 'true'
+          # Merging the release PR deletes release/next (delete_branch_on_merge); recreated here at the released commit.
+          recreate-branch: release/next
           token: ${{ secrets.GH_PAT }}
 
   backfill:
