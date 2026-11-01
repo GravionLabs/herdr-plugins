@@ -6,5 +6,14 @@ export default defineConfig({
   test: {
     include: ['*/**/*.test.ts', 'test/**/*.test.ts'],
     exclude: ['node_modules/**', 'coverage/**'],
+    coverage: {
+      // on for every run, so `npm test` prints the coverage table in the CI log of each OS
+      enabled: true,
+      provider: 'v8',
+      reporter: ['text'],
+      include: ['**/*.ts'],
+      exclude: ['**/*.test.ts', '**/*.d.ts', 'node_modules/**', 'coverage/**', 'vitest.config.ts'],
+      thresholds: { statements: 65, branches: 65, functions: 67, lines: 65 },
+    },
   },
 });
