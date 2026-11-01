@@ -18,7 +18,7 @@ jobs:
       # The composite action checks out the code, sets up Node 26, installs with npm ci and runs npm test.
       # Plugins are installed from git, so there is no npm publish.
       - name: Install and test
-        uses: GravionLabs/ci/node/ci@main
+        uses: GravionLabs/ci/node/ci@v1
         with:
           node-version: '26'
           # the type check (TypeScript 7, noEmit) runs as the lint step; there is no build step

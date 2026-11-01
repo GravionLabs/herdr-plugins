@@ -17,18 +17,18 @@ describe('release workflow', () => {
 
   it('releases only after the tests are green', () => {
     expect(workflow).toMatch(/release:\n\s+name: Release\n\s+needs: test\n/);
-    expect(workflow).toContain('uses: GravionLabs/ci/node/ci@main');
+    expect(workflow).toContain('uses: GravionLabs/ci/node/ci@v1');
   });
 
   it('determines the version with GitVersion.yml on the full history', () => {
     expect(workflow).toContain('fetch-depth: 0');
     expect(workflow).toMatch(
-      /uses: GravionLabs\/ci\/versioning\/determine-version@main\n\s+with:\n\s+gitversion-config-file: GitVersion.yml/,
+      /uses: GravionLabs\/ci\/versioning\/determine-version@v1\n\s+with:\n\s+gitversion-config-file: GitVersion.yml/,
     );
   });
 
   it('creates the release with changelog and issue closing, pushing with GH_PAT', () => {
-    const step = workflow.slice(workflow.indexOf('uses: GravionLabs/ci/versioning/gh-release@main'));
+    const step = workflow.slice(workflow.indexOf('uses: GravionLabs/ci/versioning/gh-release@v1'));
     expect(step).toContain('version: ${{ steps.version.outputs.semver }}');
     expect(step).toContain('changelog-file: CHANGELOG.md');
     expect(step).toContain('cliff-config: cliff.toml');
