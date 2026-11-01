@@ -15,6 +15,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ### Documentation
 - **roadmap**: Align roadmap, README and milestones with the released tags (#45) (#46)
 - Update CHANGELOG.md for v0.2.1 [skip ci]
+- Update CHANGELOG.md for v0.3.0 [skip ci]
 
 
 ### Features
