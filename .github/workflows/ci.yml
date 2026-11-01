@@ -12,9 +12,16 @@ permissions:
 
 jobs:
   test:
-    name: Test
-    runs-on: ubuntu-latest
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
+      # the tests match files with LF line endings, so Windows must not check out CRLF
+      - name: Keep LF line endings
+        run: git config --global core.autocrlf false
       # The composite action checks out the code, sets up Node 26, installs with npm ci and runs npm test.
       # Plugins are installed from git, so there is no npm publish.
       - name: Install and test
@@ -27,3 +34,14 @@ jobs:
           test-command: 'npm test'
           upload-results: 'false'
           publish-results: 'false'
+
+  # The ruleset on release/next requires the check "Test". The matrix jobs are named
+  # "Test (<os>)", so this gate job keeps the required name and fails when any OS fails.
+  test-gate:
+    name: Test
+    needs: test
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every OS to pass
+        run: test "${{ needs.test.result }}" = "success"
