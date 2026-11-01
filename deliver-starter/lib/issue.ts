@@ -1,5 +1,7 @@
 // Check of an issue for `/deliver`: it exists, is open and is a PBI, Feature or Epic. Pure on the `gh` JSON.
 
+import { classifyFailure, describe } from './errors.ts';
+
 const LEVELS = ['pbi', 'feature', 'epic'];
 
 // Reason for the JSON of `gh issue view <nr> --json state,title,labels` when the issue cannot be started, else null.
@@ -24,9 +26,9 @@ export function checkIssue(nr: number, json: string): string | null {
 
 // One readable reason for a failed `gh issue view`.
 export function viewFailure(nr: number, code: string | number | null, stderr: string): string {
-  if (code === 'ENOENT') return 'gh is not installed: install the GitHub CLI from https://cli.github.com';
+  const found = classifyFailure('gh', code, stderr);
+  if (found) return describe(found);
   if (/could not resolve|not found|no issue/i.test(stderr)) return `#${nr} does not exist`;
-  if (code === 4 || /gh auth login|authentication/i.test(stderr)) return 'gh is not authenticated: run `gh auth login`';
   const first = stderr.split('\n').find((line) => line.trim() !== '');
   return `#${nr}: ${first?.trim() ?? `gh failed (exit code ${code ?? 'unknown'})`}`;
 }

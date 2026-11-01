@@ -5,6 +5,7 @@ import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { toggleLog } from '../lib/action.ts';
 import { cwdFromContext } from '../lib/context.ts';
+import { noticeFor } from '../lib/errors.ts';
 import { gitToplevel, notify } from '../lib/host.ts';
 import { run } from '../lib/run.ts';
 
@@ -19,5 +20,6 @@ main().catch(async (error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
   process.stderr.write(`${message}\n`);
   process.exitCode = 1;
-  await notify('deliver-log failed', message);
+  const shown = noticeFor('deliver-log', message, 'deliver-log failed');
+  await notify(shown.title, shown.body);
 });

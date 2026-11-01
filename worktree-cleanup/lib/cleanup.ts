@@ -1,7 +1,8 @@
 // Cleanup of the worktrees and local branches merged PBIs left behind. The `cleanup` action finds the merged PRs into
 // release/next that still have a local worktree or branch and runs the `deliver` skill's Remove-PbiWorktrees.ps1 for
 // each; the `worktree.removed` hook deletes the then orphaned branch. All I/O goes through an injected `Run`.
-import { failureLine, type Run } from './run.ts';
+import { classifyFailure } from './errors.ts';
+import { failureLine, type Result, type Run } from './run.ts';
 
 export const BASE_BRANCH = 'release/next';
 // Never deleted by the hook, even when their commits are on a remote branch.
@@ -146,6 +147,12 @@ export function logLines(result: CleanupResult, failed: Failure[] = []): string[
   ];
 }
 
+// The error message of a failed command: the shared message of a known error class, else `<tool> failed: <line>`.
+function commandError(tool: string, result: Result): string {
+  if (result.ok) return '';
+  return classifyFailure(tool, result.code, result.stderr)?.message ?? `${tool} failed: ${failureLine(result)}`;
+}
+
 // The `cleanup` action: merged PRs into release/next, their leftovers, one script run per PR in `repo` (the current
 // worktree, which the script never touches).
 export async function cleanup(run: Run, repo: string, script: string): Promise<Report> {
@@ -155,16 +162,14 @@ export async function cleanup(run: Run, repo: string, script: string): Promise<R
     repo,
   );
   if (!prs.ok) {
-    if (prs.code === 'ENOENT')
-      throw new Error('gh is not installed: install the GitHub CLI from https://cli.github.com');
-    throw new Error(`gh failed: ${failureLine(prs)}`);
+    throw new Error(commandError('gh', prs));
   }
   const [refs, worktrees] = await Promise.all([
     run('git', ['for-each-ref', '--format=%(refname:short)', 'refs/heads'], repo),
     run('git', ['worktree', 'list', '--porcelain'], repo),
   ]);
-  if (!refs.ok) throw new Error(`git failed: ${failureLine(refs)}`);
-  if (!worktrees.ok) throw new Error(`git failed: ${failureLine(worktrees)}`);
+  if (!refs.ok) throw new Error(commandError('git', refs));
+  if (!worktrees.ok) throw new Error(commandError('git', worktrees));
 
   const candidates = selectCandidates(
     parseMergedPullRequests(prs.stdout),
@@ -176,7 +181,7 @@ export async function cleanup(run: Run, repo: string, script: string): Promise<R
   for (const candidate of candidates) {
     const args = ['-NoProfile', '-NonInteractive', '-File', script, '-Pr', String(candidate.pr)];
     const result = await run('pwsh', [...args, '-Issue', String(candidate.issue)], repo);
-    if (!result.ok && result.code === 'ENOENT') throw new Error('pwsh is not installed: install PowerShell 7+');
+    if (!result.ok && result.code === 'ENOENT') throw new Error(commandError('pwsh', result));
     try {
       if (!result.ok) throw new Error(failureLine(result));
       results.push(parseScriptResult(result.stdout));
