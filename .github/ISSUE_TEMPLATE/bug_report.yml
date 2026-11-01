@@ -1,0 +1,83 @@
+name: Bug Report
+description: Report a bug
+title: '[Bug] '
+labels: [bug]
+body:
+  - type: dropdown
+    id: plugin
+    attributes:
+      label: Plugin
+      description: The plugin that is broken.
+      options:
+        - agent-notify
+        - command-palette
+        - deliver-board
+        - deliver-log
+        - deliver-starter
+        - deliver-view
+        - layout-bootstrap
+        - link-trim
+        - review-popup
+        - worktree-cleanup
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      placeholder: e.g. 0.3.0
+    validations:
+      required: true
+  - type: input
+    id: herdr-version
+    attributes:
+      label: herdr version
+      placeholder: e.g. 0.5.0
+    validations:
+      required: true
+  - type: input
+    id: node-version
+    attributes:
+      label: Node version
+      placeholder: e.g. 26.0.0
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS
+      placeholder: e.g. macOS 14, Ubuntu 24, Windows 11
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What is broken.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Run '...'
+        3. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happens instead, with logs or screenshots if useful.
+    validations:
+      required: true
