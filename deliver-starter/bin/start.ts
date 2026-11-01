@@ -2,6 +2,7 @@
 // herdr action `start`: opens the `form` popup for the repository of the focused pane.
 // Input: HERDR_PLUGIN_CONTEXT_JSON (focused pane cwd), passed on to the pane as DELIVER_STARTER_CWD.
 import { cwdFromContext } from '../lib/context.ts';
+import { noticeFor } from '../lib/errors.ts';
 import { herdrBin, notify } from '../lib/host.ts';
 import { run } from '../lib/run.ts';
 
@@ -13,7 +14,8 @@ async function main(): Promise<void> {
   const result = await run(herdrBin(), args, cwd || process.cwd());
   if (result.ok) return;
   process.exitCode = 1;
-  await notify('deliver-starter: could not open the popup');
+  const shown = noticeFor('deliver-starter', result.stderr, 'deliver-starter: could not open the popup');
+  await notify(shown.title, shown.body);
 }
 
 main();

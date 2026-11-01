@@ -1,5 +1,6 @@
 // Runs a command without a shell and returns its output; never throws, so callers decide what a failure means.
 import { execFile } from 'node:child_process';
+import { classifyFailure } from './errors.ts';
 
 export type Result =
   { ok: true; stdout: string } | { ok: false; code: string | number | null; stdout: string; stderr: string };
@@ -10,13 +11,11 @@ export const run: Run = (command, args, cwd) =>
   new Promise((resolve) => {
     execFile(command, args, { cwd, maxBuffer: 32 * 1024 * 1024 }, (error, stdout, stderr) => {
       if (!error) return resolve({ ok: true, stdout });
-      const code = (error as NodeJS.ErrnoException).code ?? null;
-      resolve({
-        ok: false,
-        code: typeof code === 'string' || typeof code === 'number' ? code : null,
-        stdout: String(stdout ?? ''),
-        stderr: String(stderr ?? ''),
-      });
+      const raw = (error as NodeJS.ErrnoException).code ?? null;
+      const code = typeof raw === 'string' || typeof raw === 'number' ? raw : null;
+      // A known error class (missing tool, not logged in, no repository, rate limit) replaces stderr with its one message.
+      const found = classifyFailure(command, code, String(stderr ?? ''));
+      resolve({ ok: false, code, stdout: String(stdout ?? ''), stderr: found ? found.message : String(stderr ?? '') });
     });
   });
 

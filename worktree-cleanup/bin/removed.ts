@@ -4,7 +4,8 @@
 // Silent when there is nothing to do; otherwise a notification, details in the plugin log.
 import { deleteOrphanedBranch } from '../lib/cleanup.ts';
 import { cwdFromContext, removedWorktreeFromEvent } from '../lib/context.ts';
-import { gitToplevel, report } from '../lib/host.ts';
+import { noticeFor } from '../lib/errors.ts';
+import { gitToplevel, notify, report } from '../lib/host.ts';
 import { run } from '../lib/run.ts';
 
 async function main(): Promise<void> {
@@ -17,7 +18,10 @@ async function main(): Promise<void> {
   if (result) await report(result);
 }
 
-main().catch((error: unknown) => {
-  process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+main().catch(async (error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error);
+  process.stderr.write(`${message}\n`);
   process.exitCode = 1;
+  const shown = noticeFor('worktree-cleanup', message, 'worktree-cleanup failed');
+  await notify(shown.title, shown.body);
 });

@@ -63,6 +63,11 @@ export async function systemNotify(message: Message): Promise<void> {
   }
 }
 
+// A failure of the hook itself as a herdr notification.
+export async function notifyError(title: string, body: string): Promise<void> {
+  await exec(herdrBin(), ['notification', 'show', title, '--body', body]);
+}
+
 export async function show(message: Message, state: NotifyState, config: Config): Promise<void> {
   const args = ['notification', 'show', message.title];
   if (message.body) args.push('--body', message.body);

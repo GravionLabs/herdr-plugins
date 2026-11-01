@@ -134,7 +134,7 @@ describe('load', () => {
   it('says so outside a repository', async () => {
     const { state, toplevel } = await load(fakeRun({ notRepo: true }), reading(null), '/tmp/x');
     expect(toplevel).toBeNull();
-    expect(state.kind === 'message' && state.lines[0]).toBe('Not a git repository: /tmp/x');
+    expect(state.kind === 'message' && state.lines[0]).toBe('not a git repository: /tmp/x');
   });
 });
 

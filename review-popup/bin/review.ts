@@ -2,7 +2,8 @@
 // herdr pane `review` (popup): last deliver review of the PBI behind the focused pane's branch. Reads only.
 // Input: REVIEW_POPUP_CWD / REVIEW_POPUP_PANE (set by the `open` action) or HERDR_PLUGIN_CONTEXT_JSON.
 import { cwdFromContext } from '../lib/context.ts';
-import { herdrBin } from '../lib/host.ts';
+import { noticeFor } from '../lib/errors.ts';
+import { herdrBin, notify } from '../lib/host.ts';
 import { load, realRead } from '../lib/load.ts';
 import { keyAction, move, render, type State } from '../lib/review.ts';
 import { run } from '../lib/run.ts';
@@ -49,7 +50,9 @@ async function main(): Promise<void> {
   draw();
 }
 
-main().catch((error: unknown) => {
-  out.write(`review-popup: ${error instanceof Error ? error.message : String(error)}\r\n`);
+main().catch(async (error: unknown) => {
+  const shown = noticeFor('review-popup', error instanceof Error ? error.message : String(error), 'review-popup failed');
+  await notify(shown.title, shown.body).catch(() => undefined);
+  out.write(`${shown.title}\r\n${shown.body}\r\n`);
   setTimeout(() => exit(1), 3000);
 });

@@ -4,6 +4,7 @@
 // Input: HERDR_PLUGIN_CONTEXT_JSON (focused pane cwd). Output: a notification, details in the plugin log.
 import { cleanup } from '../lib/cleanup.ts';
 import { cwdFromContext } from '../lib/context.ts';
+import { noRepository, notice, noticeFor } from '../lib/errors.ts';
 import { gitToplevel, notify, removeScript, report } from '../lib/host.ts';
 import { run } from '../lib/run.ts';
 import { INSTALL_COMMAND } from '../lib/skill.ts';
@@ -11,7 +12,10 @@ import { INSTALL_COMMAND } from '../lib/skill.ts';
 async function main(): Promise<void> {
   const cwd = cwdFromContext(process.env.HERDR_PLUGIN_CONTEXT_JSON) || process.cwd();
   const repo = await gitToplevel(cwd);
-  if (!repo) return notify('worktree-cleanup: not a git repository', cwd);
+  if (!repo) {
+    const shown = notice('worktree-cleanup', noRepository());
+    return notify(shown.title, `${shown.body} (${cwd})`);
+  }
   const script = removeScript(repo);
   if (!script) return notify('worktree-cleanup: deliver skill not installed', `Install it: ${INSTALL_COMMAND}`);
 
@@ -24,5 +28,6 @@ main().catch(async (error: unknown) => {
   const message = error instanceof Error ? error.message : String(error);
   process.stderr.write(`${message}\n`);
   process.exitCode = 1;
-  await notify('worktree-cleanup failed', message);
+  const shown = noticeFor('worktree-cleanup', message, 'worktree-cleanup failed');
+  await notify(shown.title, shown.body);
 });
