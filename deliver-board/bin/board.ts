@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // herdr pane `board` (popup): open PBIs, claims, branches and PR state of the focused pane's repository.
 // Input: DELIVER_BOARD_CWD (set by the `open` action) or HERDR_PLUGIN_CONTEXT_JSON. Reads only, never writes.
-import { execFile, spawn } from 'node:child_process';
+import { execFile } from 'node:child_process';
 import { buildRows, parseIssues, parsePullRequests, parseRemoteHeads, type Row } from '../lib/board.ts';
+import { opener } from '../lib/open.ts';
 import { cwdFromContext, ghErrorLine } from '../lib/context.ts';
 import { keyAction, moveSelection, renderBoard } from '../lib/view.ts';
 
@@ -22,19 +23,11 @@ function run(command: string, args: string[], cwd: string): Promise<Result> {
   });
 }
 
-function opener(platform: NodeJS.Platform): string | null {
-  if (platform === 'darwin') return 'open';
-  if (platform === 'linux') return 'xdg-open';
-  return null;
-}
-
 function openUrl(url: string): Promise<boolean> {
-  const command = opener(process.platform);
-  if (!command || !url) return Promise.resolve(false);
+  const open = url ? opener(process.platform, url) : null;
+  if (!open) return Promise.resolve(false);
   return new Promise((resolve) => {
-    const child = spawn(command, [url], { stdio: 'ignore' });
-    child.on('error', () => resolve(false));
-    child.on('exit', (code) => resolve(code === 0));
+    execFile(open.command, open.args, (error) => resolve(!error));
   });
 }
 
