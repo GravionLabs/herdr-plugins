@@ -1,6 +1,6 @@
 # Manual acceptance checklist
 
-Run this checklist on macOS, Linux and Windows before the release candidate and before the release. Windows is part of 1.0 and supported. The public surface (IDs, config keys, state files, event behaviour) is defined in [ADR 0001](adr/0001-public-api.md); every step below checks one item of it.
+Run this checklist on macOS, Linux and Windows before the release candidate and before the release. Windows is the target for 1.0, but it becomes a declared platform only when #86 adds `windows` to the `platforms` of every manifest; until then the Windows runs are pre-release checks, and `herdr plugin install` may refuse the plugin there. Windows results marked "Target behaviour" are not verified yet. The public surface (IDs, config keys, state files, event behaviour) is defined in [ADR 0001](adr/0001-public-api.md); every step below checks one item of it.
 
 Running the checklist is tracked outside this file (#124 and each release). Record the result per plugin and OS in the release PR.
 
@@ -11,19 +11,19 @@ Running the checklist is tracked outside this file (#124 and each release). Reco
 - [ ] The release candidate is the version under test: install from the branch or tag, for example `herdr plugin install GravionLabs/herdr-plugins/<plugin>`.
 - [ ] A scratch git repository with a `release/next` branch, a GitHub remote and a few open issues labelled `pbi`.
 - [ ] `ui.mouse_capture` is on in herdr's `config.toml` (needed for link handlers).
-- [ ] Windows only: the manifest of each plugin lists `windows` in `platforms` (today the manifests list `macos` and `linux`; if the install is refused, record it as a failure of every plugin on Windows). Use PowerShell or Windows Terminal; paths below use `$HERDR_PLUGIN_CONFIG_DIR` and `$HERDR_PLUGIN_STATE_DIR` as printed by `herdr plugin config-dir <plugin>` and the state directory of the plugin.
+- [ ] Windows only: until #86 lands, the manifests list only `macos` and `linux` (ADR 0001), so `herdr plugin install` may refuse the plugin; record that as a known pre-release result, not a plugin failure. After #86 every manifest lists `windows` in `platforms` and the install must succeed. Use PowerShell or Windows Terminal; paths below use `$HERDR_PLUGIN_CONFIG_DIR` and `$HERDR_PLUGIN_STATE_DIR` as printed by `herdr plugin config-dir <plugin>` and the state directory of the plugin.
 
-How to trigger an action without a keybinding: `herdr plugin action invoke <plugin>.<action>`. Every plugin README shows a keybinding example; test the key once per plugin.
+How to trigger an action without a keybinding: `herdr plugin action invoke <plugin>.<action>`. Test the bound key once for each plugin that has an action (`agent-notify`, `link-trim` and `deliver-view` have no keybinding example in their READMEs; invoke those with the command). `deliver-view` is invoked as `herdr plugin action invoke deliver-view apply` (its README syntax), the others as `<plugin>.<action>`.
 
 ## Per-OS differences to watch
 
 | Area | macOS | Linux | Windows |
 |:--|:--|:--|:--|
-| Open a link (`link-trim`) | `open` | `xdg-open` | default browser handler |
+| Open a link (`link-trim`) | `open` | `xdg-open` | `rundll32` URL handler (implemented in #84/#85 for `link-trim` and `deliver-board`) |
 | System notification (`agent-notify`) | `osascript` | `notify-send` | WinRT toast through `powershell.exe` |
-| Paths | `/` | `/` | `\`; plugins must accept both and not need a POSIX shell |
-| Shell for typed pane commands | zsh or bash | bash | PowerShell |
-| Child processes (`node`, `git`, `gh`, `pwsh`) | on `PATH` | on `PATH` | on `PATH`, `.exe`/`.cmd` resolved without a shell |
+| Paths | `/` | `/` | `\`; plugins must accept both and not need a POSIX shell (target behaviour, #84/#86, not verified yet) |
+| Shell for typed pane commands | zsh or bash | bash | PowerShell (target behaviour, #84/#86, not verified yet) |
+| Child processes (`node`, `git`, `gh`, `pwsh`) | on `PATH` | on `PATH` | on `PATH`; `.exe`/`.cmd` resolution without a shell is target behaviour (#84/#86), not verified yet |
 
 For every plugin below, "Uninstall" means `herdr plugin uninstall <plugin>` followed by `herdr plugin list`, which must no longer list it, and its actions must be gone from `herdr plugin action list`.
 
@@ -38,7 +38,7 @@ Event `pane.agent_status_changed`. No action, pane or link handler.
 - [ ] A state other than `done` or `blocked` (for example `working`) shows no notification.
 - [ ] Deliver tokens: a pane with the token `deliver` (and `deliver_step`, `deliver_pr`) is named by its tokens, for example `deliver #12 review: 1 blocking (PR #34)`.
 - [ ] Config off (default): no system notification and no sound.
-- [ ] Config `{"system_notification": true}` in `config.json`: additionally a system notification (macOS `osascript`, Linux `notify-send`, Windows toast). If the tool is missing, the herdr notification still appears and nothing crashes.
+- [ ] Config `{"system_notification": true}` in `config.json`: additionally a system notification (macOS `osascript`, Linux `notify-send`, Windows WinRT toast through `powershell.exe`, implemented). If the tool is missing, the herdr notification still appears and nothing crashes.
 - [ ] Config `{"sound": true}`: herdr plays its `done` sound for done and its `request` sound for blocked.
 - [ ] State file `seen.json` exists in the state directory and holds an object of key to number.
 - [ ] A broken `config.json` (invalid JSON) falls back to the defaults.
@@ -91,6 +91,8 @@ Actions `start`, `start-link`; pane `form` (popup); link handler `github-issue`.
 - [ ] Validation: enter an issue number that does not exist. Expected: nothing starts and a message names the problem.
 - [ ] Suggestions: type `#`. Expected: open PBIs, Features and Epics of the focused pane's repository, filtered live; Up/Down move, Enter inserts the number.
 - [ ] Empty input and Escape close the popup without starting.
+- [ ] Several numbers: enter `3 4` (two open PBIs). Expected: both are checked with `gh issue view`, the worktree is `deliver/3` and the run is `/deliver 3 4`; unattended mode passes `-Target 3 4`. One invalid number among them keeps the popup open with the reason.
+- [ ] Milestone: enter `--milestone <name>` (an existing milestone). Expected: the worktree is `deliver/milestone-<name>` and the run is `/deliver --milestone <name>`; unattended mode passes `-Milestone <name>`.
 - [ ] Interactive mode with a valid issue: a herdr worktree `deliver/<nr>` is created from `origin/release/next` and its root pane runs the harness (`claude` by default) with `/deliver <nr>`.
 - [ ] Tab switches the mode; unattended mode opens a tab `deliver #<nr>` that runs `Invoke-DeliverLoop.ps1` through `pwsh` (needs the `deliver` skill).
 - [ ] Link handler: Ctrl+click on `https://github.com/<owner>/<repo>/issues/<nr>` in a pane. Expected: the interactive run for that issue starts without the popup. A closed or unknown issue shows a notification. A pull request URL is not claimed by the handler.
@@ -107,7 +109,7 @@ Action `apply`; one `[[startup]]` hook.
 - [ ] Startup hook: edit `view.json` (for example change the label), restart herdr. Expected: the stored view is applied once after the session is restored.
 - [ ] Without `view.json` the hook applies the default view.
 - [ ] A failed apply (herdr API socket not reachable) shows a notification and does not hang.
-- [ ] Windows: the view is applied over the API socket (`HERDR_SOCKET_PATH`) as well.
+- [ ] Windows: the view is applied over the herdr API socket as well. Target behaviour (#84/#86), not verified yet.
 - [ ] Uninstall: the action is gone; after a herdr restart the view is no longer applied by the plugin.
 
 ## `layout-bootstrap`
@@ -121,7 +123,7 @@ Action `apply`.
 - [ ] Layout file `.agents/herdr-layout.json` in the repository wins over `layout.json` in the config directory, which wins over the default.
 - [ ] Invalid layout file: the action stops with a notification naming the file and the problem; it does not fall back.
 - [ ] A pane that cannot be moved to the repository root (agent pane elsewhere) is listed in the notification "not in the repository root".
-- [ ] Windows: typed pane commands run in PowerShell and the `cd` to the repository root works with backslash paths.
+- [ ] Windows: typed pane commands run in PowerShell and the `cd` to the repository root works with backslash paths. Target behaviour (#84/#86), not verified yet.
 - [ ] Uninstall: the action is gone; panes already created stay.
 
 ## `link-trim`
@@ -133,7 +135,7 @@ Action `open`; link handler `trailing-punct`.
 - [ ] Repeat with the endings `.`, `,`, `;`, `:`, `'`, `"` and `]`. Expected: each is removed; several in a row (`...91).`) are all removed.
 - [ ] `https://en.wikipedia.org/wiki/Foo_(bar)` opens unchanged (the `)` has a partner).
 - [ ] A URL without trailing punctuation is not routed to the plugin and opens as before.
-- [ ] Opening uses `open` on macOS, `xdg-open` on Linux and the default browser on Windows. If opening fails, herdr shows a notification with the URL.
+- [ ] Opening uses `open` on macOS, `xdg-open` on Linux and `rundll32` (default browser) on Windows (implemented in #84/#85). If opening fails, herdr shows a notification with the URL.
 - [ ] Uninstall: Ctrl+click on `...91)` opens the untrimmed URL again.
 
 ## `review-popup`
@@ -143,7 +145,12 @@ Action `open`, pane `review` (popup).
 - [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/review-popup`.
 - [ ] Branch without PBI number (`main`): the popup shows one line saying so.
 - [ ] Branch `feat/12-example` without a review file: one line saying that no review file exists.
-- [ ] Place a valid `<git-common-dir>/.agents/state/review-12.json` (review of the `deliver` skill). Expected: header `#12 round <round>`, unmet criteria, blocking findings as `file:line - title` with the reason below, and notes.
+- [ ] Place a valid `<git-common-dir>/.agents/state/review-12.json` (review of the `deliver` skill). The schemas are `review-popup/schema/deliver-review.schema.json` (outer object) and `review-popup/schema/review.schema.json` (the `review` member). Minimal valid file (`sha` is 7 to 64 lowercase hex characters; use the branch's HEAD to avoid the stale mark):
+
+  ```json
+  {"pbi":12,"branch":"feat/12-example","sha":"0123abc","round":1,"unmet":["Criterion not met"],"review":{"blocking":[{"file":"src/a.ts","line":3,"title":"Missing check","why":"Input is not validated."}],"notes":["Rename x."]}}
+  ```
+ Expected: header `#12 round <round>`, unmet criteria, blocking findings as `file:line - title` with the reason below, and notes.
 - [ ] Another worktree of the same repository shows the same file.
 - [ ] A review whose `sha` differs from the HEAD of the branch is marked stale.
 - [ ] Keys: Up/Down (or `k`/`j`) select a blocking finding; Enter opens the file at the line in `$EDITOR` (`vi`/default when unset) in a new split pane; `q` and Escape close.
