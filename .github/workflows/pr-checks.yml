@@ -1,0 +1,19 @@
+# Pull request checks of GravionLabs/ci (pr-checks.yml): the PR must close a ready issue (no needs-refinement or
+# needs-decision label, no open blocker; release PRs are exempt). No docs/adr/ here, so adr and spec stay skipped green.
+# The rulesets main and release require the aggregate check "pr-checks / PR checks"; keep the job id pr-checks.
+name: PR checks
+
+on:
+  pull_request:
+    branches: [main, 'release/**']
+    types: [opened, edited, synchronize, reopened, labeled, unlabeled, ready_for_review]
+
+permissions: {}
+
+jobs:
+  pr-checks:
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    uses: GravionLabs/ci/.github/workflows/pr-checks.yml@main
