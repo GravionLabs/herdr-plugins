@@ -1,6 +1,6 @@
 id = "agent-notify"
 name = "agent-notify"
-version = "0.1.0"
+version = "0.4.0"
 min_herdr_version = "0.9.5"
 platforms = ["macos", "linux"]
 description = "Notifies when an agent pane turns done or blocked"

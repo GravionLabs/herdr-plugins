@@ -1,6 +1,6 @@
 id = "deliver-board"
 name = "deliver-board"
-version = "0.1.0"
+version = "0.4.0"
 min_herdr_version = "0.9.5"
 platforms = ["macos", "linux"]
 description = "Popup with the open PBIs, claims and PR state of release/next"
