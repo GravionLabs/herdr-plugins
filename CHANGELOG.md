@@ -5,7 +5,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.2.1] — 2026-10-31
+## [0.3.0] — 2026-11-01
 
 ### Bug Fixes
 - Recommend keybindings free in herdr's default keymap (#54) (#55)
@@ -14,6 +14,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Documentation
 - **roadmap**: Align roadmap, README and milestones with the released tags (#45) (#46)
+- Update CHANGELOG.md for v0.2.1 [skip ci]
 
 
 ### Features
