@@ -161,11 +161,20 @@ describe('system notification per platform', () => {
     expect(c.args).toEqual(['--', 'He said "hi"', "it's 'done'"]);
   });
 
+  it('linux passes a title starting with a dash after the -- separator', async () => {
+    setPlatform('linux');
+    await show({ title: '-x', body: 'b' }, 'done', on);
+    const c = calls.list[1];
+    expect(c.command).toBe('notify-send');
+    expect(c.args).toEqual(['--', '-x', 'b']);
+  });
+
   it('win32 sends a fixed toast script and passes title and body through env', async () => {
     const [c] = await run('win32');
     expect(c.command).toBe('powershell.exe');
     expect(c.args).toEqual(['-NoProfile', '-NonInteractive', '-Command', TOAST_SCRIPT]);
-    expect(c.args.join(' ')).not.toContain('hi');
+    expect(c.args[3]).not.toContain(msg.title);
+    expect(c.args[3]).not.toContain(msg.body);
     expect(c.env?.HERDR_NOTIFY_TITLE).toBe('He said "hi"');
     expect(c.env?.HERDR_NOTIFY_BODY).toBe("it's 'done'");
   });
