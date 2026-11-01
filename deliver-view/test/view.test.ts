@@ -2,22 +2,29 @@ import { execFile } from 'node:child_process';
 import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer, type Server } from 'node:net';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { deliverView } from '../lib/view.ts';
 
-const manifest = readFileSync(new URL('../herdr-plugin.toml', import.meta.url), 'utf8');
-const binDir = new URL('../bin/', import.meta.url).pathname;
+// A Windows checkout may convert the line endings.
+const manifest = readFileSync(new URL('../herdr-plugin.toml', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
+const binDir = fileURLToPath(new URL('../bin/', import.meta.url));
+// The mock herdr is a POSIX shell script that a Windows process cannot spawn.
+const posixOnly = it.skipIf(process.platform === 'win32');
 
 type Request = { id: string; method: string; params: Record<string, unknown> };
 
 let dir: string;
+let socketPath: string;
 let server: Server;
 let requests: Request[];
 let reply: string;
 
 beforeEach(async () => {
   dir = mkdtempSync(join(tmpdir(), 'dv-'));
+  // A unix socket path on POSIX, a named pipe on Windows (node cannot listen on a socket file there).
+  socketPath = process.platform === 'win32' ? `\\\\.\\pipe\\${basename(dir)}` : join(dir, 's.sock');
   requests = [];
   reply = '{"id":"deliver-view","result":{"type":"agent_view","active":true}}';
   server = createServer((socket) => {
@@ -27,7 +34,7 @@ beforeEach(async () => {
       socket.write(`${reply}\n`);
     });
   });
-  await new Promise<void>((resolve) => server.listen(join(dir, 's.sock'), resolve));
+  await new Promise<void>((resolve) => server.listen(socketPath, resolve));
 });
 
 afterEach(async () => {
@@ -46,7 +53,7 @@ function mockHerdr(): string {
 function run(script: 'apply' | 'startup', env: Record<string, string> = {}): Promise<{ code: number }> {
   const full = {
     PATH: process.env.PATH ?? '',
-    HERDR_SOCKET_PATH: join(dir, 's.sock'),
+    HERDR_SOCKET_PATH: socketPath,
     HERDR_PLUGIN_STATE_DIR: join(dir, 'state'),
     HERDR_PLUGIN_ID: 'deliver-view',
     HERDR_BIN_PATH: mockHerdr(),
@@ -95,14 +102,14 @@ describe('action apply', () => {
     expect(JSON.parse(readFileSync(join(dir, 'state', 'view.json'), 'utf8'))).toEqual(deliverView('deliver-view'));
   });
 
-  it('fails and notifies through HERDR_BIN_PATH when herdr rejects the view', async () => {
+  posixOnly('fails and notifies through HERDR_BIN_PATH when herdr rejects the view', async () => {
     reply = '{"id":"deliver-view","error":{"code":"invalid_params","message":"bad view"}}';
     const { code } = await run('apply');
     expect(code).toBe(1);
     expect(await notified()).toBe('notification show deliver-view failed --body bad view\n');
   });
 
-  it('fails and notifies when the socket is not set', async () => {
+  posixOnly('fails and notifies when the socket is not set', async () => {
     const { code } = await run('apply', { HERDR_SOCKET_PATH: '' });
     expect(code).toBe(1);
     expect(requests).toHaveLength(0);

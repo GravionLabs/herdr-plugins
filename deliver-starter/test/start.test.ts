@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { checkIssue } from '../lib/issue.ts';
 import { startFromLink } from '../lib/link-start.ts';
@@ -91,12 +92,13 @@ describe('interactive start', () => {
 });
 
 describe('unattended start', () => {
-  const script = '/repo/.claude/skills/deliver/scripts/Invoke-DeliverLoop.ps1';
+  const skillDir = join('/repo/.claude/skills/deliver');
+  const script = join(skillDir, 'scripts', 'Invoke-DeliverLoop.ps1');
 
   it('opens a tab named deliver #<nr> at the repository root and runs the loop', async () => {
     const { deps, calls } = setup(
       (_, args) => ({ ok: true, stdout: args[0] === 'tab' ? created : '' }),
-      ['/repo/.claude/skills/deliver', script],
+      [skillDir, script],
     );
     expect(await startUnattended(deps, '/repo', { numbers: [3, 4], milestone: null })).toEqual({ ok: true });
     expect(calls).toEqual([
