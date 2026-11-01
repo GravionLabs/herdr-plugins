@@ -23,7 +23,7 @@ herdr plugin install GravionLabs/herdr-plugins/agent-notify
 }
 ```
 
-- `system_notification`: also a macOS system notification through `osascript`.
+- `system_notification`: also a system notification: `osascript` on macOS, `notify-send` on Linux, a WinRT toast through `powershell.exe` on Windows. A missing tool leaves only the herdr notification.
 - `sound`: herdr plays its `done` sound (state done) or `request` sound (state blocked) with the notification.
 
 ## Development
