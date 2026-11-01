@@ -13,7 +13,7 @@ export default defineConfig({
       reporter: ['text'],
       include: ['**/*.ts'],
       exclude: ['**/*.test.ts', '**/*.d.ts', 'node_modules/**', 'coverage/**', 'vitest.config.ts'],
-      thresholds: { statements: 0, branches: 0, functions: 0, lines: 0 },
+      thresholds: { statements: 65, branches: 65, functions: 67, lines: 65 },
     },
   },
 });
