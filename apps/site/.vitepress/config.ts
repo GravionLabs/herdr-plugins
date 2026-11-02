@@ -41,6 +41,10 @@ export default defineConfig({
           items: [
             { text: 'link-trim', link: '/guide/plugins/link-trim' },
             { text: 'agent-notify', link: '/guide/plugins/agent-notify' },
+            { text: 'deliver-board', link: '/guide/plugins/deliver-board' },
+            { text: 'deliver-starter', link: '/guide/plugins/deliver-starter' },
+            { text: 'deliver-view', link: '/guide/plugins/deliver-view' },
+            { text: 'deliver-log', link: '/guide/plugins/deliver-log' },
           ],
         },
       ],
