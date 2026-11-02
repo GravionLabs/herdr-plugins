@@ -27,7 +27,7 @@ export interface RunResult {
 }
 
 export interface Deps {
-  run: (command: string, args: string[]) => RunResult;
+  run: (command: string, args: string[], timeoutMs?: number) => RunResult;
   exists: (path: string) => boolean;
   readFile: (path: string) => string | null;
   env: Record<string, string | undefined>;
