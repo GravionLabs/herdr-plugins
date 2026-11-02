@@ -3,7 +3,7 @@
 //           apply (adds the config.toml blocks the plugins rely on, after a diff and a backup).
 // Exit code 0 when every check passes (doctor) or the apply went through, 1 otherwise.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -60,7 +60,14 @@ export function realDeps(): Deps & ApplyIo {
     cwd: process.cwd(),
     writeFile: (path, content) => {
       mkdirSync(dirname(path), { recursive: true });
-      writeFileSync(path, content);
+      const tmp = `${path}.tmp-${process.pid}`;
+      try {
+        writeFileSync(tmp, content);
+        renameSync(tmp, path);
+      } catch (e) {
+        rmSync(tmp, { force: true });
+        throw e;
+      }
     },
     confirm: askLine,
     now: () => new Date(),

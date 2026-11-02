@@ -104,7 +104,9 @@ interface Edit {
   insert: string[];
 }
 
-export function planApply(text: string): ApplyPlan {
+export function planApply(input: string): ApplyPlan {
+  const bom = input.startsWith('\uFEFF') ? '\uFEFF' : '';
+  const text = bom ? input.slice(1) : input;
   const eol = text.includes('\r\n') ? '\r\n' : '\n';
   const lines = text === '' ? [] : text.replace(/\r?\n$/, '').split(/\r?\n/);
   const { headers, entries } = scan(lines);
@@ -124,6 +126,8 @@ export function planApply(text: string): ApplyPlan {
       const eq = code.indexOf('=') + 1;
       edits.push({ line: delivery.line, remove: 1, insert: [`${code.slice(0, eq)} "herdr"${comment ? ` ${comment}` : ''}`] });
       changes.push('set ui.toast.delivery to "herdr" (was "off")');
+    } else if (delivery.value !== 'herdr') {
+      hints.push(`ui.toast.delivery is "${delivery.value}": not changed, the plugins expect "herdr" (or the herdr default)`);
     }
   } else if (toastHeader) {
     edits.push({ line: toastHeader.line + 1, remove: 0, insert: ['delivery = "herdr"'] });
@@ -159,7 +163,9 @@ export function planApply(text: string): ApplyPlan {
     if (e.table === 'keys.command' && e.key === 'command') bound.add(e.value);
     if ((e.table === 'keys.command' && e.key === 'key') || e.table === 'keys') used.add(e.value.toLowerCase());
   }
-  for (const s of KEY_SUGGESTIONS) {
+  const inline = entries.some((e) => e.full === 'keys.command');
+  if (inline) hints.push('keys.command is an inline array: no key bindings added, bind the plugin actions by hand (see the README)');
+  for (const s of inline ? [] : KEY_SUGGESTIONS) {
     if ([s.action, ...s.aliases].some((a) => bound.has(a))) continue;
     const key = s.candidates.find((c) => !used.has(c));
     if (!key) {
@@ -171,13 +177,13 @@ export function planApply(text: string): ApplyPlan {
     changes.push(`bind ${key} to ${s.action}`);
   }
 
-  if (changes.length === 0) return { changes, hints, before: text, after: text };
+  if (changes.length === 0) return { changes, hints, before: input, after: input };
   for (const e of [...edits].sort((a, b) => b.line - a.line)) lines.splice(e.line, e.remove, ...e.insert);
   for (const block of appended) {
     if (lines.length > 0) lines.push('');
     lines.push(...block);
   }
-  return { changes, hints, before: text, after: lines.join(eol) + eol };
+  return { changes, hints, before: input, after: bom + lines.join(eol) + eol };
 }
 
 // A line diff with 2 lines of context. Common head and tail are trimmed first, so the table stays small.
@@ -254,6 +260,10 @@ export interface ApplyOptions {
 // Returns the exit code; 1 when the write or the reload failed.
 export function runApply(deps: Deps & ApplyIo, configPath: string, opts: ApplyOptions, out: (text: string) => void): number {
   const existing = deps.readFile(configPath);
+  if (existing === null && deps.exists(configPath)) {
+    out(`failed to read ${configPath}: the file exists but cannot be read; nothing written`);
+    return 1;
+  }
   const plan = planApply(existing ?? '');
   const hints = plan.hints.map((h) => `hint: ${h}`);
   if (plan.changes.length === 0) {

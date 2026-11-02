@@ -39,7 +39,7 @@ command = "command-palette.open"
 description = "command palette"
 `;
 
-function world(initial: string | null, opts: { reloadOk?: boolean; confirm?: boolean; writeFails?: boolean } = {}) {
+function world(initial: string | null, opts: { reloadOk?: boolean; confirm?: boolean; writeFails?: boolean; unreadable?: boolean } = {}) {
   const files = new Map<string, string>();
   if (initial !== null) files.set(CONFIG, initial);
   const runs: string[][] = [];
@@ -50,7 +50,7 @@ function world(initial: string | null, opts: { reloadOk?: boolean; confirm?: boo
       return { ok: opts.reloadOk ?? true, stdout: '{"diagnostics":[]}\n' };
     },
     exists: (p) => files.has(p),
-    readFile: (p) => files.get(p) ?? null,
+    readFile: (p) => (opts.unreadable ? null : (files.get(p) ?? null)),
     env: { HERDR_CONFIG_PATH: CONFIG },
     platform: 'linux',
     home: 'h',
@@ -305,10 +305,45 @@ describe('herdr-setup apply', () => {
     expect(w.runs).toEqual([]);
   });
 
+  it('aborts without writing when the config exists but cannot be read', () => {
+    const w = world('[ui.toast]\ndelivery = "off"\n', { unreadable: true });
+    const r = w.apply('--yes');
+    expect(r.code).toBe(1);
+    expect(r.text).toContain('cannot be read');
+    expect(w.files.get(CONFIG)).toBe('[ui.toast]\ndelivery = "off"\n');
+    expect(backups(w.files)).toEqual([]);
+    expect(w.runs).toEqual([]);
+  });
+
   it('lists apply in the help', () => {
     const lines: string[] = [];
     main(['--help'], world('').apply as never, (t) => lines.push(t));
     expect(lines.join()).toContain('--dry-run');
+  });
+});
+
+describe('planApply robustness', () => {
+  it('hints at a delivery value other than off or herdr and leaves it alone', () => {
+    for (const v of ['all', 'system']) {
+      const plan = planApply(`[ui.toast]\ndelivery = "${v}"\n`);
+      expect(plan.hints.join('\n')).toContain(`ui.toast.delivery is "${v}"`);
+      expect(plan.after).toContain(`delivery = "${v}"`);
+    }
+    expect(planApply('[ui.toast]\ndelivery = "herdr"\n').hints.join()).not.toContain('delivery');
+  });
+
+  it('recognises a table after a leading BOM and keeps the BOM', () => {
+    const plan = planApply('\uFEFF[ui.toast]\ndelivery = "off"\n');
+    expect(plan.after.startsWith('\uFEFF[ui.toast]\ndelivery = "herdr"\n')).toBe(true);
+    expect(plan.after.match(/\[ui\.toast\]/g)).toHaveLength(1);
+  });
+
+  it('adds a hint and no key entries for an inline keys.command array', () => {
+    for (const text of ['[keys]\ncommand = [{ key = "prefix+d", command = "x" }]\n', 'keys.command = [{ key = "prefix+d" }]\n']) {
+      const plan = planApply(text);
+      expect(plan.hints.join('\n')).toContain('inline array');
+      expect(plan.after).not.toContain('[[keys.command]]');
+    }
   });
 });
 
@@ -321,6 +356,17 @@ describe('herdr-setup apply as a script', () => {
       env: { ...process.env, PATH: dir, Path: dir, HERDR_CONFIG_PATH: file },
       timeout: 25000,
     });
+
+  it('exits 1 when the config path is not a readable file', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'herdr-apply-'));
+    try {
+      const r = spawn(dir, dir, ['--yes']);
+      expect(r.status).toBe(1);
+      expect(readdirSync(dir)).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 
   it('dry-run writes nothing, --yes writes the file and a backup next to it', () => {
     const dir = mkdtempSync(join(tmpdir(), 'herdr-apply-'));
