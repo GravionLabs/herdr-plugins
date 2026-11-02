@@ -5,8 +5,10 @@ A herdr agent view "deliver" for parallel `/deliver` sessions. The `deliver` ski
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/deliver-view
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-view
 ```
+
+`<tag>` is a release tag, for example `v0.4.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## What it does
 

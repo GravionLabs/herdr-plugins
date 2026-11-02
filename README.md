@@ -9,8 +9,10 @@ Documentation: <https://gravionlabs.github.io/herdr-plugins/>
 [herdr](https://herdr.dev) plugins for the GravionLabs agent workflow (the `deliver` skill of [GravionLabs/skills](https://github.com/GravionLabs/skills), successor of the archived apm-hub). Each plugin lives in its own directory with a `herdr-plugin.toml` and installs on its own:
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/<plugin>
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/<plugin>
 ```
+
+`<tag>` is a release tag, for example `v0.4.0`; see [Install](docs/guide/install.md).
 
 ## Plugins
 

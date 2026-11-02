@@ -5,8 +5,10 @@ A popup to search a repository on disk and open it as its own workspace with one
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/repo-open
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/repo-open
 ```
+
+`<tag>` is a release tag, for example `v0.4.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Keybinding
 

@@ -140,7 +140,7 @@ describe('agent-notify manifest', () => {
     expect(manifest).toMatch(/^command = \["node", "bin\/changed\.ts"\]$/m);
   });
   it('documents install and config', () => {
-    expect(readme).toContain('herdr plugin install GravionLabs/herdr-plugins/agent-notify');
+    expect(readme).toContain('herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/agent-notify');
     expect(readme).toContain('systemNotification');
     expect(readme).toContain('"sound"');
   });

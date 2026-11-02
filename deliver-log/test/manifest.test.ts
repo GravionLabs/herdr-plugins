@@ -22,7 +22,7 @@ describe('deliver-log manifest', () => {
   });
 
   it('documents install, deliver skill and a plugin_action keybinding in the README', () => {
-    expect(readme).toContain('herdr plugin install GravionLabs/herdr-plugins/deliver-log');
+    expect(readme).toContain('herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-log');
     expect(readme).toContain('npx skills add GravionLabs/skills --skill deliver');
     expect(readme).toContain('type = "plugin_action"');
     expect(readme).toContain('command = "deliver-log.toggle"');

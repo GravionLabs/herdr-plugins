@@ -7,8 +7,10 @@
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/deliver-board
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-board
 ```
+
+`<tag>` is a release tag, for example `v0.4.0`; see [Install](../install.md).
 
 Requirements:
 

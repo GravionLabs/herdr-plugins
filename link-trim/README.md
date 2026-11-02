@@ -7,8 +7,10 @@ Only URLs that match the `trailing-punct` link handler (http or https, ending in
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/link-trim
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/link-trim
 ```
+
+`<tag>` is a release tag, for example `v0.4.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Requirements
 

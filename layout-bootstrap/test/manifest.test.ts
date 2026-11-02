@@ -13,7 +13,7 @@ describe('layout-bootstrap manifest', () => {
   });
 
   it('documents the install command, the layout file and a keybinding in the README', () => {
-    expect(readme).toContain('herdr plugin install GravionLabs/herdr-plugins/layout-bootstrap');
+    expect(readme).toContain('herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/layout-bootstrap');
     expect(readme).toContain('.agents/herdr-layout.json');
     expect(readme).toContain('command = "layout-bootstrap.apply"');
   });

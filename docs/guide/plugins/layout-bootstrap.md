@@ -7,8 +7,10 @@
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/layout-bootstrap
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/layout-bootstrap
 ```
+
+`<tag>` is a release tag, for example `v0.4.0`; see [Install](../install.md).
 
 None beyond herdr 0.9.5. Platforms: macOS and Linux. Git must be available: the repository root is the git toplevel of the focused pane's cwd.
 

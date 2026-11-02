@@ -5,8 +5,10 @@ A popup to search and run plugin actions and own commands with one key. The `ope
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/command-palette
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/command-palette
 ```
+
+`<tag>` is a release tag, for example `v0.4.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Keybinding
 
