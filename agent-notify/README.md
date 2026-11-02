@@ -9,8 +9,10 @@ The same pane and state notify once within 30 s.
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/agent-notify
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/agent-notify
 ```
+
+`<tag>` is a release tag, for example `v0.4.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Config
 

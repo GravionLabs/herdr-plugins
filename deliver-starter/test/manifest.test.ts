@@ -34,7 +34,7 @@ describe('deliver-starter manifest', () => {
   });
 
   it('documents install, config keys, keybinding and the worktree in the README', () => {
-    expect(readme).toContain('herdr plugin install GravionLabs/herdr-plugins/deliver-starter');
+    expect(readme).toContain('herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-starter');
     expect(readme).toContain('npx skills add GravionLabs/skills --skill deliver');
     expect(readme).toContain('type = "plugin_action"');
     expect(readme).toContain('command = "deliver-starter.start"');

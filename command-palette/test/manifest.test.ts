@@ -31,7 +31,7 @@ describe('command-palette manifest', () => {
   });
 
   it('documents install command and keybinding in the README', () => {
-    expect(readme).toContain('herdr plugin install GravionLabs/herdr-plugins/command-palette');
+    expect(readme).toContain('herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/command-palette');
     expect(readme).toContain('type = "plugin_action"');
     expect(readme).toContain('command = "command-palette.open"');
     expect(readme).toContain('key = "prefix+a"');

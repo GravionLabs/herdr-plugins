@@ -8,7 +8,7 @@ Running the checklist is tracked outside this file (#124 and each release). Reco
 
 - [ ] herdr `0.9.5` or newer is installed and running (`herdr --version`).
 - [ ] Node.js 26 (`node --version`), `git`, and for several plugins `gh` (logged in with `gh auth login`) and PowerShell 7+ (`pwsh --version`).
-- [ ] The release candidate is the version under test: install from the branch or tag, for example `herdr plugin install GravionLabs/herdr-plugins/<plugin>`.
+- [ ] The release candidate is the version under test: install a release tag (`<tag>`, for example `v0.4.0`), for example `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/<plugin>`.
 - [ ] A scratch git repository with a `release/next` branch, a GitHub remote and a few open issues labelled `pbi`.
 - [ ] `ui.mouse_capture` is on in herdr's `config.toml` (needed for link handlers).
 - [ ] Windows only: until #86 lands, the manifests list only `macos` and `linux` (ADR 0001), so `herdr plugin install` may refuse the plugin; record that as a known pre-release result, not a plugin failure. After #86 every manifest lists `windows` in `platforms` and the install must succeed. Use PowerShell or Windows Terminal; paths below use `$HERDR_PLUGIN_CONFIG_DIR` and `$HERDR_PLUGIN_STATE_DIR` as printed by `herdr plugin config-dir <plugin>` and the state directory of the plugin.
@@ -31,7 +31,7 @@ For every plugin below, "Uninstall" means `herdr plugin uninstall <plugin>` foll
 
 Event `pane.agent_status_changed`. No action, pane or link handler.
 
-- [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/agent-notify`; `herdr plugin list` shows `agent-notify`.
+- [ ] Install: `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/agent-notify`; `herdr plugin list` shows `agent-notify`.
 - [ ] Event, done: in a pane running an agent (or a script that sets the agent state), make the pane turn `done`. Expected: one herdr notification naming the pane, workspace and tab, for example `Claude done`.
 - [ ] Event, blocked: make the pane turn `blocked`. Expected: one herdr notification for the blocked state.
 - [ ] De-duplication: trigger the same pane and the same state twice within 30 seconds. Expected: one notification only.
@@ -48,7 +48,7 @@ Event `pane.agent_status_changed`. No action, pane or link handler.
 
 Action `open`, pane `palette` (popup).
 
-- [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/command-palette`.
+- [ ] Install: `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/command-palette`.
 - [ ] Action: `herdr plugin action invoke command-palette.open`, or the bound key. Expected: a popup with a search field and a list `<plugin_id> · <title>` of all installed plugin actions; `command-palette.open` itself is not listed.
 - [ ] Filter: type `dl`. Expected: entries are filtered live, case-insensitive, word starts match (`deliver-log`). Backspace widens the list again.
 - [ ] Keys: Up, Down, Ctrl+P and Ctrl+N move the selection.
@@ -63,7 +63,7 @@ Action `open`, pane `palette` (popup).
 
 Action `open`, pane `board` (popup).
 
-- [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/deliver-board`.
+- [ ] Install: `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-board`.
 - [ ] Action in the scratch repository: `herdr plugin action invoke deliver-board.open`. Expected: a popup with one row per open `pbi` issue, ordered by number, with the columns PBI, Title, Assignee, Labels, Branch, PR, Checks.
 - [ ] A PBI with a pushed `<type>/<nr>-*` branch and a PR into `release/next` shows the branch, the PR number and the check state.
 - [ ] Keys: `j`/`k` and the arrow keys move the selection; Enter opens the PR (or the issue without a PR) in the browser; `r` refreshes; `q` and Escape close.
@@ -75,7 +75,7 @@ Action `open`, pane `board` (popup).
 
 Action `toggle` (deprecated alias `toggle-log`). Needs the `deliver` skill and `pwsh`.
 
-- [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/deliver-log`.
+- [ ] Install: `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-log`.
 - [ ] Skill missing: run the action without the `deliver` skill installed. Expected: a notification that names what is missing, exit without a crash.
 - [ ] With the skill installed and a log file `.agents/deliver-loop.ansi.log` (or `.agents/deliver-loop.log`) in the repository: the action shows the log pane.
 - [ ] Run the action again. Expected: the log pane is hidden (closed and reopened with the same content on the next toggle).
@@ -86,7 +86,7 @@ Action `toggle` (deprecated alias `toggle-log`). Needs the `deliver` skill and `
 
 Actions `start`, `start-link`; pane `form` (popup); link handler `github-issue`.
 
-- [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/deliver-starter`.
+- [ ] Install: `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-starter`.
 - [ ] Action `start`: the popup asks for the `/deliver` arguments and the mode (`interactive` or `unattended`).
 - [ ] Validation: enter an issue number that does not exist. Expected: nothing starts and a message names the problem.
 - [ ] Suggestions: type `#`. Expected: open Epics, Features, PBIs and Bugs of the focused pane's repository, filtered live; Up/Down move, Enter inserts the number.
@@ -108,7 +108,7 @@ Actions `start`, `start-link`; pane `form` (popup); link handler `github-issue`.
 
 Action `apply`; one `[[startup]]` hook.
 
-- [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/deliver-view`.
+- [ ] Install: `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-view`.
 - [ ] Action: `herdr plugin action invoke deliver-view.apply`. Expected: the agent view `deliver` is active; blocked agents are on top, then agents with the token `deliver`, then the most recent state change first.
 - [ ] State file: `view.json` exists in the state directory and holds the view object.
 - [ ] Startup hook: edit `view.json` (for example change the label), restart herdr. Expected: the stored view is applied once after the session is restored.
@@ -121,7 +121,7 @@ Action `apply`; one `[[startup]]` hook.
 
 Action `apply`.
 
-- [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/layout-bootstrap`.
+- [ ] Install: `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/layout-bootstrap`.
 - [ ] Default layout: in a workspace of a git repository, run `herdr plugin action invoke layout-bootstrap.apply`. Expected: the focused pane becomes `agent`, plus panes `tests` (right, top) and `shell` (right, bottom), all in the repository root.
 - [ ] Idempotent: run the action again. Expected: no new panes, nothing renamed or run again.
 - [ ] `testCommand`: `config.json` with `{"testCommand":"npm test -- --watch"}`. Expected: the `tests` pane runs it; without the key the pane stays empty.
@@ -135,7 +135,7 @@ Action `apply`.
 
 Action `open`; link handler `trailing-punct`.
 
-- [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/link-trim`.
+- [ ] Install: `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/link-trim`.
 - [ ] Print `https://github.com/GravionLabs/ci/pull/91)` in a pane and Ctrl+click it. Expected: the browser opens `.../pull/91` (no 404).
 - [ ] Repeat with the endings `.`, `,`, `;`, `:`, `'`, `"` and `]`. Expected: each is removed; several in a row (`...91).`) are all removed.
 - [ ] `https://en.wikipedia.org/wiki/Foo_(bar)` opens unchanged (the `)` has a partner).
@@ -147,7 +147,7 @@ Action `open`; link handler `trailing-punct`.
 
 Action `open`, pane `picker` (popup).
 
-- [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/repo-open`.
+- [ ] Install: `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/repo-open`.
 - [ ] Discovery: with the default config, the repositories below `~/Source` (up to 3 levels) are listed by name with their relative path; nested repositories, hidden directories and `node_modules` are not listed.
 - [ ] Action: `herdr plugin action invoke repo-open.open`, or the bound key. Expected: a popup with a search field and the repositories as `<name>  <relative path>`.
 - [ ] Filter: type `hp`. Expected: `herdr-plugins` is listed (word starts), filtering is live and case-insensitive; Backspace widens the list again. Up, Down, Ctrl+P and Ctrl+N move the selection.
@@ -163,7 +163,7 @@ Action `open`, pane `picker` (popup).
 
 Action `open`, pane `review` (popup).
 
-- [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/review-popup`.
+- [ ] Install: `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/review-popup`.
 - [ ] Branch without PBI number (`main`): the popup shows one line saying so.
 - [ ] Branch `feat/12-example` without a review file: one line saying that no review file exists.
 - [ ] Place a valid `<git-common-dir>/.agents/state/review-12.json` (review of the `deliver` skill). The schemas are `review-popup/schema/deliver-review.schema.json` (outer object) and `review-popup/schema/review.schema.json` (the `review` member). Minimal valid file (`sha` is 7 to 64 lowercase hex characters; use the branch's HEAD to avoid the stale mark):
@@ -184,7 +184,7 @@ Action `open`, pane `review` (popup).
 
 Action `cleanup`; event `worktree.removed`. Needs the `deliver` skill, `pwsh`, `gh` and `git`.
 
-- [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/worktree-cleanup`.
+- [ ] Install: `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/worktree-cleanup`.
 - [ ] Prepare: merge a PR from `feat/<nr>-x` into `release/next` (or use a scratch repository), keep the local branch and the worktree.
 - [ ] Action: `herdr plugin action invoke worktree-cleanup.cleanup`. Expected: the worktree and local branch of the merged PBI are removed; notification `<n> removed, <m> left`.
 - [ ] Safety: a worktree with uncommitted changes and the worktree of the focused pane are not removed and are listed in `herdr plugin log list --plugin worktree-cleanup` with the command to remove them by hand.

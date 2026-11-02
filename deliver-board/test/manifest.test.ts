@@ -31,7 +31,7 @@ describe('deliver-board manifest', () => {
   });
 
   it('documents the install command and a keybinding for the open action in the README', () => {
-    expect(readme).toContain('herdr plugin install GravionLabs/herdr-plugins/deliver-board');
+    expect(readme).toContain('herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-board');
     expect(readme).toContain('command = "deliver-board.open"');
     expect(readme).toContain('type = "plugin_action"');
   });

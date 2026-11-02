@@ -27,7 +27,7 @@ describe('worktree-cleanup manifest', () => {
   });
 
   it('documents the install command, the deliver skill and a keybinding for the cleanup action in the README', () => {
-    expect(readme).toContain('herdr plugin install GravionLabs/herdr-plugins/worktree-cleanup');
+    expect(readme).toContain('herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/worktree-cleanup');
     expect(readme).toContain('npx skills add GravionLabs/skills --skill deliver');
     expect(readme).toContain('command = "worktree-cleanup.cleanup"');
   });

@@ -29,7 +29,7 @@ describe('repo-open manifest', () => {
   });
 
   it('documents install command and keybinding in the README', () => {
-    expect(readme).toContain('herdr plugin install GravionLabs/herdr-plugins/repo-open');
+    expect(readme).toContain('herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/repo-open');
     expect(readme).toContain('type = "plugin_action"');
     expect(readme).toContain('command = "repo-open.open"');
     expect(readme).toContain('key = "prefix+shift+f"');
