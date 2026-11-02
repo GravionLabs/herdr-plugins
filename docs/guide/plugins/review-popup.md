@@ -68,11 +68,11 @@ None. The plugin reads no config file. It validates review files against copies 
 
 - **`No review file for #<nr>: <path>`.** `deliver` has not written a review for this PBI yet. It writes the file after a review round.
 - **The list is empty on a branch without PBI number.** There is no review in the repository at all.
-- **One line with a validation error instead of the review.** The review file is invalid; the line names the problem.
+- **`Invalid review file <path>:` with the error on a second line.** The review file is invalid; the second line names the problem.
 - **`Unsupported review schema version ...`.** The file has a `schemaVersion` other than 1. Use the `deliver` skill version the message names or a compatible one.
 - **`Not opened: ...` after Enter.** The finding's file lies outside the worktree (`../`) or its name contains `'`, `\`, a typographic single quote or a control character. This is intentional; open the file by hand.
 - **Odd `?` characters in a title.** Control characters of the review text are shown as `?` so no escape sequence from a review reaches the terminal.
-- **A notification such as `review-popup: <tool> is not installed` or `review-popup: not a git repository`.** The action could not open the popup. Install the missing tool and make sure it is on your `PATH`, or focus a pane inside a git repository.
+- **`not a git repository: <cwd>. Open the pane inside a git repository.` or `git is not installed. Install it and make sure it is on your PATH.` in the popup.** The popup could not read the repository. Focus a pane inside a git repository, or install git. A notification appears only when `herdr plugin pane open` itself fails, for example when herdr is missing.
 
 ## Preview
 

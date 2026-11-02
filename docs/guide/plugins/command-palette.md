@@ -47,7 +47,7 @@ Keys in the popup:
 
 | Key | Action |
 | --- | --- |
-| type, Backspace | Filter live, case-insensitive (prefix first, then word starts such as `dl` for `deliver-log`, then scattered letters). |
+| type, Backspace | Filter live, case-insensitive, on the title only (the `<plugin_id> ·` prefix is display-only and not searched) (prefix first, then word starts such as `tdl` for `Toggle the deliver log pane`, then scattered letters). |
 | Up, Down, Ctrl+P, Ctrl+N | Move the selection. |
 | Enter | Run the selected entry; the popup closes. |
 | Escape, Ctrl+C | Close the popup. |
@@ -72,12 +72,13 @@ Recently used entries are kept in one global history (all repositories) in `$HER
 
 ## Examples
 
-- Press the palette key, type `dl`: `deliver-log · ...` matches by word starts. Enter runs that plugin's action in the pane you came from.
+- Press the palette key, type `tdl`: the entry `deliver-log · Toggle the deliver log pane` matches by word starts of its title. Only the title is searched, not the plugin id, so `dl` would not find it by the plugin name. Enter runs that plugin's action in the pane you came from.
 - Add the `show agent-log` entry above to `config.json`. The palette lists `config · show agent-log`; Enter runs `herdr pane split --current` without a shell.
 - Open the palette with an empty search after using it for a while: the entries you use most come first.
 
 ## Troubleshooting
 
+- **`No matches`.** Entries exist but none matches the query; `No plugin actions found` shows only when the combined entry list is empty.
 - **`No plugin actions found`.** `herdr plugin action list` returned nothing, failed, timed out after 10 s or could not be parsed. Check that herdr is running and that plugins are installed.
 - **A hint line `config.json: <problem>` under the search field.** The file has invalid JSON, an invalid entry or an unknown key (`(+N more)` for further problems). Valid entries still work. Fix the named problem.
 - **The notification `command-palette: <title> failed`.** The action or command exited non-zero, timed out after 10 s or could not be started.
@@ -87,6 +88,6 @@ Recently used entries are kept in one global history (all repositories) in `$HER
 ## Preview
 
 ```text
-[screenshot placeholder: a popup with a search field showing "dl", below it a list of entries
-such as "deliver-log · Toggle the log" and "config · show agent-log", one highlighted]
+[screenshot placeholder: a popup with a search field showing "tdl", below it a list of entries
+such as "deliver-log · Toggle the deliver log pane" and "config · show agent-log", one highlighted]
 ```

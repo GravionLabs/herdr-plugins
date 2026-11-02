@@ -69,6 +69,7 @@ None. The plugin reads no config file.
 - **A notification says `worktree-cleanup: deliver skill not installed`.** The skill was not found in any of the four lookup locations. Run `npx skills add GravionLabs/skills --skill deliver`.
 - **A notification says `worktree-cleanup: not a git repository`.** The focused pane is not inside a git repository. Focus a pane in one.
 - **A notification names a missing tool (`<tool> is not installed`) or `gh is not logged in`.** Install `pwsh`, `gh` or `git` and make sure it is on your `PATH`, and run `gh auth login`.
+- **The notification title ends with `, <k> failed`.** A per-PR script run failed. The plugin log lists each as `failed PR #<n>: ...`.
 - **Something stays after the run.** It is counted under `left`: a worktree with uncommitted changes, the current worktree, or a branch with local-only commits. The plugin log lists each with the command to remove it by hand.
 - **A branch was not deleted by the event hook.** It is still checked out in another worktree, has commits on no remote branch, or is `main`, `master`, `release/next` or the default branch of `origin`.
 
