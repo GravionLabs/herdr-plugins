@@ -9,7 +9,7 @@ describe('deliver-starter manifest', () => {
   it('declares id, name, version, min_herdr_version and platforms', () => {
     expect(manifest).toMatch(/^id = "deliver-starter"$/m);
     expect(manifest).toMatch(/^name = "deliver-starter"$/m);
-    expect(manifest).toMatch(/^version = "0\.1\.0"$/m);
+    expect(manifest).toMatch(/^version = "\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?"$/m); // the release writes it (scripts/set-version.ts)
     expect(manifest).toMatch(/^min_herdr_version = "0\.9\.5"$/m);
     expect(manifest).toMatch(/^platforms = \["macos", "linux"\]$/m);
   });
