@@ -35,6 +35,15 @@ Action `open` opens the popup `picker` with a search field over the discovered r
 
 Without any repository the list shows `No repositories below <roots>`.
 
+## Opening
+
+Enter closes the popup and starts a detached runner (`bin/run.ts`) for the repository:
+
+- **Existing workspace:** a workspace with a pane inside the repository, else one labelled with the repository name whose panes are not elsewhere, is focused. Nothing is created or changed.
+- **New workspace:** `workspace create --cwd <repo> --label <name>`; when another workspace already has that label (two repositories with the same name), the label is the relative path. The root tab is renamed to the first tab label; every further tab is created with the repository root as cwd. A tab with a `command` gets it typed into its shell. Then the `focus` tab (default `agent`) and the workspace are focused.
+- The repository is recorded in `recent.json` only after it opened.
+- A failing herdr call shows the notification `repo-open: <name> failed` with the reason as body.
+
 ## Recently opened
 
 `$HERDR_PLUGIN_STATE_DIR/recent.json` holds `{ "<repository path>": { "count", "last" } }`. With an empty search, opened repositories come first by frecency (count, halved every 7 days since the last open), the others follow by name. With a search, usage only breaks ties between equal match quality. A missing or corrupt file counts as empty.
@@ -68,4 +77,4 @@ Every directory below a root that contains `.git` (a directory, or a file for a 
 
 ## Development
 
-Config parsing is in `lib/config.ts`, the discovery in `lib/discover.ts`, filter, keys, view and history of the popup in `lib/filter.ts`, `lib/keys.ts`, `lib/view.ts` and `lib/recent.ts`; `bin/picker.ts` is the popup loop. Run the tests from the repository root with `npm test`.
+Config parsing is in `lib/config.ts`, the discovery in `lib/discover.ts`, filter, keys, view and history of the popup in `lib/filter.ts`, `lib/keys.ts`, `lib/view.ts` and `lib/recent.ts`; `bin/picker.ts` is the popup loop. The open step is in `lib/open.ts` (tests with a fake herdr runner that records the calls), `bin/run.ts` is the detached runner. Run the tests from the repository root with `npm test`.
