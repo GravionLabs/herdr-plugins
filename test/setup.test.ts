@@ -89,3 +89,34 @@ describe('repository setup', () => {
     }
   });
 });
+
+describe('setup script docs', async () => {
+  const { HELP } = await import('../scripts/herdr-setup.ts');
+  const section = (title: string): string => HELP.slice(HELP.indexOf(`${title}:`)).split(/\n\n/)[0];
+  const commands = [...section('Commands').matchAll(/^ {2}([a-z]+)\b/gm)].map((m) => m[1]);
+  const flags = [...new Set([...section('Options').matchAll(/^ {2}(--[a-z-]+)/gm)].map((m) => m[1]))].filter((f) => f !== '--help');
+
+  it('reads the commands and flags from the help text', () => {
+    expect(commands).toEqual(['doctor', 'apply', 'install']);
+    expect(flags).toEqual(['--ref', '--json', '--yes', '--dry-run']);
+  });
+
+  for (const file of ['README.md', 'docs/guide/getting-started.md']) {
+    it(`${file} shows every command of --help`, () => {
+      const text = read(file);
+      for (const command of commands) expect(text, command).toContain(`node scripts/herdr-setup.ts ${command}`);
+    });
+
+    it(`${file} names every flag of --help`, () => {
+      const text = read(file);
+      for (const flag of flags) expect(text, flag).toContain(`\`${flag}`);
+    });
+  }
+
+  it('points the settings section of the README to apply', () => {
+    const readme = read('README.md');
+    const settings = readme.slice(readme.indexOf('## herdr settings the plugins rely on'));
+
+    expect(settings).toContain('node scripts/herdr-setup.ts apply');
+  });
+});

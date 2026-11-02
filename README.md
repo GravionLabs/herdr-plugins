@@ -30,6 +30,30 @@ herdr plugin install GravionLabs/herdr-plugins/<plugin>
 
 Order and releases: [ROADMAP.md](ROADMAP.md).
 
+## Setup script
+
+`scripts/herdr-setup.ts` (Node 26) checks the machine and sets herdr up for the plugins. Run it from a clone of this repository:
+
+| Command | What it changes |
+|:--|:--|
+| `node scripts/herdr-setup.ts doctor` | Nothing. Checks herdr, Node, `gh`, `pwsh`, the `deliver` skill, the settings below and the installed plugins. `--json` prints JSON. |
+| `node scripts/herdr-setup.ts apply` | Adds the missing `config.toml` blocks after a diff and a backup, then runs `herdr server reload-config`. Never overwrites a key you set. `--dry-run` only shows the diff, `--yes` skips the question. |
+| `node scripts/herdr-setup.ts install` | Runs `herdr plugin install -y --ref <tag>` per plugin at the latest release tag. `--ref <tag>` picks another tag, `--dry-run` only shows the plan. |
+
+Example of `doctor`:
+
+```text
+$ node scripts/herdr-setup.ts doctor
+ok   herdr: 0.9.5
+ok   node: v26.13.0
+ok   gh login: logged in
+ok   ui.toast.delivery: herdr
+ok   config: ~/.config/herdr/config.toml
+...
+```
+
+More output examples: [Getting started](https://gravionlabs.github.io/herdr-plugins/guide/getting-started).
+
 ## herdr settings the plugins rely on
 
 Some plugin features look broken when a herdr setting is off, and the cause is the setting, not the plugin. These settings live in herdr's `config.toml`; the plugins never write it. After a change, run `herdr server reload-config`.
