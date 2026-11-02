@@ -5,10 +5,10 @@ import { activeQuery, filterIssues, insertNumber, loadIssues, markers, parseIssu
 
 // Recorded shape of `gh issue list --json number,title,labels,assignees`.
 const recorded = JSON.stringify([
-  { number: 36, title: '[PBI] Suggest open issues', labels: [{ name: 'needs-refinement' }], assignees: [] },
+  { number: 36, title: '[PBI] Suggest open issues', labels: [{ name: 'needs-refinement' }], assignees: [], milestone: { title: '0.4.0' } },
   { number: 12, title: '[Feature] Board view', labels: [{ name: 'needs-decision' }], assignees: [{ login: 'ann' }] },
   { number: 7, title: '[Epic] Delivery', labels: [], assignees: [] },
-  { number: 40, title: 'Plain bug report', labels: [{ name: 'bug' }], assignees: [] },
+  { number: 40, title: 'Plain bug report', labels: [{ name: 'bug' }], assignees: [], milestone: { title: '0.4.0' } },
   { number: 41, title: 'Untitled level', labels: [{ name: 'PBI' }], assignees: [] },
   { title: 'broken entry' },
 ]);
@@ -16,13 +16,15 @@ const recorded = JSON.stringify([
 describe('parseIssues', () => {
   const issues = parseIssues(recorded)!;
 
-  it('keeps PBIs, Features and Epics by title prefix or label', () => {
+  it('keeps Epics, Features, PBIs and Bugs by title prefix or label, with their milestone', () => {
     expect(issues.map((i) => [i.number, i.level])).toEqual([
       [36, 'PBI'],
       [12, 'Feature'],
       [7, 'Epic'],
+      [40, 'Bug'],
       [41, 'PBI'],
     ]);
+    expect(issues.map((i) => i.milestone)).toEqual(['0.4.0', null, null, '0.4.0', null]);
   });
 
   it('reads markers', () => {
@@ -42,7 +44,7 @@ describe('filterIssues and token helpers', () => {
   const issues = parseIssues(recorded)!;
 
   it('filters by number start and title text', () => {
-    expect(filterIssues(issues, '').length).toBe(4);
+    expect(filterIssues(issues, '').length).toBe(5);
     expect(filterIssues(issues, '3').map((i) => i.number)).toEqual([36]);
     expect(filterIssues(issues, 'BOARD').map((i) => i.number)).toEqual([12]);
     expect(filterIssues(issues, 'zzz')).toEqual([]);
@@ -78,9 +80,9 @@ describe('loadIssues', () => {
       return { ok: true, stdout: recorded };
     };
     const loaded = await loadIssues(run, '/repo', 25);
-    expect(loaded.ok && loaded.issues.length).toBe(4);
+    expect(loaded.ok && loaded.issues.length).toBe(5);
     expect(calls).toEqual([
-      ['gh', 'issue', 'list', '--state', 'open', '--json', 'number,title,labels,assignees', '--limit', '25'],
+      ['gh', 'issue', 'list', '--state', 'open', '--json', 'number,title,labels,assignees,milestone', '--limit', '25'],
     ]);
   });
 
@@ -103,7 +105,7 @@ describe('list key handling', () => {
     let form = withIssues('');
     expect(visibleList(form)).toEqual([]);
     form = applyKey(form, '#').form;
-    expect(visibleList(form).length).toBe(4);
+    expect(visibleList(form).length).toBe(5);
     form = applyKey(form, 'boa').form;
     expect(visibleList(form).map((i) => i.number)).toEqual([12]);
   });
@@ -113,7 +115,7 @@ describe('list key handling', () => {
     const step = applyKey(form, '\r');
     expect(step.event).toBeNull();
     expect(step.form.text).toBe('12 ');
-    expect(applyKey(withIssues('#'), UP).form.index).toBe(3);
+    expect(applyKey(withIssues('#'), UP).form.index).toBe(4);
   });
 
   it('several numbers can be inserted', () => {
