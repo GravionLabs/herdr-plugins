@@ -8,7 +8,7 @@ A popup with the delivery state of the current repository: the open PBIs, who cl
 herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-board
 ```
 
-`<tag>` is a release tag, for example `v0.4.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Keybinding
 

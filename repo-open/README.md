@@ -8,7 +8,7 @@ A popup to search a repository on disk and open it as its own workspace with one
 herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/repo-open
 ```
 
-`<tag>` is a release tag, for example `v0.4.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install). repo-open needs release `v0.5.0` or newer; earlier releases do not contain it.
 
 ## Keybinding
 

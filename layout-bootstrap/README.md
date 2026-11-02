@@ -8,7 +8,7 @@ Opens a project workspace with a fixed pane layout in one key: agent pane, test 
 herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/layout-bootstrap
 ```
 
-`<tag>` is a release tag, for example `v0.4.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Keybinding
 

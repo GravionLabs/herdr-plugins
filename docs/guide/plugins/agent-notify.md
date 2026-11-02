@@ -12,7 +12,7 @@ A pane with the token `deliver` is named by its tokens: `deliver #12 review: 1 b
 herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/agent-notify
 ```
 
-`<tag>` is a release tag, for example `v0.4.0`; see [Install](../install.md).
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](../install.md).
 
 Requirements:
 

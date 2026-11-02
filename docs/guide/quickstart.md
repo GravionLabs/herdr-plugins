@@ -1,6 +1,6 @@
 # Quickstart
 
-Five minutes, ending with a working command palette and a deliver board. You need herdr 0.9.5 or newer, Node.js 26 (the palette and board run `node bin/...ts`) and `git`; the board step also needs `gh` logged in ([prerequisites](./prerequisites.md)). Check with `herdr --version` and `node --version`. Replace `v0.4.0` with the latest [release](https://github.com/GravionLabs/herdr-plugins/releases).
+Five minutes, ending with a working command palette and a deliver board. You need herdr 0.9.5 or newer, Node.js 26 (the palette and board run `node bin/...ts`) and `git`; the board step also needs `gh` logged in ([prerequisites](./prerequisites.md)). Check with `herdr --version` and `node --version`. Replace `v0.5.0` with the latest [release](https://github.com/GravionLabs/herdr-plugins/releases).
 
 ::: warning Not yet verified on Linux and Windows
 Verified on macOS only. Linux is expected to work the same; Windows is not a declared platform yet ([details](./install.md#linux-and-windows)).
@@ -9,8 +9,8 @@ Verified on macOS only. Linux is expected to work the same; Windows is not a dec
 ## 1. Install the two plugins
 
 ```sh
-herdr plugin install -y --ref v0.4.0 GravionLabs/herdr-plugins/command-palette
-herdr plugin install -y --ref v0.4.0 GravionLabs/herdr-plugins/deliver-board
+herdr plugin install -y --ref v0.5.0 GravionLabs/herdr-plugins/command-palette
+herdr plugin install -y --ref v0.5.0 GravionLabs/herdr-plugins/deliver-board
 herdr plugin list
 ```
 

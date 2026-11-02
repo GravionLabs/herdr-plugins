@@ -10,7 +10,7 @@
 herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/command-palette
 ```
 
-`<tag>` is a release tag, for example `v0.4.0`; see [Install](../install.md).
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](../install.md).
 
 None beyond herdr 0.9.5. Platforms: macOS and Linux.
 

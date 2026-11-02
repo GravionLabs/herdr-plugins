@@ -12,7 +12,7 @@ Only http and https URLs ending in `)`, `]`, `.`, `,`, `;`, `:`, `'` or `"` are 
 herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/link-trim
 ```
 
-`<tag>` is a release tag, for example `v0.4.0`; see [Install](../install.md).
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](../install.md).
 
 Requirements:
 

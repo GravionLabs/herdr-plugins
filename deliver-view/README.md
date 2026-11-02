@@ -8,7 +8,7 @@ A herdr agent view "deliver" for parallel `/deliver` sessions. The `deliver` ski
 herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-view
 ```
 
-`<tag>` is a release tag, for example `v0.4.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## What it does
 

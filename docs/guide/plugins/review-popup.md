@@ -12,7 +12,7 @@ The PBI number comes from the branch name `<type>/<nr>-<slug>`. The file is `<gi
 herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/review-popup
 ```
 
-`<tag>` is a release tag, for example `v0.4.0`; see [Install](../install.md).
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](../install.md).
 
 Requirements:
 

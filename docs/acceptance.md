@@ -8,7 +8,7 @@ Running the checklist is tracked outside this file (#124 and each release). Reco
 
 - [ ] herdr `0.9.5` or newer is installed and running (`herdr --version`).
 - [ ] Node.js 26 (`node --version`), `git`, and for several plugins `gh` (logged in with `gh auth login`) and PowerShell 7+ (`pwsh --version`).
-- [ ] The release candidate is the version under test: install a release tag (`<tag>`, for example `v0.4.0`), for example `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/<plugin>`.
+- [ ] The release candidate is the version under test: install a release tag (`<tag>`, for example `v0.5.0`), for example `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/<plugin>`.
 - [ ] A scratch git repository with a `release/next` branch, a GitHub remote and a few open issues labelled `pbi`.
 - [ ] `ui.mouse_capture` is on in herdr's `config.toml` (needed for link handlers).
 - [ ] Windows only: until #86 lands (milestone 0.6.0), the manifests list only `macos` and `linux` (ADR 0001), so `herdr plugin install` may refuse the plugin; record that as a known pre-release result, not a plugin failure. After #86 every manifest lists `windows` in `platforms` and the install must succeed. Use PowerShell or Windows Terminal; paths below use `$HERDR_PLUGIN_CONFIG_DIR` and `$HERDR_PLUGIN_STATE_DIR` as printed by `herdr plugin config-dir <plugin>` and the state directory of the plugin.

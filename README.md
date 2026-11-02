@@ -12,7 +12,7 @@ Documentation: <https://gravionlabs.github.io/herdr-plugins/>
 herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/<plugin>
 ```
 
-`<tag>` is a release tag, for example `v0.4.0`; see [Install](docs/guide/install.md).
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](docs/guide/install.md).
 
 ## Plugins
 
