@@ -71,7 +71,7 @@ export function parseIssues(json: string): Issue[] {
         .filter(isObject)
         .map((l) => text(l.name))
         .filter((name) => name !== ''),
-      url: text(item.url) || text(item.html_url),
+      url: text(item.html_url) || text(item.url),
     }));
 }
 
@@ -171,4 +171,22 @@ export function buildRows(issues: Issue[], pullRequests: PullRequest[], branches
         url: pr?.url || issue.url,
       };
     });
+}
+
+export const ISSUES_PAGE_SIZE = 100;
+export const ISSUES_MAX_PAGES = 2;
+
+type PageResult<F> = { ok: true; body: string } | ({ ok: false } & F);
+
+// Fetches REST issue pages (page size 100, at most 200 issues) until a short page; returns one merged JSON list.
+export async function fetchIssuePages<F>(fetchPage: (page: number) => Promise<PageResult<F>>): Promise<PageResult<F>> {
+  const all: unknown[] = [];
+  for (let page = 1; page <= ISSUES_MAX_PAGES; page++) {
+    const result = await fetchPage(page);
+    if (!result.ok) return result;
+    const items = parseArray(result.body, 'issues');
+    all.push(...items);
+    if (items.length < ISSUES_PAGE_SIZE) break;
+  }
+  return { ok: true, body: JSON.stringify(all) };
 }

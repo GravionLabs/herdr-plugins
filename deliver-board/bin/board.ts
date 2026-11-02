@@ -2,7 +2,7 @@
 // herdr pane `board` (popup): open PBIs, claims, branches and PR state of the focused pane's repository.
 // Input: DELIVER_BOARD_CWD (set by the `open` action) or HERDR_PLUGIN_CONTEXT_JSON. Reads only, never writes.
 import { execFile } from 'node:child_process';
-import { buildRows, parseIssues, parsePullRequests, parseRemoteHeads, type Row } from '../lib/board.ts';
+import { buildRows, fetchIssuePages, ISSUES_PAGE_SIZE, parseIssues, parsePullRequests, parseRemoteHeads, type Row } from '../lib/board.ts';
 import { opener } from '../lib/open.ts';
 import { cachedApi, cachedCommand, DEFAULT_TTL_MS, type CacheOptions } from '../lib/ghcache.ts';
 import { cwdFromContext, ghErrorLine } from '../lib/context.ts';
@@ -79,7 +79,9 @@ async function main(): Promise<void> {
     status = 'Loading…';
     draw();
     const [issues, prs, heads] = await Promise.all([
-      cachedApi(run, repo, 'repos/{owner}/{repo}/issues?labels=pbi&state=open&per_page=100', cache),
+      fetchIssuePages((page) =>
+        cachedApi(run, repo, `repos/{owner}/{repo}/issues?labels=pbi&state=open&per_page=${ISSUES_PAGE_SIZE}&page=${page}`, cache),
+      ),
       cachedCommand(
         run,
         'gh',

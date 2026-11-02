@@ -4,6 +4,7 @@ import {
   buildRows,
   formatChecks,
   issueNumberOfBranch,
+  fetchIssuePages,
   parseIssues,
   parsePullRequests,
   parseRemoteHeads,
@@ -27,6 +28,20 @@ describe('parseIssues', () => {
       labels: ['merged', 'pbi'],
       url: 'https://github.com/GravionLabs/skills/issues/73',
     });
+  });
+
+  it('prefers the browser html_url over the API url of a REST issue', () => {
+    const rest = JSON.stringify([
+      {
+        number: 5,
+        title: 'x',
+        url: 'https://api.github.com/repos/o/r/issues/5',
+        html_url: 'https://github.com/o/r/issues/5',
+        assignees: [],
+        labels: [],
+      },
+    ]);
+    expect(parseIssues(rest)[0]?.url).toBe('https://github.com/o/r/issues/5');
   });
 
   it('reads the assignee login of a claimed issue', () => {
@@ -277,5 +292,43 @@ describe('parseIssues of the REST issues API', () => {
     expect(parseIssues(json)).toEqual([
       { number: 5, title: '[PBI] a', assignees: ['ann'], labels: ['pbi'], url: 'https://github.com/o/r/issues/5' },
     ]);
+  });
+});
+
+describe('fetchIssuePages', () => {
+  const page = (n: number, from: number) =>
+    JSON.stringify(Array.from({ length: n }, (_, i) => ({ number: from + i })));
+
+  it('fetches a second page after a full first page and merges them', async () => {
+    const seen: number[] = [];
+    const result = await fetchIssuePages(async (p) => {
+      seen.push(p);
+      return { ok: true as const, body: p === 1 ? page(100, 1) : page(30, 101) };
+    });
+    expect(seen).toEqual([1, 2]);
+    expect(result.ok && JSON.parse(result.body)).toHaveLength(130);
+  });
+
+  it('stops after a short first page', async () => {
+    const seen: number[] = [];
+    await fetchIssuePages(async (p) => {
+      seen.push(p);
+      return { ok: true as const, body: page(3, 1) };
+    });
+    expect(seen).toEqual([1]);
+  });
+
+  it('caps at 200 issues', async () => {
+    const seen: number[] = [];
+    await fetchIssuePages(async (p) => {
+      seen.push(p);
+      return { ok: true as const, body: page(100, p * 100) };
+    });
+    expect(seen).toEqual([1, 2]);
+  });
+
+  it('returns the failure of a page', async () => {
+    const result = await fetchIssuePages(async () => ({ ok: false as const, failure: 'boom' }));
+    expect(result).toEqual({ ok: false, failure: 'boom' });
   });
 });
