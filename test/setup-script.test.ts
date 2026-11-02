@@ -20,15 +20,25 @@ rows = [
 ]
 `;
 
+const PLUGIN_JSON = JSON.stringify({
+  id: 'cli:plugin',
+  result: {
+    plugins: [
+      { name: 'agent-notify', plugin_id: 'agent-notify', enabled: true, source: { kind: 'github', owner: 'GravionLabs', repo: 'herdr-plugins', requested_ref: 'v0.4.0', resolved_commit: 'cb697ffec327' } },
+      { name: 'local-one', plugin_id: 'local-one', enabled: false, source: { kind: 'local' } },
+    ],
+  },
+});
+
 const home = join('h', 'me');
 const skillDir = join(home, '.claude', 'skills', 'deliver');
 
-function deps(over: Partial<Deps> & { config?: string | null; tools?: Record<string, boolean>; herdrVersion?: string; skill?: boolean } = {}): Deps {
+function deps(over: Partial<Deps> & { config?: string | null; tools?: Record<string, boolean>; herdrVersion?: string; skill?: boolean; pluginOut?: string } = {}): Deps {
   const tools = { herdr: true, pwsh: true, gh: true, 'gh auth': true, ...over.tools };
   return {
     run: (command, args) => {
       if (command === 'herdr' && args[0] === '--version') return { ok: tools.herdr, stdout: `herdr ${over.herdrVersion ?? '0.9.5'}\n` };
-      if (command === 'herdr') return { ok: tools.herdr, stdout: 'agent-notify  GravionLabs/herdr-plugins@v0.4.0\n' };
+      if (command === 'herdr') return { ok: tools.herdr, stdout: over.pluginOut ?? PLUGIN_JSON };
       if (command === 'gh' && args[0] === 'auth') return { ok: tools['gh auth'], stdout: '' };
       return { ok: tools[command as 'pwsh' | 'gh'] ?? false, stdout: 'x 1\n' };
     },
@@ -114,9 +124,35 @@ describe('doctor checks', () => {
     expect(failing(deps({ config: null }))).toEqual(['ui.toast.delivery', 'sidebar rows']);
   });
 
-  it('lists the installed plugins and fails when the list fails', () => {
-    expect(runDoctor(deps()).find((c) => c.name === 'plugins')!.detail).toContain('agent-notify');
+  it('reports the installed plugins as structured data', () => {
+    const c = runDoctor(deps()).find((x) => x.name === 'plugins')!;
+    expect(c.ok).toBe(true);
+    expect(c.detail).toBe('agent-notify enabled v0.4.0; local-one disabled no ref');
+    expect(c.plugins).toEqual([
+      { name: 'agent-notify', plugin_id: 'agent-notify', enabled: true, ref: 'v0.4.0', resolved_commit: 'cb697ffec327' },
+      { name: 'local-one', plugin_id: 'local-one', enabled: false, ref: null, resolved_commit: null },
+    ]);
+  });
+
+  it('says none installed for an empty list', () => {
+    const c = runDoctor(deps({ pluginOut: '{"result":{"plugins":[]}}' })).find((x) => x.name === 'plugins')!;
+    expect(c).toMatchObject({ ok: true, detail: 'none installed', plugins: [] });
+  });
+
+  it('fails the plugins check on failure or malformed output, never throws', () => {
     expect(failing(deps({ tools: { herdr: false } }))).toContain('plugins');
+    for (const bad of ['agent-notify (agent-notify) enabled', '', 'null', '{"result":{}}', '{"result":{"plugins":"x"}}']) {
+      expect(failing(deps({ pluginOut: bad }))).toEqual(['plugins']);
+    }
+  });
+
+  it('skips malformed plugin entries', () => {
+    const c = runDoctor(deps({ pluginOut: '{"result":{"plugins":[null,5,{"enabled":true},{"name":"a"}]}}' })).find((x) => x.name === 'plugins')!;
+    expect(c.plugins).toEqual([{ name: 'a', plugin_id: 'a', enabled: false, ref: null, resolved_commit: null }]);
+  });
+
+  it('known limitation: inline TOML tables are not read as tables', () => {
+    expect(readValue('ui = { mouse_capture = false }\n', 'ui.mouse_capture')).toBeNull();
   });
 });
 
