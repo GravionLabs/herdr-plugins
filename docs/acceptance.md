@@ -147,6 +147,10 @@ Action `open`, pane `picker` (popup).
 - [ ] Action: `herdr plugin action invoke repo-open.open`, or the bound key. Expected: a popup with a search field and the repositories as `<name>  <relative path>`.
 - [ ] Filter: type `hp`. Expected: `herdr-plugins` is listed (word starts), filtering is live and case-insensitive; Backspace widens the list again. Up, Down, Ctrl+P and Ctrl+N move the selection.
 - [ ] Close: Escape and Ctrl+C close the popup, the terminal is restored.
+- [ ] Open: Enter on a repository without a workspace. Expected: the popup closes, a workspace labelled with the repository name opens with the tabs `terminal` (shell) and `agent` (running `claude`), both in the repository root; the `agent` tab is focused.
+- [ ] Reopen: open the same repository again. Expected: its workspace is focused, no second workspace or tab is created. Opening a different repository with the same name creates a workspace labelled with its relative path.
+- [ ] Recently opened: reopen the popup with an empty search. Expected: the opened repository comes first.
+- [ ] Own tabs: `config.json` with `{"tabs":[{"label":"shell"},{"label":"ai","command":"codex","focus":true}]}`. Expected: a new workspace gets these tabs and focuses `ai`.
 - [ ] `config.json` with `{"roots":["~/other"],"depth":1}`: only the repositories directly below `~/other` are listed. An invalid value (`{"depth":0}`) shows the hint line `config.json: depth must be an integer from 1 to 10` and uses the default depth.
 - [ ] Uninstall: the action and pane are gone.
 

@@ -20,7 +20,7 @@ herdr plugin install GravionLabs/herdr-plugins/<plugin>
 | `deliver-view` | Agent view with the `deliver` sessions first, blocked ones on top | available |
 | `deliver-log` | Shows or hides the log pane of `Invoke-DeliverLoop.ps1` | available |
 | `command-palette` | Popup to search and run plugin actions and own commands with one key | available |
-| `repo-open` | Popup to search a repository and open it as a workspace with its tabs | in progress |
+| `repo-open` | Popup to search a repository and open it as a workspace with its tabs | available |
 
 Order and releases: [ROADMAP.md](ROADMAP.md).
 
