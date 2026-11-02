@@ -46,12 +46,18 @@ The manifest ships no default keybinding and the README documents none. The view
 
 None. The plugin reads no config file. To change the sort, edit `view.json` in the plugin state directory; the startup hook applies it as stored. `apply` writes the default view again.
 
-The sidebar shows a token only where a row names it as `$<name>`. This layout from the `deliver` skill (`references/herdr.md`, "Sidebar layout") puts the tokens in their own row. The plugin never writes your config; copy it into herdr's `config.toml` if you want it:
+The sidebar shows a token only where a row names it as `$<name>`. The recommended layout ("repo first") puts the tab and state on line 1, the agent and workspace on line 2 and the `deliver` tokens on line 3. The plugin never writes your config; copy it into herdr's `config.toml` if you want it:
 
 ```toml
 [ui.sidebar.agents]
-rows = [["state_icon", "agent", "state_text"], [{ token = "$deliver", bold = true }, { token = "$deliver_step", rules = [{ contains = "blocked", fg = "#f55" }, { contains = "merged", fg = "#5f5" }] }, "$deliver_pr"], ["workspace", "tab"]]
+rows = [
+  ["state_icon", { token = "tab", bold = true }, { token = "state_text", rules = [{ equals = "done", fg = "#5f5" }, { equals = "blocked", fg = "#f55" }] }],
+  ["agent", "workspace"],
+  [{ token = "$deliver", bold = true }, { token = "$deliver_step", rules = [{ contains = "blocked", fg = "#f55" }, { contains = "merged", fg = "#5f5" }] }, "$deliver_pr"],
+]
 ```
+
+The [README](https://github.com/GravionLabs/herdr-plugins/blob/main/deliver-view/README.md#recommended-layout-repo-first) shows an example and the alternatives.
 
 ## Examples
 

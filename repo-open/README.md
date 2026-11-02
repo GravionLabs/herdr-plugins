@@ -75,6 +75,15 @@ Every directory below a root that contains `.git` (a directory, or a file for a 
 
 `command` is typed into the tab's shell when the tab is created. The first tab marked `focus` is focused after opening, else the first tab. A missing file uses the defaults. Invalid JSON or an invalid value shows one hint line `config.json: <problem>` (`(+N more)` for further problems) in the popup; that key falls back to its default, the other keys still apply. The file is checked against `schema/config.schema.json` (no runtime dependency), which also reports unknown keys.
 
+## Requirements
+
+- herdr's `ui.toast.delivery` must not be `off`, or the notifications of the plugin are not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
+
 ## Development
 
 Config parsing is in `lib/config.ts`, the discovery in `lib/discover.ts`, filter, keys, view and history of the popup in `lib/filter.ts`, `lib/keys.ts`, `lib/view.ts` and `lib/recent.ts`; `bin/picker.ts` is the popup loop. The open step is in `lib/open.ts` (tests with a fake herdr runner that records the calls), `bin/run.ts` is the detached runner. Run the tests from the repository root with `npm test`.

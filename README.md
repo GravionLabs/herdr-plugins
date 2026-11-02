@@ -24,6 +24,57 @@ herdr plugin install GravionLabs/herdr-plugins/<plugin>
 
 Order and releases: [ROADMAP.md](ROADMAP.md).
 
+## herdr settings the plugins rely on
+
+Some plugin features look broken when a herdr setting is off, and the cause is the setting, not the plugin. These settings live in herdr's `config.toml`; the plugins never write it. After a change, run `herdr server reload-config`.
+
+| Setting | Why it matters | Needed by |
+|:--|:--|:--|
+| `ui.toast.delivery` must not be `off` | Notifications. With `off`, `herdr notification show` still answers `shown`, but no notification appears. | agent-notify, command-palette, deliver-log, deliver-starter, layout-bootstrap, link-trim, repo-open, review-popup, worktree-cleanup |
+| `ui.mouse_capture` on | Link handlers. A Ctrl+click reaches a plugin only with mouse capture on. | link-trim (Ctrl+click), deliver-starter (Ctrl+click on an issue link) |
+| `[ui.sidebar.agents]` row with `$deliver`, `$deliver_step`, `$deliver_pr` | The `deliver` tokens show in the Agents sidebar only where a row names them. | deliver-view, and the `deliver` skill, which reports the tokens |
+
+Snippets for `config.toml`:
+
+```toml
+[ui.toast]
+delivery = "herdr"
+```
+
+```toml
+[ui]
+mouse_capture = true
+```
+
+The `[ui.sidebar.agents]` layout is in the next section.
+
+### Agents sidebar layout ("repo first")
+
+The recommended layout puts the repository first: line 1 is the tab and the state, line 2 the agent and the workspace, line 3 the `deliver` tokens. It is the layout of the [deliver-view README](deliver-view/README.md#recommended-layout-repo-first).
+
+```toml
+[ui.sidebar.agents]
+rows = [
+  ["state_icon", { token = "tab", bold = true }, { token = "state_text", rules = [{ equals = "done", fg = "#5f5" }, { equals = "blocked", fg = "#f55" }] }],
+  ["agent", "workspace"],
+  [{ token = "$deliver", bold = true }, { token = "$deliver_step", rules = [{ contains = "blocked", fg = "#f55" }, { contains = "merged", fg = "#5f5" }] }, "$deliver_pr"],
+]
+```
+
+It looks like this for one `/deliver` session:
+
+```
+● herdr-plugins · idle
+  claude · Gravion
+  #121 · merged · #139
+```
+
+Alternatives:
+
+- Compact two-line layout: keep the `tab` and state row and the `deliver` tokens row, and drop the `agent` and `workspace` row.
+- `deliver` line first: move the `$deliver` row above the tab row.
+- Spacing: add `row_gap = 1` under `[ui.sidebar.agents]` for a blank line between the rows.
+
 ## Contributing
 
 How to build a plugin, the conventions, the tests and the release flow are in the [contributor guide](https://gravionlabs.github.io/herdr-plugins/guide/contributing) (also readable on GitHub: [docs/guide/contributing.md](docs/guide/contributing.md)).

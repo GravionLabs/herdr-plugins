@@ -62,6 +62,15 @@ One global history (all repositories) in `$HERDR_PLUGIN_STATE_DIR/recent.json`. 
 | Enter | run the selected entry, the popup closes |
 | Escape, Ctrl+C | close (exit code 0, cursor and screen restored) |
 
+## Requirements
+
+- herdr's `ui.toast.delivery` must not be `off`, or the notifications of the plugin are not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
+
 ## Development
 
 `lib/context.ts` parses the context (and holds the spike note on focus after the popup closes), `lib/host.ts` calls herdr through `HERDR_BIN_PATH`. Run the tests from the repository root with `npm test`.

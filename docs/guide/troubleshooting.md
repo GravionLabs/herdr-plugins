@@ -8,7 +8,7 @@ Known problems and their fixes, collected from the plugin pages and the code. Ea
 
 Ctrl+click on a link only reaches a plugin when herdr's mouse capture is on. The `ui.mouse_capture` setting is in herdr's `config.toml`. Turn it on. Without it herdr does not see the click, so no link handler runs ([link-trim](./plugins/link-trim.md), [deliver-starter](./plugins/deliver-starter.md)).
 
-The exact TOML syntax of the setting is not shown in the repository: not verified. Check herdr's own documentation for how to write it.
+The snippet `[ui]` with `mouse_capture = true` is in the [herdr settings the plugins rely on](https://github.com/GravionLabs/herdr-plugins#herdr-settings-the-plugins-rely-on) section of the root README. The syntax is not verified against herdr's own documentation.
 
 - **Ctrl+click on a URL that ends in punctuation still opens the 404.** Only http and https URLs that end in `)`, `]`, `.`, `,`, `;`, `:`, `'` or `"` are routed to `link-trim`. Check that the link matches and that mouse capture is on ([link-trim](./plugins/link-trim.md)).
 - **Ctrl+click on a `file:` or path link opens as before.** This is expected. Those links do not match the handler ([link-trim](./plugins/link-trim.md)).

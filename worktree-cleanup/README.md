@@ -26,6 +26,12 @@ Without a keybinding: `herdr plugin action invoke worktree-cleanup.cleanup`.
 
 - The `deliver` skill of [GravionLabs/skills](https://github.com/GravionLabs/skills): `npx skills add GravionLabs/skills --skill deliver`. The plugin calls its installed `scripts/Remove-PbiWorktrees.ps1`, looked up in this order: `<repo>/.claude/skills/deliver`, `<repo>/.agents/skills/deliver`, `~/.claude/skills/deliver`, `~/.agents/skills/deliver` (`<repo>` is the git toplevel of the focused pane's cwd). Without it a notification says how to install it.
 - PowerShell 7+ (`pwsh`), [GitHub CLI](https://cli.github.com) `gh` logged in with `gh auth login`, and `git`.
+- herdr's `ui.toast.delivery` must not be `off`, or the notifications of the plugin are not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
 
 ## What it does
 

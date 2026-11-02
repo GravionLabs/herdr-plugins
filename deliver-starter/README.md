@@ -59,6 +59,12 @@ A missing or broken file, or a wrong value, falls back to the default of that ke
 - [GitHub CLI](https://cli.github.com) `gh`, logged in with `gh auth login`.
 - The harness command (default `claude`) on `PATH`.
 - Unattended mode: the `deliver` skill of [GravionLabs/skills](https://github.com/GravionLabs/skills), `npx skills add GravionLabs/skills --skill deliver`, and PowerShell 7+ (`pwsh`). The skill is looked up in this order: `<repo>/.claude/skills/deliver`, `<repo>/.agents/skills/deliver`, `~/.claude/skills/deliver`, `~/.agents/skills/deliver` (`<repo>` is the git toplevel of the focused pane's cwd). Without it a notification says how to install it.
+- herdr's `ui.toast.delivery` must not be `off`, or the notifications of the plugin are not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
 
 ## Development
 

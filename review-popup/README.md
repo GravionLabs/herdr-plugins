@@ -35,6 +35,12 @@ Without a keybinding: `herdr plugin action invoke review-popup.open`.
 
 - The `deliver` skill of [GravionLabs/skills](https://github.com/GravionLabs/skills) with the review file (GravionLabs/skills#53).
 - Git.
+- herdr's `ui.toast.delivery` must not be `off`, or the notifications of the plugin are not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
 
 ## Development
 

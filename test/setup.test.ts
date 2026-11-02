@@ -48,6 +48,27 @@ describe('repository setup', () => {
     }
   });
 
+  it('names ui.toast.delivery in the README of every plugin that calls notify', () => {
+    // Plugins that show a notification and whose README must say that ui.toast.delivery may not be off.
+    const listed = ['agent-notify', 'command-palette', 'deliver-log', 'deliver-starter', 'layout-bootstrap', 'link-trim', 'repo-open', 'review-popup', 'worktree-cleanup'];
+    const pluginDirs = readdirSync(root, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && existsSync(new URL(`${entry.name}/herdr-plugin.toml`, root)))
+      .map((entry) => entry.name);
+    const callers = pluginDirs.filter((plugin) =>
+      ['bin', 'lib'].some((dir) =>
+        existsSync(new URL(`${plugin}/${dir}/`, root)) &&
+        readdirSync(new URL(`${plugin}/${dir}/`, root))
+          .filter((file) => file.endsWith('.ts'))
+          .some((file) => /\bnotify\(/.test(read(`${plugin}/${dir}/${file}`))),
+      ),
+    );
+
+    expect(callers.filter((plugin) => !listed.includes(plugin)), 'plugins that call notify but are not listed').toEqual([]);
+    for (const plugin of listed) {
+      expect(read(`${plugin}/README.md`), `${plugin}/README.md does not name ui.toast.delivery`).toContain('ui.toast.delivery');
+    }
+  });
+
   it('ships a bug report form whose plugin dropdown lists every plugin directory', () => {
     expect(existsSync(new URL('.github/ISSUE_TEMPLATE/bug_report.md', root))).toBe(false);
     const form = read('.github/ISSUE_TEMPLATE/bug_report.yml').replace(/\r\n/g, '\n');

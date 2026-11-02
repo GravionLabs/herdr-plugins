@@ -62,6 +62,15 @@ The `command` of the default `tests` pane is the `testCommand` string of `config
 | `split.direction` | `right` or `down`. |
 | `split.ratio` | Between 0 and 1, default 0.5. Passed to `herdr pane split --ratio`: the share the split pane keeps. |
 
+## Requirements
+
+- herdr's `ui.toast.delivery` must not be `off`, or the notifications of the plugin are not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
+
 ## Development
 
 Layout parsing and resolution are in `lib/layout.ts`, the herdr calls in `lib/apply.ts`, the entry point is `bin/apply.ts`. The tests in `test/` use a fake herdr runner that records the calls. Run them from the repository root with `npm test`.
