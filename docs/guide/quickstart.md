@@ -56,5 +56,5 @@ Focus a pane in a git repository on GitHub and press `prefix+shift+b`. The board
 ## Next
 
 - Install the other plugins: [Install, update and uninstall](./install.md).
-- The deliver plugins need the `deliver` skill: [prerequisites](./prerequisites.md#install-the-deliver-skills).
+- Most deliver plugins (not `deliver-board`) need the `deliver` skill: [prerequisites](./prerequisites.md#install-the-deliver-skills).
 - Something not working: [Troubleshooting and FAQ](./troubleshooting.md).
