@@ -108,6 +108,38 @@ describe('doctor checks', () => {
     expect(failing(deps({ tools: { 'gh auth': false } }))).toEqual(['gh login']);
   });
 
+  describe('deliver skill lookup', () => {
+    const repo = join(home, 'work', 'proj');
+    const only = (dir: string, git = true): Deps => ({
+      ...deps(),
+      cwd: join(repo, 'sub'),
+      run: (c, a) => (c === 'git' ? { ok: git, stdout: git ? `${repo}\n` : '' } : deps().run(c, a)),
+      exists: (p) => p === dir,
+    });
+    const skillCheck = (d: Deps) => runDoctor(d).find((c) => c.name === 'deliver skill')!;
+
+    it('finds the skill in the project .claude directory', () => {
+      const dir = join(repo, '.claude', 'skills', 'deliver');
+      expect(skillCheck(only(dir))).toMatchObject({ ok: true, detail: dir });
+    });
+    it('finds the skill in the project .agents directory', () => {
+      const dir = join(repo, '.agents', 'skills', 'deliver');
+      expect(skillCheck(only(dir))).toMatchObject({ ok: true, detail: dir });
+    });
+    it('finds the skill in home only', () => {
+      expect(skillCheck(only(skillDir))).toMatchObject({ ok: true, detail: skillDir });
+    });
+    it('fails with the lookup order in the hint when neither has it', () => {
+      const c = skillCheck(only(join(home, 'elsewhere')));
+      expect(c.ok).toBe(false);
+      expect(c.hint).toContain('<repo>/.claude/skills/deliver');
+    });
+    it('ignores the project when git fails outside a repository', () => {
+      expect(skillCheck(only(join(repo, '.claude', 'skills', 'deliver'), false)).ok).toBe(false);
+      expect(skillCheck(only(skillDir, false))).toMatchObject({ ok: true, detail: skillDir });
+    });
+  });
+
   it('fails when the deliver skill is missing', () => {
     expect(failing(deps({ skill: false }))).toEqual(['deliver skill']);
   });

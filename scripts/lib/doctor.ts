@@ -106,8 +106,11 @@ export function runDoctor(deps: Deps): Check[] {
     checks.push({ name: 'gh login', ok: auth.ok, detail: auth.ok ? 'logged in' : 'not logged in', ...(auth.ok ? {} : { hint: 'run `gh auth login`' }) });
   } else checks.push({ name: 'gh login', ok: false, detail: 'gh missing', hint: 'install gh, then run `gh auth login`' });
 
-  const skill = deliverSkillCandidates(null, deps.home).find((d) => deps.exists(d));
-  checks.push({ name: 'deliver skill', ok: !!skill, detail: skill ?? 'not installed', ...(skill ? {} : { hint: 'run `npx skills add GravionLabs/skills --skill deliver`' }) });
+  // Same lookup as the plugins: the repository of the cwd first, then the home directories.
+  const top = deps.run('git', ['-C', deps.cwd, 'rev-parse', '--show-toplevel']);
+  const repo = top.ok && top.stdout.trim() !== '' ? top.stdout.trim().split(/\r?\n/)[0]! : null;
+  const skill = deliverSkillCandidates(repo, deps.home).find((d) => deps.exists(d));
+  checks.push({ name: 'deliver skill', ok: !!skill, detail: skill ?? 'not installed', ...(skill ? {} : { hint: 'run `npx skills add GravionLabs/skills --skill deliver` in your project; doctor looks in <repo>/.claude/skills/deliver, <repo>/.agents/skills/deliver, then ~/.claude/skills/deliver, ~/.agents/skills/deliver (<repo> is the git repository of the current directory)' }) });
 
   const configPath = defaultConfigPath(deps.platform, deps.env, deps.home);
   const text = deps.readFile(configPath);

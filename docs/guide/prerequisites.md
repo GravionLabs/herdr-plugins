@@ -22,11 +22,13 @@ pwsh --version
 
 ## Install the deliver skills
 
-These plugins call scripts of the `deliver` skill. Install it into your project:
+These plugins call scripts of the `deliver` skill. Install it into your project (run the command in the repository):
 
 ```sh
 npx skills add GravionLabs/skills --skill deliver
 ```
+
+The skill is looked up in this order: `<repo>/.claude/skills/deliver`, `<repo>/.agents/skills/deliver`, `~/.claude/skills/deliver`, `~/.agents/skills/deliver`. A global install in your home directory works too. `node scripts/herdr-setup.ts doctor` uses the same order, with `<repo>` the git repository of the directory you run it in, so run it from your project.
 
 If `pwsh`, Git, Node or `gh` are missing, the `check-prerequisites` skill of GravionLabs/skills checks them and installs what is missing.
 
