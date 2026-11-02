@@ -1,7 +1,7 @@
 # Install, update and uninstall
 
 ::: warning Not yet verified on Linux and Windows
-All commands below were verified on macOS with herdr 0.9.5. The herdr CLI syntax is the same on every OS, but the owner has not run them on Linux or Windows yet. Windows is not a declared platform: the manifests list `macos` and `linux`, so `herdr plugin install` may refuse a plugin there. Windows support is tracked in the 0.5.0 milestone ([#83](https://github.com/GravionLabs/herdr-plugins/issues/83), [#86](https://github.com/GravionLabs/herdr-plugins/issues/86)).
+All commands below were verified on macOS with herdr 0.9.5. The herdr CLI syntax is the same on every OS, but the owner has not run them on Linux or Windows yet. Windows is not a declared platform: the manifests list `macos` and `linux`, so `herdr plugin install` may refuse a plugin there. Windows support is tracked in the 0.6.0 milestone ([#83](https://github.com/GravionLabs/herdr-plugins/issues/83), [#86](https://github.com/GravionLabs/herdr-plugins/issues/86)).
 :::
 
 Check the [prerequisites](./prerequisites.md) first.

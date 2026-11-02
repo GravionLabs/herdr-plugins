@@ -32,4 +32,4 @@ If `pwsh`, Git, Node or `gh` are missing, the `check-prerequisites` skill of Gra
 
 ## Platforms
 
-macOS and Linux are the declared platforms of the plugin manifests. Windows is not declared yet; it is tracked in the 0.5.0 milestone ([#83](https://github.com/GravionLabs/herdr-plugins/issues/83), [#86](https://github.com/GravionLabs/herdr-plugins/issues/86)). See [Compatibility](../compatibility.md).
+macOS and Linux are the declared platforms of the plugin manifests. Windows is not declared yet; it is tracked in the 0.6.0 milestone ([#83](https://github.com/GravionLabs/herdr-plugins/issues/83), [#86](https://github.com/GravionLabs/herdr-plugins/issues/86)). See [Compatibility](../compatibility.md).

@@ -72,7 +72,7 @@ Which error a plugin shows on an older Node: not verified. Check with `node --ve
 
 Windows is not a declared platform yet. The plugin manifests list only `macos` and `linux`, and `herdr plugin install` may refuse the plugin on Windows ([compatibility](../compatibility.md), [acceptance](../acceptance.md)). The repository's CI runs its tests on Windows, but this is a check, not support.
 
-- **`herdr plugin install` refuses the plugin on Windows.** It may. Until #86 adds `windows` to `platforms`, record it as a known pre-release result, not a plugin failure ([acceptance](../acceptance.md)).
+- **`herdr plugin install` refuses the plugin on Windows.** It may. Until #86 (milestone 0.6.0) adds `windows` to `platforms`, record it as a known pre-release result, not a plugin failure ([acceptance](../acceptance.md)).
 - **Use PowerShell or Windows Terminal.** The acceptance checklist uses these for its Windows runs ([acceptance](../acceptance.md)).
 - **The system notification of `agent-notify` on Windows.** `systemNotification` shows a WinRT toast through `powershell.exe`. A missing tool leaves only the herdr notification ([agent-notify](./plugins/agent-notify.md)).
 - **Windows behaviour of the other plugins.** Target behaviour (#84 and #86), not verified yet. This covers the view applied over the API socket, typed pane commands in PowerShell with backslash paths, and opening URLs with `rundll32` ([acceptance](../acceptance.md)).
