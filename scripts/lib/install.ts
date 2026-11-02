@@ -54,15 +54,29 @@ export function runInstall(deps: Deps, args: string[], out: (text: string) => vo
   const list = deps.run('herdr', ['plugin', 'list', '--json']);
   const installed = list.ok ? (parsePlugins(list.stdout) ?? []) : [];
 
+  // One call lists the top-level directories at the ref; plugins that are not there (newer than the tag) are skipped.
+  const dirs = deps.run('gh', ['api', `repos/${REPO}/contents/?ref=${encodeURIComponent(ref)}`, '--jq', '.[] | select(.type == "dir") | .name']);
+  const present = dirs.ok ? new Set(dirs.stdout.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)) : null;
+  const usable = present && present.size > 0 ? present : null;
+  if (!usable) out(`warning: could not list the plugins in ${ref}; installing all of them without checking`);
+  const missing = usable ? plugins.filter((p) => !usable.has(p)) : [];
+  const explicit = opts.plugins.length > 0;
+
   out(`Plan: install at ${ref}`);
-  for (const p of plugins) out(`  ${p}: ${installed.find((i) => i.name === p)?.ref ?? 'not installed'} -> ${ref}`);
+  for (const p of plugins) {
+    if (missing.includes(p)) out(`  ${p}: skipped (not in ${ref})`);
+    else out(`  ${p}: ${installed.find((i) => i.name === p)?.ref ?? 'not installed'} -> ${ref}`);
+  }
+  // Plugins the user named but the tag does not have are an error; the ones of the default list are only skipped.
+  const failed: string[] = explicit ? [...missing] : [];
+  for (const p of failed) out(`FAIL ${p}: not in ${ref}`);
   if (opts.dryRun) {
     out('dry run: nothing installed');
-    return 0;
+    return failed.length ? 1 : 0;
   }
 
-  const failed: string[] = [];
-  for (const p of plugins) {
+  const todo = plugins.filter((p) => !missing.includes(p));
+  for (const p of todo) {
     const r = deps.run('herdr', ['plugin', 'install', '-y', '--ref', ref, `${REPO}/${p}`], 300000);
     if (r.ok) out(`ok   ${p}`);
     else {
@@ -75,7 +89,7 @@ export function runInstall(deps: Deps, args: string[], out: (text: string) => vo
   const now = after.ok ? parsePlugins(after.stdout) : null;
   if (!now) out('FAIL plugins: could not read `herdr plugin list --json`');
   else
-    for (const p of plugins) {
+    for (const p of todo) {
       const cur = now.find((i) => i.name === p)?.ref;
       if (cur === ref) out(`ok   ${p}@${ref}`);
       else if (!failed.includes(p)) {

@@ -13,12 +13,16 @@ function listJson(refs: Record<string, string>): string {
 }
 
 // A fake herdr + gh: install sets the ref unless the plugin is in `failing`.
-function fake(opts: { tag?: string | null; initial?: Record<string, string>; failing?: string[]; stale?: string[] } = {}) {
+function fake(opts: { tag?: string | null; initial?: Record<string, string>; failing?: string[]; stale?: string[]; dirs?: string[] | null } = {}) {
   const calls: string[][] = [];
   const refs = { ...(opts.initial ?? {}) };
   const deps = {
     run: (command: string, args: string[]) => {
       calls.push([command, ...args]);
+      if (command === 'gh' && args[1]?.includes('/contents/')) {
+        if (opts.dirs === null) return { ok: false, stdout: '' };
+        return { ok: true, stdout: (opts.dirs ?? PLUGINS).join('\n') + '\n' };
+      }
       if (command === 'gh') return opts.tag === null ? { ok: false, stdout: '' } : { ok: true, stdout: `${opts.tag ?? 'v0.4.0'}\n` };
       if (args[1] === 'list') return { ok: true, stdout: listJson(refs) };
       const name = args[args.length - 1]!.split('/').pop()!;
@@ -52,11 +56,11 @@ describe('install', () => {
     expect(r.text).toContain('agent-notify@v1.2.3');
   });
 
-  it('installs the named plugins at --ref without asking gh', () => {
+  it('installs the named plugins at --ref without asking gh for the latest release', () => {
     const f = fake();
     const r = run(f, ['link-trim', '--ref', 'v0.3.0', 'repo-open']);
     expect(r.code).toBe(0);
-    expect(f.calls.some((c) => c[0] === 'gh')).toBe(false);
+    expect(f.calls.some((c) => c[0] === 'gh' && c[2]?.includes('releases/latest'))).toBe(false);
     expect(f.installs().map((c) => c.slice(4))).toEqual([
       ['--ref', 'v0.3.0', 'GravionLabs/herdr-plugins/link-trim'],
       ['--ref', 'v0.3.0', 'GravionLabs/herdr-plugins/repo-open'],
@@ -86,6 +90,62 @@ describe('install', () => {
     const r = run(fake({ stale: ['repo-open'] }), ['repo-open']);
     expect(r.code).toBe(1);
     expect(r.text).toContain('FAIL repo-open: shows no ref, expected v0.4.0');
+  });
+
+  describe('plugins that are not in the tag', () => {
+    const old = PLUGINS.filter((p) => p !== 'repo-open');
+
+    it('skips them in a default install and exits 0', () => {
+      const f = fake({ dirs: old });
+      const r = run(f, []);
+      expect(r.code).toBe(0);
+      expect(f.calls.filter((c) => c[0] === 'gh' && c[2]?.includes('/contents/'))).toEqual([
+        ['gh', 'api', 'repos/GravionLabs/herdr-plugins/contents/?ref=v0.4.0', '--jq', '.[] | select(.type == "dir") | .name'],
+      ]);
+      expect(f.installs()).toHaveLength(old.length);
+      expect(f.installs().some((c) => c.includes('GravionLabs/herdr-plugins/repo-open'))).toBe(false);
+      expect(r.text).toContain('  repo-open: skipped (not in v0.4.0)');
+      expect(r.text).not.toContain('FAIL');
+    });
+
+    it('fails when a plugin named on the command line is missing, but installs the others', () => {
+      const f = fake({ dirs: old });
+      const r = run(f, ['link-trim', 'repo-open', '--ref', 'v0.4.0']);
+      expect(r.code).toBe(1);
+      expect(r.text).toContain('  repo-open: skipped (not in v0.4.0)');
+      expect(r.text).toContain('FAIL repo-open: not in v0.4.0');
+      expect(r.text).toContain('1 of 2 failed: repo-open');
+      expect(f.installs()).toHaveLength(1);
+    });
+
+    it('falls back to installing everything with a warning when the lookup fails', () => {
+      for (const dirs of [null, []]) {
+        const f = fake({ dirs });
+        const r = run(f, []);
+        expect(r.code).toBe(0);
+        expect(r.text).toContain('warning: could not list the plugins in v0.4.0');
+        expect(r.text).not.toContain('skipped');
+        expect(f.installs()).toHaveLength(PLUGINS.length);
+      }
+    });
+
+    it('installs everything without a warning when all are present', () => {
+      const r = run(fake(), []);
+      expect(r.code).toBe(0);
+      expect(r.text).not.toContain('warning');
+      expect(r.text).not.toContain('skipped');
+    });
+
+    it('shows the same plan on --dry-run and installs nothing', () => {
+      const f = fake({ dirs: old });
+      const r = run(f, ['--dry-run']);
+      expect(r.code).toBe(0);
+      expect(r.text).toContain('  repo-open: skipped (not in v0.4.0)');
+      expect(r.text).toContain('  link-trim: not installed -> v0.4.0');
+      expect(r.text).toContain('dry run: nothing installed');
+      expect(f.installs()).toHaveLength(0);
+      expect(run(fake({ dirs: old }), ['repo-open', '--dry-run']).code).toBe(1);
+    });
   });
 
   it('fails clearly when no release is found', () => {
