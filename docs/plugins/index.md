@@ -10,6 +10,7 @@
 | `deliver-view` | Apply the delivery sidebar layout |
 | `layout-bootstrap` | Bootstrap a workspace layout |
 | `link-trim` | Trim trailing punctuation from links |
+| `repo-open` | Popup to search a repository and open it as a workspace with its tabs |
 | `review-popup` | Review popup |
 | `worktree-cleanup` | Clean up removed worktrees |
 
@@ -27,3 +28,4 @@ Full pages, written from the same page template (`docs/guide/plugins/_template.m
 - [worktree-cleanup](../guide/plugins/worktree-cleanup.md)
 - [command-palette](../guide/plugins/command-palette.md)
 - [layout-bootstrap](../guide/plugins/layout-bootstrap.md)
+- [repo-open](../guide/plugins/repo-open.md)

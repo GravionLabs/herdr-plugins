@@ -61,7 +61,7 @@ description = "clean up merged worktrees"
 | `prefix+shift+b` | `deliver-board.open` | [deliver-board](plugins/deliver-board.md) |
 | `prefix+shift+o` | `deliver-log.toggle` | [deliver-log](plugins/deliver-log.md) |
 | `prefix+shift+v` | `review-popup.open` | [review-popup](plugins/review-popup.md) |
-| `prefix+shift+f` | `repo-open.open` | repo-open |
+| `prefix+shift+f` | `repo-open.open` | [repo-open](plugins/repo-open.md) |
 | `prefix+shift+a` | `layout-bootstrap.apply` | [layout-bootstrap](plugins/layout-bootstrap.md) |
 | `prefix+shift+c` | `worktree-cleanup.cleanup` | [worktree-cleanup](plugins/worktree-cleanup.md) |
 

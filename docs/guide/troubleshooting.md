@@ -92,6 +92,7 @@ Windows is not a declared platform yet. The plugin manifests list only `macos` a
 | [deliver-starter](./plugins/deliver-starter.md) | herdr 0.9.5, `ui.mouse_capture` for the link handler; `gh` for suggestions; `pwsh` and the `deliver` skill for unattended mode | its page |
 | [deliver-log](./plugins/deliver-log.md) | PowerShell 7+ (`pwsh`), the `deliver` skill | its page |
 | [deliver-view](./plugins/deliver-view.md) | herdr 0.9.5 or later, Node 26; macOS or Linux | its page |
+| [repo-open](./plugins/repo-open.md) | Node 26; herdr `ui.toast.delivery` not `off`; macOS or Linux | its page |
 | [worktree-cleanup](./plugins/worktree-cleanup.md) | `pwsh`, `gh` logged in, `git`, the `deliver` skill | its page |
 
 Every plugin needs herdr 0.9.5 or later (`min_herdr_version`). The complete list is in [compatibility](../compatibility.md).

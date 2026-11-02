@@ -60,6 +60,7 @@ export default defineConfig({
             { text: 'worktree-cleanup', link: '/guide/plugins/worktree-cleanup' },
             { text: 'command-palette', link: '/guide/plugins/command-palette' },
             { text: 'layout-bootstrap', link: '/guide/plugins/layout-bootstrap' },
+            { text: 'repo-open', link: '/guide/plugins/repo-open' },
           ],
         },
       ],
