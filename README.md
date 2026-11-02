@@ -26,4 +26,4 @@ Order and releases: [ROADMAP.md](ROADMAP.md).
 
 ## Contributing
 
-How to build a plugin, the conventions, the tests and the release flow are in the [contributor guide](https://gravionlabs.github.io/herdr-plugins/guide/contributing).
+How to build a plugin, the conventions, the tests and the release flow are in the [contributor guide](https://gravionlabs.github.io/herdr-plugins/guide/contributing) (also readable on GitHub: [docs/guide/contributing.md](docs/guide/contributing.md)).
