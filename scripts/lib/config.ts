@@ -9,7 +9,7 @@ export function defaultConfigPath(platform: string, env: Record<string, string |
   return join(home, '.config', 'herdr', 'config.toml');
 }
 
-function stripComment(line: string): string {
+export function stripComment(line: string): string {
   let quote = '';
   for (let i = 0; i < line.length; i++) {
     const c = line[i];
