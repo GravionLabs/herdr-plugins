@@ -115,14 +115,14 @@ export function runDoctor(deps: Deps): Check[] {
   const body = text ?? '';
 
   const toast = readValue(body, 'ui.toast.delivery') ?? 'off';
-  checks.push({ name: 'ui.toast.delivery', ok: toast !== 'off', detail: toast, ...(toast !== 'off' ? {} : { hint: `set delivery = "all" under [ui.toast] in ${configPath}` }) });
+  checks.push({ name: 'ui.toast.delivery', ok: toast !== 'off', detail: toast, ...(toast !== 'off' ? {} : { hint: `set delivery = "herdr" under [ui.toast] in ${configPath}, or run \`node scripts/herdr-setup.ts apply\`` }) });
 
   const mouse = readValue(body, 'ui.mouse_capture') ?? 'true';
   checks.push({ name: 'ui.mouse_capture', ok: mouse !== 'false', detail: mouse, ...(mouse !== 'false' ? {} : { hint: `set mouse_capture = true under [ui] in ${configPath}` }) });
 
   const rows = readTable(body, 'ui.sidebar.agents');
   const named = rows !== null && /["']\$deliver["']/.test(rows);
-  checks.push({ name: 'sidebar rows', ok: named, detail: named ? 'name $deliver' : rows === null ? 'no [ui.sidebar.agents]' : 'no $deliver row', ...(named ? {} : { hint: 'add a $deliver token to [ui.sidebar.agents] rows (see the deliver-view docs)' }) });
+  checks.push({ name: 'sidebar rows', ok: named, detail: named ? 'name $deliver' : rows === null ? 'no [ui.sidebar.agents]' : 'no $deliver row', ...(named ? {} : { hint: 'add a $deliver token to [ui.sidebar.agents] rows: run `node scripts/herdr-setup.ts apply` (see the deliver-view docs)' }) });
 
   checks.push(pluginsCheck(deps));
 

@@ -12,7 +12,7 @@ const GOOD_CONFIG = `[ui]
 mouse_capture = true # on
 
 [ui.toast]
-delivery = "all"
+delivery = "herdr"
 
 [ui.sidebar.agents]
 rows = [
@@ -61,7 +61,7 @@ const failing = (d: Deps): string[] => runDoctor(d).filter((c) => !c.ok).map((c)
 
 describe('config reading', () => {
   it('reads table keys, dotted keys and ignores comments', () => {
-    expect(readValue(GOOD_CONFIG, 'ui.toast.delivery')).toBe('all');
+    expect(readValue(GOOD_CONFIG, 'ui.toast.delivery')).toBe('herdr');
     expect(readValue(GOOD_CONFIG, 'ui.mouse_capture')).toBe('true');
     expect(readValue('[ui]\ntoast.delivery = "off"\n', 'ui.toast.delivery')).toBe('off');
     expect(readValue('', 'ui.toast.delivery')).toBeNull();
@@ -113,13 +113,22 @@ describe('doctor checks', () => {
   });
 
   it('fails toast delivery off, also by default', () => {
-    expect(failing(deps({ config: GOOD_CONFIG.replace('"all"', '"off"') }))).toEqual(['ui.toast.delivery']);
-    expect(failing(deps({ config: GOOD_CONFIG.replace('[ui.toast]\ndelivery = "all"', '') }))).toEqual(['ui.toast.delivery']);
+    expect(failing(deps({ config: GOOD_CONFIG.replace('"herdr"', '"off"') }))).toEqual(['ui.toast.delivery']);
+    expect(failing(deps({ config: GOOD_CONFIG.replace('[ui.toast]\ndelivery = "herdr"', '') }))).toEqual(['ui.toast.delivery']);
   });
 
   it('fails mouse_capture false, passes when absent', () => {
     expect(failing(deps({ config: GOOD_CONFIG.replace('mouse_capture = true', 'mouse_capture = false') }))).toEqual(['ui.mouse_capture']);
     expect(failing(deps({ config: GOOD_CONFIG.replace('mouse_capture = true', '') }))).toEqual([]);
+  });
+
+  it('hints at herdr and apply, never all, for toast delivery and sidebar rows', () => {
+    const hints = runDoctor(deps({ config: '' })).filter((c) => !c.ok && c.name !== 'deliver skill').map((c) => c.hint ?? '');
+    const toast = hints.find((h) => h.includes('ui.toast')) ?? '';
+    expect(toast).toContain('delivery = "herdr"');
+    expect(toast).not.toContain('"all"');
+    expect(toast).toContain('herdr-setup.ts apply');
+    expect(hints.find((h) => h.includes('$deliver'))).toContain('herdr-setup.ts apply');
   });
 
   it('fails sidebar rows without $deliver or without the table', () => {
@@ -209,7 +218,7 @@ describe('herdr-setup cli', () => {
         timeout: 25000,
       });
       const data = JSON.parse(r.stdout);
-      expect(data.checks.find((c: { name: string }) => c.name === 'ui.toast.delivery')).toMatchObject({ ok: true, detail: 'all' });
+      expect(data.checks.find((c: { name: string }) => c.name === 'ui.toast.delivery')).toMatchObject({ ok: true, detail: 'herdr' });
       expect(data.ok).toBe(false);
       expect(r.status).toBe(1);
     } finally {
