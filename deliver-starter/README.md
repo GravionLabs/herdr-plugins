@@ -50,7 +50,7 @@ The worktree stays after the run. Remove it with `herdr worktree remove` or let 
 | `mode` | `interactive` | Mode preselected in the popup: `interactive` or `unattended`. |
 | `suggestLimit` | `100` | Maximum number of open issues loaded for the `#` suggestions (`--limit` of `gh issue list`); a positive integer. |
 
-A missing or broken file, or a wrong value, falls back to the default of that key.
+A missing or broken file, or a wrong value, falls back to the default of that key. The file is checked against `schema/config.schema.json`; the popup shows the first problem naming file and key (for example `config.json: mode: must be one of "interactive", "unattended"`).
 
 ## Requirements
 

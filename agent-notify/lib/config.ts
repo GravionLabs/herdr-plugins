@@ -1,6 +1,13 @@
 // HERDR_PLUGIN_CONFIG_DIR/config.json: `{"systemNotification": false, "sound": false}`, both off by default. Pure.
 // `system_notification` is the deprecated spelling of `systemNotification` and still works (removed in the next major).
+import configSchema from '../schema/config.schema.json' with { type: 'json' };
 import { parseJson } from './event.ts';
+import { configProblems, type Schema } from './schema.ts';
+
+// Schema violations of config.json (`schema/config.schema.json`) as messages naming file and key; none for a missing file.
+export function configIssues(json: string | undefined): string[] {
+  return configProblems(json, configSchema as unknown as Schema);
+}
 
 export type Config = { systemNotification: boolean; sound: boolean };
 

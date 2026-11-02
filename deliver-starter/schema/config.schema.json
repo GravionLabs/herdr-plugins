@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "deliver-starter config.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "harness": { "type": "string", "minLength": 1 },
+    "mode": { "enum": ["interactive", "unattended"] },
+    "suggestLimit": { "type": "integer", "minimum": 1 }
+  }
+}

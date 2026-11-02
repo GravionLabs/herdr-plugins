@@ -1,7 +1,14 @@
 // Own entries from HERDR_PLUGIN_CONFIG_DIR/config.json:
 // `{ "commands": [{ "title": "show agent-log", "command": ["herdr", "pane", "split", "--current"], "cwd": "optional" }] }`.
 // Pure parse; every problem is a message, valid entries are kept.
+import configSchema from '../schema/config.schema.json' with { type: 'json' };
 import type { Entry } from './entries.ts';
+import { configProblems, type Schema } from './schema.ts';
+
+// Schema violations of config.json (`schema/config.schema.json`), `config.json: ` prefix removed; none for a missing file.
+export function schemaProblems(json: string | null | undefined): string[] {
+  return configProblems(json, configSchema as unknown as Schema).map((p) => p.replace(/^config\.json: /, ''));
+}
 
 export type ParsedConfig = { entries: Entry[]; problems: string[] };
 
