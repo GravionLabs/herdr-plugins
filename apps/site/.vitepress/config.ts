@@ -32,7 +32,7 @@ export default defineConfig({
         {
           text: 'Getting started',
           items: [
-            { text: 'Overview', link: '/guide/getting-started' },
+            { text: 'Getting started', link: '/guide/getting-started' },
             { text: 'Prerequisites', link: '/guide/prerequisites' },
             { text: 'Install, update and uninstall', link: '/guide/install' },
             { text: 'Quickstart', link: '/guide/quickstart' },

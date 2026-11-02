@@ -7,7 +7,7 @@
 | `git` | any recent | `herdr plugin install` clones the repository; `deliver-board` reads the repository. |
 | [GitHub CLI](https://cli.github.com) `gh`, logged in with `gh auth login` | any recent | `deliver-board`, `deliver-starter` (suggestions), `worktree-cleanup`. |
 | PowerShell 7+ (`pwsh`) on `PATH` | 7 | `deliver-log`, `worktree-cleanup`, and the unattended mode of `deliver-starter`. |
-| The `deliver` skill from [GravionLabs/skills](https://github.com/GravionLabs/skills) | current | The deliver plugins: `deliver-starter`, `deliver-log`, `deliver-view`, `deliver-board`, `review-popup`, `worktree-cleanup`. |
+| The `deliver` skill from [GravionLabs/skills](https://github.com/GravionLabs/skills) | current | `deliver-log`, `review-popup`, `worktree-cleanup`, `deliver-view` (pane tokens) and the unattended mode of `deliver-starter`. `deliver-board` needs only `gh`. |
 
 Not every plugin needs every tool. `command-palette`, for example, needs only herdr. The table on each [plugin page](./plugins/command-palette.md) and the overview in [Troubleshooting and FAQ](./troubleshooting.md) list what a plugin needs.
 
@@ -22,7 +22,7 @@ pwsh --version
 
 ## Install the deliver skills
 
-The deliver plugins call scripts of the `deliver` skill. Install it into your project:
+These plugins call scripts of the `deliver` skill. Install it into your project:
 
 ```sh
 npx skills add GravionLabs/skills --skill deliver

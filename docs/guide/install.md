@@ -16,7 +16,7 @@ herdr plugin install -y --ref v0.4.0 GravionLabs/herdr-plugins/<plugin>
 - Do not leave out `--ref`. Without it herdr installs the default branch, which is unreleased.
 - The `<plugin>@<ref>` shorthand does not work. Use `--ref`.
 - `--ref` takes a tag, a branch or a full 40-character commit SHA. A short SHA fails.
-- `-y` is required in scripts and anywhere without a terminal.
+- Use `-y` in scripts; `update` without a terminal fails without it.
 
 Show what is installed and from which ref:
 
@@ -46,7 +46,7 @@ To move to another release, install again with the new tag. The plugin is replac
 herdr plugin install -y --ref v0.5.0 GravionLabs/herdr-plugins/<plugin>
 ```
 
-`herdr plugin update -y [<plugin>...]` updates plugins that follow a branch. A plugin pinned to a tag or a commit stays where it is, which is why a pinned install is a stable choice.
+`herdr plugin update -y [<plugin>...]` is meant for plugins installed from a branch or the default branch; a tag or commit pin is not expected to move. Both are expected from how update works but not verified (a pinned plugin reported "already up to date"). Without a terminal, `update` requires `-y`.
 
 ## Uninstall
 
@@ -54,11 +54,11 @@ herdr plugin install -y --ref v0.5.0 GravionLabs/herdr-plugins/<plugin>
 herdr plugin uninstall <plugin>
 ```
 
-This keeps the plugin's config directory, so a later reinstall finds your settings. It also leaves the downloaded checkout under herdr's `plugins/github-installations` folder (about 1 MB per plugin); delete it by hand if you want the disk space back. Keybindings you added to `config.toml` stay too: remove them yourself.
+This keeps the plugin's config directory, so a later reinstall finds your settings. It also leaves the downloaded checkout (about 1.3 MB) under herdr's `plugins/github-installations` folder; delete it by hand if you want the disk space back. Keybindings you added to `config.toml` stay too: remove them yourself.
 
 ## Linux and Windows
 
 - **Linux:** use the same commands. Expected to work like macOS; not yet verified.
-- **Windows:** not a declared platform yet. Expect `herdr plugin install` to refuse the plugins until `windows` is added to their manifests. The paths of herdr's config and plugin folders on Windows are not documented here because they have not been verified.
+- **Windows:** not a declared platform yet. `herdr plugin install` may refuse the plugins because the manifests do not list `windows`; this was not tested. The paths of herdr's config and plugin folders on Windows are not documented here because they have not been verified.
 
 If something fails, see [Troubleshooting and FAQ](./troubleshooting.md).
