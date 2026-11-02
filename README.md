@@ -1,5 +1,11 @@
 # herdr-plugins
 
+[![CI](https://github.com/GravionLabs/herdr-plugins/actions/workflows/ci.yml/badge.svg)](https://github.com/GravionLabs/herdr-plugins/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/GravionLabs/herdr-plugins)](https://github.com/GravionLabs/herdr-plugins/releases/latest)
+[![License: MIT](https://img.shields.io/github/license/GravionLabs/herdr-plugins)](LICENSE)
+
+Documentation: <https://gravionlabs.github.io/herdr-plugins/>
+
 [herdr](https://herdr.dev) plugins for the GravionLabs agent workflow (the `deliver` skill of [GravionLabs/skills](https://github.com/GravionLabs/skills), successor of the archived apm-hub). Each plugin lives in its own directory with a `herdr-plugin.toml` and installs on its own:
 
 ```bash
