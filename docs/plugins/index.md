@@ -14,3 +14,8 @@
 | `worktree-cleanup` | Clean up removed worktrees |
 
 Actions, panes and config keys of each plugin: [Public names](../naming.md).
+
+Full pages, written from the same page template (`docs/guide/plugins/_template.md`):
+
+- [link-trim](../guide/plugins/link-trim.md)
+- [agent-notify](../guide/plugins/agent-notify.md)

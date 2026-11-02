@@ -12,7 +12,8 @@ export default defineConfig({
   // The site is the documentation of the repository: its pages are the files of `docs`.
   srcDir: '../../docs',
   // Architecture decision records stay in the repository; they are not part of the site.
-  srcExclude: ['adr/**'],
+  // The plugin page template is copied per plugin, never built as a page.
+  srcExclude: ['adr/**', 'guide/plugins/_template.md'],
   // `docs/guide/README.md` is what GitHub shows for the folder, and the home of the guide here.
   rewrites: { 'guide/README.md': 'guide/index.md' },
   cleanUrls: true,
@@ -33,6 +34,13 @@ export default defineConfig({
           items: [
             { text: 'Overview', link: '/guide/' },
             { text: 'Getting started', link: '/guide/getting-started' },
+          ],
+        },
+        {
+          text: 'Plugin pages',
+          items: [
+            { text: 'link-trim', link: '/guide/plugins/link-trim' },
+            { text: 'agent-notify', link: '/guide/plugins/agent-notify' },
           ],
         },
       ],
