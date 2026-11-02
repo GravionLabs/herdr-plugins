@@ -1,5 +1,6 @@
-// Suggestions for the popup: the open Epics, Features, PBIs and Bugs from `gh issue list`. Pure except `loadIssues`.
+// Suggestions for the popup: the open Epics, Features, PBIs and Bugs from the REST issues API. Pure except `loadIssues`.
 import { classifyFailure, describe } from './errors.ts';
+import { cachedApi, DEFAULT_TTL_MS, type CacheOptions } from './ghcache.ts';
 import { failureLine, type Run } from './run.ts';
 
 export type Level = 'Epic' | 'Feature' | 'PBI' | 'Bug';
@@ -12,7 +13,7 @@ export type Issue = {
   needsDecision: boolean;
   assignees: string[];
 };
-export type Loaded = { ok: true; issues: Issue[] } | { ok: false; reason: string };
+export type Loaded = { ok: true; issues: Issue[] } | { ok: false; reason: string; rateLimited?: true };
 
 const LEVELS: Record<string, Level> = { pbi: 'PBI', feature: 'Feature', epic: 'Epic', bug: 'Bug' };
 
@@ -31,7 +32,7 @@ const milestoneTitle = (value: unknown): string | null => {
   return typeof title === 'string' && title !== '' ? title : null;
 };
 
-// Issues of the JSON of `gh issue list --json number,title,labels,assignees,milestone`; other levels and bad entries are skipped.
+// Issues of the JSON of `repos/{owner}/{repo}/issues` (pull requests, other levels and bad entries are skipped).
 // Null when the JSON is unreadable or not a list.
 export function parseIssues(json: string): Issue[] | null {
   let data: unknown;
@@ -44,6 +45,7 @@ export function parseIssues(json: string): Issue[] | null {
   const issues: Issue[] = [];
   for (const raw of data as Record<string, unknown>[]) {
     if (typeof raw !== 'object' || raw === null) continue;
+    if (raw.pull_request !== undefined) continue;
     if (!Number.isInteger(raw.number) || typeof raw.title !== 'string') continue;
     const labels = names(raw.labels, 'name').map((l) => l.toLowerCase());
     const prefix = /^\[([^\]]+)\]/.exec(raw.title)?.[1]?.toLowerCase() ?? '';
@@ -95,14 +97,25 @@ export function markers(issue: Issue): string {
     .join(' ');
 }
 
-// One `gh issue list` call in the repository; a failure becomes a readable reason, never a throw.
-export async function loadIssues(run: Run, repo: string, limit: number): Promise<Loaded> {
-  const args = ['issue', 'list', '--state', 'open', '--json', 'number,title,labels,assignees,milestone', '--limit', String(limit)];
-  const result = await run('gh', args, repo);
-  if (!result.ok) {
-    const found = classifyFailure('gh', result.code, result.stderr);
-    return { ok: false, reason: found ? describe(found) : failureLine(result) };
+// Cache of the state directory for the REST calls (HERDR_PLUGIN_STATE_DIR); no directory means no cache.
+export const stateCache = (): CacheOptions => ({ dir: process.env.HERDR_PLUGIN_STATE_DIR || undefined, ttlMs: DEFAULT_TTL_MS });
+
+// The open issues through `gh api` (REST, ETag-revalidated, cached in the state directory), 100 per page up to `limit`;
+// a failure becomes a readable reason, never a throw. A rate limit names its reset time.
+export async function loadIssues(run: Run, repo: string, limit: number, cache: CacheOptions = { dir: undefined, ttlMs: 0 }): Promise<Loaded> {
+  const perPage = Math.min(Math.max(limit, 1), 100);
+  const issues: Issue[] = [];
+  for (let page = 1; issues.length < limit; page++) {
+    const got = await cachedApi(run, repo, `repos/{owner}/{repo}/issues?state=open&per_page=${perPage}&page=${page}`, cache);
+    if (!got.ok) {
+      if ('rateLimit' in got) return { ok: false, reason: got.rateLimit.message, rateLimited: true };
+      const found = classifyFailure('gh', got.failure.code, got.failure.stderr);
+      return { ok: false, reason: found ? describe(found) : failureLine({ ok: false, code: got.failure.code, stdout: '', stderr: got.failure.stderr }) };
+    }
+    const parsed = parseIssues(got.body);
+    if (!parsed) return { ok: false, reason: 'unreadable gh output' };
+    issues.push(...parsed);
+    if ((JSON.parse(got.body) as unknown[]).length < perPage) break;
   }
-  const issues = parseIssues(result.stdout);
-  return issues ? { ok: true, issues } : { ok: false, reason: 'unreadable gh output' };
+  return { ok: true, issues: issues.slice(0, limit) };
 }
