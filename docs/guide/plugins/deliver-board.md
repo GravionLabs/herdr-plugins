@@ -81,7 +81,7 @@ API load: the open PBIs come from the REST issues API (`gh api repos/{owner}/{re
 
 - **The board shows one error line.** `gh` is missing or not logged in. Install `gh` and run `gh auth login`.
 - **The popup says it is not in a git repository and closes on any key.** The focused pane's cwd is outside a git repository. Focus a pane inside the repository and open the board again.
-- **`GitHub rate limit exceeded, resets at HH:MM`.** The GitHub rate limit is exhausted. The time is local time and a herdr notification is shown too. Wait until the reset time. Unchanged lists are revalidated with an ETag and cost no rate limit.
+- **`GitHub rate limit exceeded, resets at HH:MM`.** The GitHub rate limit is exhausted. The time is local time and a herdr notification is shown too. Wait until the reset time. The PBI list is revalidated with an ETag, so an unchanged list costs no rate limit. The PR list (GraphQL) has no ETag and is only cached for 30 seconds, so it still counts against the rate limit.
 - **A new PBI or PR does not show after `r`.** The data is cached for 30 seconds. Press `r` again after that.
 - **A PBI is missing.** Only open issues labelled `pbi` are listed.
 

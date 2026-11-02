@@ -61,7 +61,7 @@ In a repository where no loop wrote `.agents/deliver-loop.ansi.log` or `.agents/
 
 - **A notification says how to install the `deliver` skill.** The skill was not found in any of the four lookup locations. Run `npx skills add GravionLabs/skills --skill deliver`.
 - **No pane opens and a notification gives a reason.** No log exists. Only `Invoke-DeliverLoop.ps1` writes it; a `/deliver` run in a chat session does not.
-- **Nothing happens at all.** `pwsh` (PowerShell 7+) is missing or not on `PATH`.
+- **A notification says `deliver-log: pwsh is not installed`.** `pwsh` (PowerShell 7+) is missing or not on `PATH`. Install PowerShell 7+ and make sure `pwsh` is on your `PATH`.
 - **The keybinding stopped working after an upgrade.** It uses the deprecated `deliver-log.toggle-log`. Change it to `deliver-log.toggle`.
 - **The wrong repository's log is used.** The repository is the one of the focused pane. Focus a pane in the repository you mean.
 
