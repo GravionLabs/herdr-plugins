@@ -36,6 +36,8 @@ Some plugin features look broken when a herdr setting is off, and the cause is t
 
 To add the missing blocks (toast delivery, the "repo first" sidebar rows, and keys for `deliver-starter.start`, `deliver-log.toggle` and `command-palette.open`), run `node scripts/herdr-setup.ts apply`. It shows a diff, writes a `config.toml.bak-<timestamp>` backup, asks, writes, and runs `herdr server reload-config`. It never changes a key you already set, except `ui.toast.delivery = "off"`. Use `--dry-run` to only see the diff and `--yes` to skip the question.
 
+To install the plugins at the latest release tag (not the default branch), run `node scripts/herdr-setup.ts install [<plugin>…] [--ref <tag>] [--dry-run]`.
+
 | Setting | Why it matters | Needed by |
 |:--|:--|:--|
 | `ui.toast.delivery` must not be `off` | Notifications. With `off`, `herdr notification show` still answers `shown`, but no notification appears. | agent-notify, command-palette, deliver-log, deliver-starter, layout-bootstrap, link-trim, repo-open, review-popup, worktree-cleanup |
