@@ -13,7 +13,13 @@ herdr plugin install GravionLabs/herdr-plugins/link-trim
 ## Requirements
 
 - `ui.mouse_capture` must be on in herdr's `config.toml`. Without mouse capture herdr does not see the click and the link handler never runs.
-- Click with **Ctrl+click**, also on macOS. herdr handles Ctrl+click on links.
+- Click with **Ctrl+click**, also on macOS. Shift+click and Cmd+click do not reach the link handler in herdr; Cmd+click only matters in WezTerm, see below.
+- herdr's `ui.toast.delivery` must not be `off`, or the notifications of the plugin are not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
 
 ## What it trims
 
