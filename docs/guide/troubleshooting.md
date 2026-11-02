@@ -27,7 +27,7 @@ Install `gh` from [cli.github.com](https://cli.github.com) and check that `gh` i
 
 ### `gh is not logged in`
 
-The notification is `<plugin>: gh is not logged in` with the body `Run \`gh auth login\`.`. The board says `gh is not authenticated: run \`gh auth login\`` instead. Run `gh auth login`. The plugins classify it from `gh` exit code 4 or from stderr text such as "not logged in" or "gh auth login" ([deliver-board](./plugins/deliver-board.md), [worktree-cleanup](./plugins/worktree-cleanup.md)).
+The notification is `<plugin>: gh is not logged in` with the body `` Run `gh auth login`. ``. The board says `` gh is not authenticated: run `gh auth login` `` instead. Run `gh auth login`. The plugins classify it from `gh` exit code 4 or from stderr text such as "not logged in" or "gh auth login" ([deliver-board](./plugins/deliver-board.md), [worktree-cleanup](./plugins/worktree-cleanup.md)).
 
 ### `GitHub rate limit exceeded`
 
