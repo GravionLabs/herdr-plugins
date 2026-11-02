@@ -17,7 +17,7 @@ import {
   type State,
 } from '../lib/review.ts';
 import type { Result, Run } from '../lib/run.ts';
-import { openFinding } from '../lib/split.ts';
+import { findingPath, openFinding } from '../lib/split.ts';
 
 const fixture = (name: string): string => readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), 'utf8');
 const schema = (name: string): Record<string, unknown> =>
@@ -259,6 +259,18 @@ describe('render', () => {
       'Up/Down: select, Enter: open in $EDITOR, q: close.',
     ]);
   });
+  it('turns control characters of the review text into ? (no escape sequence reaches the terminal)', () => {
+    const base = state('valid');
+    if (base.kind !== 'review') throw new Error();
+    const finding = { file: 'a.ts', line: 1, title: 'x\x1b]52;c;cm0gLXJmIH4=\x07y', why: 'w\x1b[2Jz\r\nq' };
+    const review = { ...base.review, review: { blocking: [finding], notes: ['\x9b31m'] }, unmet: ['\x1b[8m'] };
+    const lines = render({ ...base, review });
+    expect(lines.join('\n')).not.toMatch(/[\x00-\x09\x0b-\x1f\x7f-\x9f]/);
+    expect(lines).toContain('> a.ts:1 — x?]52;c;cm0gLXJmIH4=?y');
+    expect(lines).toContain('      w?[2Jz??q');
+    expect(lines).toContain('  - ?31m');
+    expect(lines).toContain('  - ?[8m');
+  });
   it('says stale in the header', () => {
     expect(render(state('stale', true))[0]).toBe('#4 round 2  STALE: reviewed deadbee, branch has moved on');
   });
@@ -307,6 +319,39 @@ describe('opening a finding', () => {
     expect(await openFinding(run, 'herdr', '/repo/wt', 'p1', 'nvim', finding)).toBeNull();
     expect(calls[0]).toEqual(['pane', 'split', 'p1', '--direction', 'right', '--cwd', '/repo/wt', '--focus']);
     expect(calls[1]).toEqual(['pane', 'run', 'p9', `nvim +7 '${p('/repo/wt/lib/a b.ts')}'`]);
+  });
+  it.each([
+    ['lib/a;rm -rf ~.ts'],
+    ['lib/a&calc&.ts'],
+    ['lib/$(id)`id`.ts'],
+    ['lib/"x".ts'],
+    ['lib/..x.ts'],
+    ['/etc/passwd'],
+  ])('keeps %j inside the worktree and single-quoted', (file) => {
+    expect(findingPath('/repo/wt', file)).toEqual({ path: join('/repo/wt', file) });
+    expect(editorCommand('vi', join('/repo/wt', file), 1)).toBe(`vi +1 '${join('/repo/wt', file)}'`);
+  });
+  it.each(['../secret', '../../etc/passwd', 'lib/../../x', '..', '.', 'lib/..'])('refuses %j outside the worktree', (file) => {
+    expect(findingPath('/repo/wt', file)).toEqual({ reason: `Not opened: ${JSON.stringify(file)} is outside /repo/wt` });
+  });
+  it.each([
+    ["it's.ts", "'"],
+    ['a\\b.ts', '\\'],
+    ['a\u2019b.ts', '\u2019'],
+    ['a\nrm -rf ~', '\n'],
+    ['a\x1b[2J.ts', '\x1b'],
+  ])('refuses %j that could break out of the shell quoting', (file, char) => {
+    expect(findingPath('/repo/wt', file)).toEqual({ reason: `Not opened: ${JSON.stringify(file)} contains ${JSON.stringify(char)}` });
+  });
+  it('runs nothing for a finding outside the worktree', async () => {
+    const calls: string[][] = [];
+    const run: Run = async (_c, args) => {
+      calls.push(args);
+      return ok('{"result":{"pane":{"pane_id":"p9"}}}');
+    };
+    const reason = await openFinding(run, 'herdr', '/repo/wt', 'p1', 'vi', { file: '../../etc/passwd', line: 1, title: 't', why: 'w' });
+    expect(reason).toBe(`Not opened: "../../etc/passwd" is outside /repo/wt`);
+    expect(calls).toEqual([]);
   });
   it('reports a failing split and a missing pane id', async () => {
     expect(await openFinding(async () => fail('boom'), 'herdr', '/r', undefined, 'vi', finding)).toBe(

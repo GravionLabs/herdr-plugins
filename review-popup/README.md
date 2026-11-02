@@ -27,7 +27,7 @@ Without a keybinding: `herdr plugin action invoke review-popup.open`.
 ## Popup
 
 - Header `#<nr> round <round>`; when the review's `sha` differs from the branch's HEAD it says the review is stale.
-- Up/Down (or `k`/`j`) select a blocking finding, Enter opens the file at the line in `$EDITOR` (`vi` when unset) in a new split pane. `q` or Esc closes.
+- Up/Down (or `k`/`j`) select a blocking finding, Enter opens the file at the line in `$EDITOR` (`vi` when unset) in a new split pane. `q` or Esc closes. A finding whose file lies outside the worktree (`../`) or whose name contains `'`, `\`, a typographic single quote or a control character is not opened; the popup shows `Not opened: ...`. Control characters of the review text are shown as `?`, so no escape sequence from a review reaches the terminal.
 - On a branch without PBI number: the list of all review files, newest first, one line each `#<nr>  round <round>  <branch>` (`STALE` when the review's `sha` differs from the head of its branch; a deleted branch is not stale, an invalid file shows its validation error). Up/Down select, Enter shows the review, `b` or Backspace goes back to the list. Findings of a review opened from the list open in the worktree of its branch when there is one.
 - One line instead of the review for: no review file (no review in the repository at all on a branch without PBI number), an invalid file (with the validation error).
 

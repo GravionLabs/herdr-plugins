@@ -20,7 +20,7 @@ herdr plugin install GravionLabs/herdr-plugins/link-trim
 - Trailing `.`, `,`, `;`, `:`, `'` and `"` are removed, repeatedly.
 - A trailing `)` or `]` is removed only when the URL has no opening partner. `https://en.wikipedia.org/wiki/Foo_(bar)` stays unchanged.
 
-The trimmed URL opens with `open` on macOS and `xdg-open` on Linux. If opening fails, herdr shows a notification with the URL.
+The trimmed URL opens with `open` on macOS and `xdg-open` on Linux, as one argument and without a shell. Only absolute `http`/`https` URLs without whitespace or control characters are opened; anything else (`file:`, `javascript:`, a path, a leading `-`) is not passed to the opener. If opening fails or the URL is refused, herdr shows a notification with the URL.
 
 ## Clicking with Cmd outside herdr
 

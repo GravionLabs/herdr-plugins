@@ -11,7 +11,10 @@ export function parseArgs(input: string): Parsed {
   if (tokens[0] === '--milestone') {
     const name = tokens.slice(1);
     if (name.length === 0) return { ok: false, reason: '--milestone needs a name' };
-    return { ok: true, target: { numbers: [], milestone: name.join(' ') } };
+    const milestone = name.join(' ');
+    const bad = unsafeChar(milestone);
+    if (bad !== null) return { ok: false, reason: `Milestone name must not contain ${JSON.stringify(bad)}` };
+    return { ok: true, target: { numbers: [], milestone } };
   }
   const numbers: number[] = [];
   for (const token of tokens) {
@@ -21,6 +24,15 @@ export function parseArgs(input: string): Parsed {
     if (!numbers.includes(nr)) numbers.push(nr);
   }
   return { ok: true, target: { numbers, milestone: null } };
+}
+
+// The milestone name is typed into the new pane's shell inside single quotes (`command.ts`). Quotes, backslashes and
+// control characters are refused: they end or escape a single-quoted string in some shell (fish: `\'`, PowerShell:
+// `'` and the typographic single quotes, any shell: a newline submits the line). Everything else stays literal.
+const UNSAFE = /['"\\‘-‛\x00-\x1f\x7f-\x9f]/;
+
+function unsafeChar(text: string): string | null {
+  return UNSAFE.exec(text)?.[0] ?? null;
 }
 
 function tokenize(text: string): string[] | null {

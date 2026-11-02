@@ -25,7 +25,9 @@ export function branchName(target: Target): string {
   const slug = target.milestone
     .toLowerCase()
     .replace(/[^a-z0-9.]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    // git refuses `..` and a component ending in `.`: `../x` must not become `deliver/milestone-..-x`
+    .replace(/\.{2,}/g, '.')
+    .replace(/^[-.]+|[-.]+$/g, '');
   return `deliver/milestone-${slug || 'run'}`;
 }
 
