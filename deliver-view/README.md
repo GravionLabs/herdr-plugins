@@ -27,14 +27,18 @@ herdr keeps a view only until the server exits. The plugin saves it as `view.jso
 | `apply` | Sets the view by hand and saves it for the startup hook |
 
 ```bash
-herdr plugin action invoke deliver-view apply
+herdr plugin action invoke deliver-view.apply
 ```
 
 Edit `view.json` in the plugin state directory to change the sort; the startup hook applies it as stored. `apply` writes the default view again.
 
 ## Sidebar layout
 
-The view orders the agents; the sidebar shows a token only where a row names it as `$<name>`. This layout from the `deliver` skill (`references/herdr.md`, "Sidebar layout") names the space (one per repository, as `repo-open` creates it) and its state first, then the agent and its terminal title, and puts the tokens in their own row. The plugin never writes your config; copy it into `config.toml` if you want it:
+The view orders the agents; the sidebar shows a token only where a row names it as `$<name>`. Without such a row the `deliver` tokens are not shown at all. The plugin never writes your config; copy the recommended layout into `config.toml` if you want it.
+
+### Recommended layout ("space first")
+
+Line 1 is the space (workspace) and the state, line 2 the agent and its terminal title, line 3 the `deliver` tokens. With `repo-open` every repository is its own space:
 
 ```toml
 [ui.sidebar.agents]
@@ -45,10 +49,26 @@ rows = [
 ]
 ```
 
+It looks like this for one `/deliver` session:
+
+```
+● herdr-plugins · idle
+  claude · <terminal title>
+  #121 · merged · #139
+```
+
+Alternatives: a compact two-line layout (keep the space and state row and the tokens row, drop the agent row), the `deliver` line first (move the `$deliver` row above the space row), or `row_gap = 1` under `[ui.sidebar.agents]` for a blank line between the rows. The full list of herdr settings the plugins rely on is in the [root README](../README.md#herdr-settings-the-plugins-rely-on).
+
 ## Requirements
 
 - herdr 0.9.5 or later (`agent.view.set`), macOS or Linux.
 - Node 26.
+- herdr's `ui.toast.delivery` must not be `off`, or a failure notification of the plugin is not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
 
 ## Development
 
