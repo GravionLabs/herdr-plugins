@@ -23,3 +23,7 @@ Full pages, written from the same page template (`docs/guide/plugins/_template.m
 - [deliver-starter](../guide/plugins/deliver-starter.md)
 - [deliver-view](../guide/plugins/deliver-view.md)
 - [deliver-log](../guide/plugins/deliver-log.md)
+- [review-popup](../guide/plugins/review-popup.md)
+- [worktree-cleanup](../guide/plugins/worktree-cleanup.md)
+- [command-palette](../guide/plugins/command-palette.md)
+- [layout-bootstrap](../guide/plugins/layout-bootstrap.md)
