@@ -32,6 +32,19 @@ function exact(obj: Record<string, unknown>, keys: string[], path: string): stri
   return extra ? `${path}: unexpected property "${extra}"` : null;
 }
 
+// The only place that lists the review schema versions this popup reads. A file without `schemaVersion` is version 1
+// (the schema copied from GravionLabs/skills at SKILLS_SCHEMA_SOURCE, which has no version property).
+export const SUPPORTED_SCHEMA_VERSIONS: readonly number[] = [1];
+export const SKILLS_SCHEMA_SOURCE = 'GravionLabs/skills commit d6953b2 (deliver skill)';
+
+// Null when the version is supported, else the hint naming the expected skills version.
+export function checkSchemaVersion(data: unknown): string | null {
+  if (!isObject(data) || !('schemaVersion' in data)) return null;
+  const version = data.schemaVersion;
+  if (typeof version === 'number' && SUPPORTED_SCHEMA_VERSIONS.includes(version)) return null;
+  return `Unsupported review schema version ${JSON.stringify(version)} (supported: ${SUPPORTED_SCHEMA_VERSIONS.join(', ')}). Use the deliver skill from ${SKILLS_SCHEMA_SOURCE} or compatible.`;
+}
+
 // Validation per deliver-review.schema.json and review.schema.json; returns the first error.
 export function validateReview(data: unknown): string | null {
   if (!isObject(data)) return 'review must be an object';
@@ -70,6 +83,9 @@ export function parseReview(text: string): Parsed {
   } catch (error) {
     return { ok: false, error: `not valid JSON: ${error instanceof Error ? error.message : String(error)}` };
   }
+  const unsupported = checkSchemaVersion(data);
+  if (unsupported) return { ok: false, error: unsupported };
+  if (isObject(data)) delete data.schemaVersion;
   const error = validateReview(data);
   return error ? { ok: false, error } : { ok: true, review: data as Review };
 }
