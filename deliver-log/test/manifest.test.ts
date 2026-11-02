@@ -13,15 +13,18 @@ describe('deliver-log manifest', () => {
     expect(manifest).toMatch(/^platforms = \["macos", "linux"\]$/m);
   });
 
-  it('declares the action toggle-log run by Node', () => {
-    expect(manifest).toMatch(/^id = "toggle-log"$/m);
-    expect(manifest).toMatch(/^command = \["node", "bin\/toggle-log\.ts"\]$/m);
+  it('declares the action toggle run by Node, with toggle-log as deprecated alias on the same command', () => {
+    const actions = [...manifest.matchAll(/\[\[actions\]\]\nid = "([^"]+)"\ntitle = "[^"]*"\ncommand = (\[[^\n]+\])/g)].map((x) => [x[1], x[2]]);
+    expect(actions).toEqual([
+      ['toggle', '["node", "bin/toggle-log.ts"]'],
+      ['toggle-log', '["node", "bin/toggle-log.ts"]'],
+    ]);
   });
 
   it('documents install, deliver skill and a plugin_action keybinding in the README', () => {
     expect(readme).toContain('herdr plugin install GravionLabs/herdr-plugins/deliver-log');
     expect(readme).toContain('npx skills add GravionLabs/skills --skill deliver');
     expect(readme).toContain('type = "plugin_action"');
-    expect(readme).toContain('command = "deliver-log.toggle-log"');
+    expect(readme).toContain('command = "deliver-log.toggle"');
   });
 });

@@ -76,3 +76,24 @@ describe('README keybindings', () => {
     expect(new Set(keys).size).toBe(keys.length);
   });
 });
+
+describe('README keybinding targets', () => {
+  const declaredActions = (plugin: string): string[] =>
+    [...readFileSync(new URL(`${plugin}/herdr-plugin.toml`, root), 'utf8').matchAll(/^\[\[actions\]\]\nid = "([^"]+)"$/gm)].map(
+      (m) => m[1],
+    );
+  const targets = (path: string): string[] =>
+    [...readFileSync(new URL(path, root), 'utf8').matchAll(/^command = "([a-z-]+)\.([a-z-]+)"$/gm)].map((m) => `${m[1]}.${m[2]}`);
+
+  it.each(pluginReadmes())('%s binds only actions its manifest declares', (path) => {
+    const missing = targets(path).filter((target) => {
+      const [plugin, action] = target.split('.');
+      return !declaredActions(plugin).includes(action);
+    });
+    expect(missing).toEqual([]);
+  });
+
+  it('uses the renamed deliver-log action, not its deprecated alias', () => {
+    expect(targets('deliver-log/README.md')).toEqual(['deliver-log.toggle']);
+  });
+});

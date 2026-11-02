@@ -6,6 +6,12 @@ platforms = ["macos", "linux"]
 description = "Shows or hides the log pane of Invoke-DeliverLoop.ps1"
 
 [[actions]]
-id = "toggle-log"
+id = "toggle"
 title = "Toggle the deliver log pane"
+command = ["node", "bin/toggle-log.ts"]
+
+# Deprecated alias of `toggle`, removed in the next major version.
+[[actions]]
+id = "toggle-log"
+title = "Toggle the deliver log pane (deprecated, use toggle)"
 command = ["node", "bin/toggle-log.ts"]
