@@ -13,7 +13,7 @@ Running the checklist is tracked outside this file (#124 and each release). Reco
 - [ ] `ui.mouse_capture` is on in herdr's `config.toml` (needed for link handlers).
 - [ ] Windows only: until #86 lands, the manifests list only `macos` and `linux` (ADR 0001), so `herdr plugin install` may refuse the plugin; record that as a known pre-release result, not a plugin failure. After #86 every manifest lists `windows` in `platforms` and the install must succeed. Use PowerShell or Windows Terminal; paths below use `$HERDR_PLUGIN_CONFIG_DIR` and `$HERDR_PLUGIN_STATE_DIR` as printed by `herdr plugin config-dir <plugin>` and the state directory of the plugin.
 
-How to trigger an action without a keybinding: `herdr plugin action invoke <plugin>.<action>`. Test the bound key once for each plugin that has an action (`agent-notify` and `deliver-view` have no keybinding example in their READMEs; invoke those with the command. `link-trim.open` is reached only by Ctrl+click through its link handler, not by invoke). `deliver-view` is invoked as `herdr plugin action invoke deliver-view apply` (its README syntax), the others as `<plugin>.<action>`.
+How to trigger an action without a keybinding: `herdr plugin action invoke <plugin>.<action>`. Test the bound key once for each plugin that has an action (`agent-notify` and `deliver-view` have no keybinding example in their READMEs; invoke those with the command. `link-trim.open` is reached only by Ctrl+click through its link handler, not by invoke). `deliver-view` is invoked as `herdr plugin action invoke deliver-view.apply` (its README syntax), the others as `<plugin>.<action>`.
 
 ## Per-OS differences to watch
 

@@ -68,7 +68,7 @@ description = "clean up merged worktrees"
 ## Without a keybinding
 
 - `link-trim` is a link handler (`trailing-punct`) that herdr calls when you open a link, so it needs no key. Its `open` action can be run with `herdr plugin action invoke link-trim.open`.
-- `deliver-view` has no recommended key: run `herdr plugin action invoke deliver-view apply`.
+- `deliver-view` has no recommended key: run `herdr plugin action invoke deliver-view.apply`.
 - `deliver-starter.start-link` is the target of the `github-issue` link handler, not a keybinding.
 - `agent-notify` reacts to events and has no action.
 

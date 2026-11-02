@@ -98,6 +98,24 @@ describe('README keybinding targets', () => {
   });
 });
 
+describe('invocation syntax', () => {
+  const docFiles = (): string[] => [
+    ...pluginReadmes(),
+    ...(readdirSync(new URL('docs/', root), { recursive: true }) as string[])
+      .filter((name) => name.endsWith('.md'))
+      .map((name) => `docs/${name}`),
+  ];
+
+  it('invokes an action as <plugin>.<action>, never with two positionals', () => {
+    const bad = docFiles().flatMap((path) =>
+      [...readFileSync(new URL(path, root), 'utf8').matchAll(/plugin action invoke ([^\s`]+) ([^\s`]+)/g)]
+        .filter((m) => !m[2].startsWith('-'))
+        .map((m) => `${path}: ${m[0]}`),
+    );
+    expect(bad).toEqual([]);
+  });
+});
+
 describe('keybindings page snippet', () => {
   const page = readFileSync(new URL('docs/guide/keybindings.md', root), 'utf8');
   const snippet = [...page.matchAll(/^```toml\n([\s\S]*?)^```$/gm)].map((m) => m[1]);
