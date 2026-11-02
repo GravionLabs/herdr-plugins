@@ -2,7 +2,7 @@
 
 Popup with the last `deliver` review of the PBI behind the focused pane's branch: unmet criteria, blocking findings (`file:line — title`, `why` below) and notes. The plugin only reads the file `deliver` writes after a review round; it never starts a review.
 
-The PBI number comes from the branch name `<type>/<nr>-<slug>`. The file is `<git-common-dir>/.agents/state/review-<nr>.json` (`git rev-parse --git-common-dir` in the pane's cwd, so every worktree finds the same file).
+The PBI number comes from the branch name `<type>/<nr>-<slug>`. The file is `<git-common-dir>/.agents/state/review-<nr>.json` (`git rev-parse --git-common-dir` in the pane's cwd, so every worktree finds the same file). On a branch without PBI number, such as the `/deliver` pane on `release/next` or `main` (deliver implements in worktrees of its own), the popup lists every review of the repository to choose from.
 
 ## Install
 
@@ -27,8 +27,9 @@ Without a keybinding: `herdr plugin action invoke review-popup.open`.
 ## Popup
 
 - Header `#<nr> round <round>`; when the review's `sha` differs from the branch's HEAD it says the review is stale.
-- Up/Down (or `k`/`j`) select a blocking finding, Enter opens the file at the line in `$EDITOR` (`vi` when unset) in a new split pane. `q` or Esc closes.
-- One line instead of the review for: a branch without PBI number, no review file, an invalid file (with the validation error).
+- Up/Down (or `k`/`j`) select a blocking finding, Enter opens the file at the line in `$EDITOR` (`vi` when unset) in a new split pane. `q` or Esc closes. A finding whose file lies outside the worktree (`../`) or whose name contains `'`, `\`, a typographic single quote or a control character is not opened; the popup shows `Not opened: ...`. Control characters of the review text are shown as `?`, so no escape sequence from a review reaches the terminal.
+- On a branch without PBI number: the list of all review files, newest first, one line each `#<nr>  round <round>  <branch>` (`STALE` when the review's `sha` differs from the head of its branch; a deleted branch is not stale, an invalid file shows its validation error). Up/Down select, Enter shows the review, `b` or Backspace goes back to the list. Findings of a review opened from the list open in the worktree of its branch when there is one.
+- One line instead of the review for: no review file (no review in the repository at all on a branch without PBI number), an invalid file (with the validation error).
 
 ## Requirements
 

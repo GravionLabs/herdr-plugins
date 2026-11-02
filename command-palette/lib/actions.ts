@@ -8,8 +8,15 @@ export const herdrPlatform = (nodePlatform: string = process.platform): string =
   nodePlatform === 'darwin' ? 'macos' : nodePlatform;
 
 const str = (v: unknown): string | null => (typeof v === 'string' && v !== '' ? v : null);
+// Plugin and action ids become arguments of `herdr plugin action invoke`: an id that starts with `-` would be read as
+// an option, so it is not listed.
+const id = (v: unknown): string | null => {
+  const s = str(v);
+  return s !== null && !s.startsWith('-') ? s : null;
+};
 
-// Empty for unparseable or unexpected input. Own action and actions for other platforms are left out.
+// Empty for unparseable or unexpected input. Own action, actions for other platforms and ids that start with `-`
+// are left out.
 export function parseActions(json: string, platform: string): Entry[] {
   let parsed: unknown;
   try {
@@ -23,8 +30,8 @@ export function parseActions(json: string, platform: string): Entry[] {
   for (const item of actions) {
     if (typeof item !== 'object' || item === null) continue;
     const { plugin_id, action_id, title, platforms } = item as Record<string, unknown>;
-    const plugin = str(plugin_id);
-    const action = str(action_id);
+    const plugin = id(plugin_id);
+    const action = id(action_id);
     if (!plugin || !action) continue;
     if (`${plugin}.${action}` === OWN_ACTION) continue;
     if (Array.isArray(platforms) && platforms.length > 0 && !platforms.includes(platform)) continue;

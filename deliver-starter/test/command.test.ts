@@ -41,4 +41,17 @@ describe('command building per mode', () => {
     expect(tabLabel({ numbers: [], milestone: '0.3.0' })).toBe('deliver 0.3.0');
     expect(branchName({ numbers: [], milestone: '!!' })).toBe('deliver/milestone-run');
   });
+
+  it('keeps .. and shell characters of a milestone out of the branch name', () => {
+    expect(branchName({ numbers: [], milestone: '../../x' })).toBe('deliver/milestone-x');
+    expect(branchName({ numbers: [], milestone: '1..2.' })).toBe('deliver/milestone-1.2');
+    expect(branchName({ numbers: [], milestone: '..' })).toBe('deliver/milestone-run');
+    expect(branchName({ numbers: [], milestone: 'a;rm -rf ~&$(id)`x`' })).toBe('deliver/milestone-a-rm-rf-id-x');
+  });
+
+  it('keeps ; & $() of a milestone inside the single-quoted shell argument', () => {
+    const target: Target = { numbers: [], milestone: 'v1; rm -rf ~ & $(id) `x` |y' };
+    expect(unattendedCommand('/s/deliver', target)).toBe(`pwsh '${loop}' -Milestone 'v1; rm -rf ~ & $(id) \`x\` |y'`);
+    expect(interactiveCommand('claude', target)).toBe(`claude '/deliver --milestone "v1; rm -rf ~ & $(id) \`x\` |y"'`);
+  });
 });

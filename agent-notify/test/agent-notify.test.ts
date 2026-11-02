@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { parseConfig } from '../lib/config.ts';
+import { deprecations, parseConfig } from '../lib/config.ts';
 import { check, WINDOW_MS, type Seen } from '../lib/dedupe.ts';
 import { statusEvent } from '../lib/event.ts';
 import { quote, show, TOAST_SCRIPT } from '../lib/host.ts';
@@ -106,8 +106,21 @@ describe('parseConfig', () => {
     expect(parseConfig('{bad')).toEqual(off);
     expect(parseConfig('{"sound":"yes"}')).toEqual(off);
   });
+  it('reads the deprecated system_notification alias', () => {
+    expect(parseConfig('{"system_notification":true}')).toEqual({ systemNotification: true, sound: false });
+  });
+  it('prefers systemNotification over the alias', () => {
+    expect(parseConfig('{"systemNotification":false,"system_notification":true}')).toEqual(off);
+  });
+  it('reports the deprecated key only when present', () => {
+    expect(deprecations('{"system_notification":true}')).toEqual([
+      'config key "system_notification" is deprecated, use "systemNotification"',
+    ]);
+    expect(deprecations('{"systemNotification":true}')).toEqual([]);
+    expect(deprecations(undefined)).toEqual([]);
+  });
   it('switches both on', () => {
-    expect(parseConfig('{"system_notification":true,"sound":true}')).toEqual({ systemNotification: true, sound: true });
+    expect(parseConfig('{"systemNotification":true,"sound":true}')).toEqual({ systemNotification: true, sound: true });
   });
 });
 
@@ -128,7 +141,7 @@ describe('agent-notify manifest', () => {
   });
   it('documents install and config', () => {
     expect(readme).toContain('herdr plugin install GravionLabs/herdr-plugins/agent-notify');
-    expect(readme).toContain('system_notification');
+    expect(readme).toContain('systemNotification');
     expect(readme).toContain('"sound"');
   });
 });

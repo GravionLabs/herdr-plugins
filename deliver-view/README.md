@@ -27,7 +27,7 @@ herdr keeps a view only until the server exits. The plugin saves it as `view.jso
 | `apply` | Sets the view by hand and saves it for the startup hook |
 
 ```bash
-herdr plugin action invoke deliver-view apply
+herdr plugin action invoke deliver-view.apply
 ```
 
 Edit `view.json` in the plugin state directory to change the sort; the startup hook applies it as stored. `apply` writes the default view again.

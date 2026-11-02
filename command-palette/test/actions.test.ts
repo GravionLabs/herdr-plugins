@@ -22,6 +22,16 @@ describe('parseActions', () => {
     expect(parseActions(fixture, 'macos').map((e) => e.id)).not.toContain('command-palette.open');
   });
 
+  it('leaves out ids that start with - (read as an option by herdr) and keeps ; & quotes as data', () => {
+    const list = (plugin_id: string, action_id: string): string =>
+      JSON.stringify({ result: { actions: [{ plugin_id, action_id, title: 't' }] } });
+    expect(parseActions(list('--help', 'open'), 'macos')).toEqual([]);
+    expect(parseActions(list('p', '-x'), 'macos')).toEqual([]);
+    expect(parseActions(list('p;id', "a&'b'"), 'macos')).toEqual([
+      { id: "p;id.a&'b'", group: 'p;id', title: 't', run: { kind: 'action', plugin: 'p;id', action: "a&'b'" } },
+    ]);
+  });
+
   it('leaves out actions of another platform', () => {
     expect(parseActions(fixture, 'macos').map((e) => e.group)).not.toContain('win-only');
     expect(parseActions(fixture, 'windows').map((e) => e.group)).toEqual(['win-only']);

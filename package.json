@@ -10,12 +10,16 @@
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc",
-    "changelog": "git-cliff -c cliff.toml -o CHANGELOG.md"
+    "changelog": "git-cliff -c cliff.toml -o CHANGELOG.md",
+    "docs:dev": "vitepress dev apps/site",
+    "docs:build": "vitepress build apps/site",
+    "docs:preview": "vitepress preview apps/site"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
     "@vitest/coverage-v8": "^5.0.5",
     "typescript": "^7.0.2",
+    "vitepress": "1.6.4",
     "vitest": "^5.0.5"
   },
   "type": "module"

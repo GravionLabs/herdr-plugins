@@ -46,7 +46,7 @@ Own entries come from `$HERDR_PLUGIN_CONFIG_DIR/config.json` (`herdr plugin conf
 
 - `title`: non-empty string. `command`: non-empty array of strings, run without a shell. `cwd`: optional.
 - Enter runs the command via the detached runner in the entry `cwd`, else the cwd of `PALETTE_CONTEXT`, else `$HOME`. Output is discarded; a non-zero exit, timeout (10 s) or spawn error shows the notification `command-palette: <title> failed`.
-- A missing file is fine. Invalid JSON or an invalid entry shows one hint line `config.json: <problem>` (`(+N more)` for further problems) under the search field; valid entries still work.
+- A missing file is fine. Invalid JSON, an invalid entry or an unknown key (checked against `schema/config.schema.json`) shows one hint line `config.json: <problem>` (`(+N more)` for further problems) under the search field; valid entries still work.
 - Not supported: shell strings, per-entry environment variables, showing output.
 
 ## Recently used

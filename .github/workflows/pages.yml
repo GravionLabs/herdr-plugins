@@ -1,0 +1,64 @@
+name: Pages
+
+# The documentation site (apps/site, VitePress; pages are the files of docs/).
+# Pull requests that touch the site or its documents build it, so a dead link is found before the merge.
+# Only main deploys, and only while the repository variable DEPLOY_PAGES is "true"
+# (Settings → Pages → Source must be "GitHub Actions"; see docs/reference/publishing-the-site.md).
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main, 'release/**']
+    paths:
+      - 'apps/site/**'
+      - 'docs/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # Deployments queue up behind each other and the last one wins; a pull request replaces its own earlier run.
+  group: pages-${{ github.event_name == 'pull_request' && github.ref || 'deploy' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Build the site
+    if: github.event_name == 'pull_request' || vars.DEPLOY_PAGES == 'true'
+    runs-on: ubuntu-latest
+    env:
+      SITE_BASE: /${{ github.event.repository.name }}/
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '26'
+          cache: npm
+      - run: npm ci
+      # Dead links fail this step.
+      - name: Build the documentation site
+        run: npm run docs:build
+      - name: Upload the site
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: apps/site/.vitepress/dist
+
+  deploy:
+    name: Deploy
+    needs: build
+    if: github.event_name != 'pull_request' && vars.DEPLOY_PAGES == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "agent-notify config.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "systemNotification": { "type": "boolean" },
+    "system_notification": { "type": "boolean", "description": "Deprecated alias of systemNotification." },
+    "sound": { "type": "boolean" }
+  }
+}

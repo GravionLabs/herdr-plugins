@@ -1,6 +1,6 @@
 # Manual acceptance checklist
 
-Run this checklist on macOS, Linux and Windows before the release candidate and before the release. Windows is the target for 1.0, but it becomes a declared platform only when #86 adds `windows` to the `platforms` of every manifest; until then the Windows runs are pre-release checks, and `herdr plugin install` may refuse the plugin there. Windows results marked "Target behaviour" are not verified yet. The public surface (IDs, config keys, state files, event behaviour) is defined in [ADR 0001](adr/0001-public-api.md); every step below checks one item of it.
+Run this checklist on macOS, Linux and Windows before the release candidate and before the release. Windows is the target for 1.0, but it becomes a declared platform only when #86 adds `windows` to the `platforms` of every manifest; until then the Windows runs are pre-release checks, and `herdr plugin install` may refuse the plugin there. Windows results marked "Target behaviour" are not verified yet. The public surface (IDs, config keys, state files, event behaviour) is defined in [ADR 0001](https://github.com/GravionLabs/herdr-plugins/blob/main/docs/adr/0001-public-api.md); every step below checks one item of it.
 
 Running the checklist is tracked outside this file (#124 and each release). Record the result per plugin and OS in the release PR.
 
@@ -13,7 +13,7 @@ Running the checklist is tracked outside this file (#124 and each release). Reco
 - [ ] `ui.mouse_capture` is on in herdr's `config.toml` (needed for link handlers).
 - [ ] Windows only: until #86 lands, the manifests list only `macos` and `linux` (ADR 0001), so `herdr plugin install` may refuse the plugin; record that as a known pre-release result, not a plugin failure. After #86 every manifest lists `windows` in `platforms` and the install must succeed. Use PowerShell or Windows Terminal; paths below use `$HERDR_PLUGIN_CONFIG_DIR` and `$HERDR_PLUGIN_STATE_DIR` as printed by `herdr plugin config-dir <plugin>` and the state directory of the plugin.
 
-How to trigger an action without a keybinding: `herdr plugin action invoke <plugin>.<action>`. Test the bound key once for each plugin that has an action (`agent-notify`, `link-trim` and `deliver-view` have no keybinding example in their READMEs; invoke those with the command). `deliver-view` is invoked as `herdr plugin action invoke deliver-view apply` (its README syntax), the others as `<plugin>.<action>`.
+How to trigger an action without a keybinding: `herdr plugin action invoke <plugin>.<action>`. Test the bound key once for each plugin that has an action (`agent-notify` and `deliver-view` have no keybinding example in their READMEs; invoke those with the command. `link-trim.open` is reached only by Ctrl+click through its link handler, not by invoke). `deliver-view` is invoked as `herdr plugin action invoke deliver-view.apply` (its README syntax), the others as `<plugin>.<action>`.
 
 ## Per-OS differences to watch
 
@@ -73,7 +73,7 @@ Action `open`, pane `board` (popup).
 
 ## `deliver-log`
 
-Action `toggle-log`. Needs the `deliver` skill and `pwsh`.
+Action `toggle` (deprecated alias `toggle-log`). Needs the `deliver` skill and `pwsh`.
 
 - [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/deliver-log`.
 - [ ] Skill missing: run the action without the `deliver` skill installed. Expected: a notification that names what is missing, exit without a crash.
@@ -89,7 +89,12 @@ Actions `start`, `start-link`; pane `form` (popup); link handler `github-issue`.
 - [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/deliver-starter`.
 - [ ] Action `start`: the popup asks for the `/deliver` arguments and the mode (`interactive` or `unattended`).
 - [ ] Validation: enter an issue number that does not exist. Expected: nothing starts and a message names the problem.
-- [ ] Suggestions: type `#`. Expected: open PBIs, Features and Epics of the focused pane's repository, filtered live; Up/Down move, Enter inserts the number.
+- [ ] Suggestions: type `#`. Expected: open Epics, Features, PBIs and Bugs of the focused pane's repository, filtered live; Up/Down move, Enter inserts the number.
+- [ ] Level filter: with the `#` list open, press Ctrl+L repeatedly. Expected: the list shows only Epics, Features, PBIs, Bugs, then all again; the header names the level.
+- [ ] Milestone picker: type `@`. Expected: the open milestones with open and closed counts and due date, the current one first and marked `current`; Enter puts `--milestone <name>` into the line (quoted with spaces), a second Enter starts the milestone.
+- [ ] Single items: after picking a milestone, type `#`. Expected: only that milestone's open work items, header `Milestone: <name>`; Enter replaces `--milestone <name>` by the number. Clearing the line restores the full list.
+- [ ] Offline (`gh` logged out): `@` shows `No milestones: <reason>`, the popup still starts typed numbers.
+- [ ] A Bug number is accepted and started like a PBI.
 - [ ] Empty input and Escape close the popup without starting.
 - [ ] Several numbers: enter `3 4` (two open PBIs). Expected: both are checked with `gh issue view`, the worktree is `deliver/3` and the run is `/deliver 3 4`; unattended mode passes `-Target 3 4`. One invalid number among them keeps the popup open with the reason.
 - [ ] Milestone: enter `--milestone <name>` (an existing milestone). Expected: the worktree is `deliver/milestone-<name>` and the run is `/deliver --milestone <name>`; unattended mode passes `-Milestone <name>`.
@@ -137,6 +142,22 @@ Action `open`; link handler `trailing-punct`.
 - [ ] A URL without trailing punctuation is not routed to the plugin and opens as before.
 - [ ] Opening uses `open` on macOS, `xdg-open` on Linux and `rundll32` (default browser) on Windows (implemented in #84/#85). If opening fails, herdr shows a notification with the URL.
 - [ ] Uninstall: Ctrl+click on `...91)` opens the untrimmed URL again.
+
+## `repo-open`
+
+Action `open`, pane `picker` (popup).
+
+- [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/repo-open`.
+- [ ] Discovery: with the default config, the repositories below `~/Source` (up to 3 levels) are listed by name with their relative path; nested repositories, hidden directories and `node_modules` are not listed.
+- [ ] Action: `herdr plugin action invoke repo-open.open`, or the bound key. Expected: a popup with a search field and the repositories as `<name>  <relative path>`.
+- [ ] Filter: type `hp`. Expected: `herdr-plugins` is listed (word starts), filtering is live and case-insensitive; Backspace widens the list again. Up, Down, Ctrl+P and Ctrl+N move the selection.
+- [ ] Close: Escape and Ctrl+C close the popup, the terminal is restored.
+- [ ] Open: Enter on a repository without a workspace. Expected: the popup closes, a workspace labelled with the repository name opens with the tabs `terminal` (shell) and `agent` (running `claude`), both in the repository root; the `agent` tab is focused.
+- [ ] Reopen: open the same repository again. Expected: its workspace is focused, no second workspace or tab is created. Opening a different repository with the same name creates a workspace labelled with its relative path.
+- [ ] Recently opened: reopen the popup with an empty search. Expected: the opened repository comes first.
+- [ ] Own tabs: `config.json` with `{"tabs":[{"label":"shell"},{"label":"ai","command":"codex","focus":true}]}`. Expected: a new workspace gets these tabs and focuses `ai`.
+- [ ] `config.json` with `{"roots":["~/other"],"depth":1}`: only the repositories directly below `~/other` are listed. An invalid value (`{"depth":0}`) shows the hint line `config.json: depth must be an integer from 1 to 10` and uses the default depth.
+- [ ] Uninstall: the action and pane are gone.
 
 ## `review-popup`
 
