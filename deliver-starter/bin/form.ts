@@ -8,6 +8,7 @@ import { describe, noRepository, noticeFor } from '../lib/errors.ts';
 import { gitToplevel, notify } from '../lib/host.ts';
 import { loadConfig, realDeps } from '../lib/runtime.ts';
 import { start, validate } from '../lib/start.ts';
+import { loadMilestones } from '../lib/milestones.ts';
 import { loadIssues } from '../lib/suggest.ts';
 
 const out = process.stdout;
@@ -71,12 +72,16 @@ async function main(): Promise<void> {
   process.stdin.resume();
   draw();
 
-  // Suggestions: one `gh issue list` per popup; a failure leaves the popup usable and is shown next to the `#` list.
-  const loaded = repo ? await loadIssues(deps.run, repo, config.suggestLimit) : null;
-  if (loaded) {
-    form = loaded.ok ? { ...form, issues: loaded.issues } : { ...form, note: loaded.reason };
-    draw();
-  }
+  // Suggestions: one `gh issue list` and one `gh api .../milestones` per popup; a failure leaves the popup usable and is
+  // shown next to the `#` or `@` list.
+  if (!repo) return;
+  const [loaded, milestones] = await Promise.all([
+    loadIssues(deps.run, repo, config.suggestLimit),
+    loadMilestones(deps.run, repo),
+  ]);
+  form = loaded.ok ? { ...form, issues: loaded.issues } : { ...form, note: loaded.reason };
+  form = milestones.ok ? { ...form, milestones: milestones.milestones } : { ...form, milestoneNote: milestones.reason };
+  if (!busy) draw();
 }
 
 main().catch(async (error: unknown) => {

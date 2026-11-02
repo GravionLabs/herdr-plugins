@@ -89,7 +89,12 @@ Actions `start`, `start-link`; pane `form` (popup); link handler `github-issue`.
 - [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/deliver-starter`.
 - [ ] Action `start`: the popup asks for the `/deliver` arguments and the mode (`interactive` or `unattended`).
 - [ ] Validation: enter an issue number that does not exist. Expected: nothing starts and a message names the problem.
-- [ ] Suggestions: type `#`. Expected: open PBIs, Features and Epics of the focused pane's repository, filtered live; Up/Down move, Enter inserts the number.
+- [ ] Suggestions: type `#`. Expected: open Epics, Features, PBIs and Bugs of the focused pane's repository, filtered live; Up/Down move, Enter inserts the number.
+- [ ] Level filter: with the `#` list open, press Ctrl+L repeatedly. Expected: the list shows only Epics, Features, PBIs, Bugs, then all again; the header names the level.
+- [ ] Milestone picker: type `@`. Expected: the open milestones with open and closed counts and due date, the current one first and marked `current`; Enter puts `--milestone <name>` into the line (quoted with spaces), a second Enter starts the milestone.
+- [ ] Single items: after picking a milestone, type `#`. Expected: only that milestone's open work items, header `Milestone: <name>`; Enter replaces `--milestone <name>` by the number. Clearing the line restores the full list.
+- [ ] Offline (`gh` logged out): `@` shows `No milestones: <reason>`, the popup still starts typed numbers.
+- [ ] A Bug number is accepted and started like a PBI.
 - [ ] Empty input and Escape close the popup without starting.
 - [ ] Several numbers: enter `3 4` (two open PBIs). Expected: both are checked with `gh issue view`, the worktree is `deliver/3` and the run is `/deliver 3 4`; unattended mode passes `-Target 3 4`. One invalid number among them keeps the popup open with the reason.
 - [ ] Milestone: enter `--milestone <name>` (an existing milestone). Expected: the worktree is `deliver/milestone-<name>` and the run is `/deliver --milestone <name>`; unattended mode passes `-Milestone <name>`.

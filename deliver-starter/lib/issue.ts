@@ -1,8 +1,8 @@
-// Check of an issue for `/deliver`: it exists, is open and is a PBI, Feature or Epic. Pure on the `gh` JSON.
+// Check of an issue for `/deliver`: it exists, is open and is a PBI, Bug, Feature or Epic. Pure on the `gh` JSON.
 
 import { classifyFailure, describe } from './errors.ts';
 
-const LEVELS = ['pbi', 'feature', 'epic'];
+const LEVELS = ['pbi', 'bug', 'feature', 'epic'];
 
 // Reason for the JSON of `gh issue view <nr> --json state,title,labels` when the issue cannot be started, else null.
 export function checkIssue(nr: number, json: string): string | null {
@@ -21,7 +21,7 @@ export function checkIssue(nr: number, json: string): string | null {
     : [];
   const prefix = /^\[([^\]]+)\]/.exec(title)?.[1]?.toLowerCase();
   if ((prefix && LEVELS.includes(prefix)) || labels.some((l) => LEVELS.includes(l))) return null;
-  return `#${nr} is not a PBI, Feature or Epic`;
+  return `#${nr} is not a PBI, Bug, Feature or Epic`;
 }
 
 // One readable reason for a failed `gh issue view`.
