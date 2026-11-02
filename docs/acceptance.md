@@ -73,7 +73,7 @@ Action `open`, pane `board` (popup).
 
 ## `deliver-log`
 
-Action `toggle-log`. Needs the `deliver` skill and `pwsh`.
+Action `toggle` (deprecated alias `toggle-log`). Needs the `deliver` skill and `pwsh`.
 
 - [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/deliver-log`.
 - [ ] Skill missing: run the action without the `deliver` skill installed. Expected: a notification that names what is missing, exit without a crash.
