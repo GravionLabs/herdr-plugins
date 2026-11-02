@@ -24,6 +24,7 @@ The IDs are what users bind to keys and what herdr stores. The plugin ID is also
 | `deliver-view` | `apply` | - | - | - | one `[[startup]]` hook |
 | `layout-bootstrap` | `apply` | - | - | - | - |
 | `link-trim` | `open` | - | - | `trailing-punct` | - |
+| `repo-open` | `open` | `picker` | - | - | - |
 | `review-popup` | `open` | `review` | - | - | - |
 | `worktree-cleanup` | `cleanup` | - | `worktree.removed` | - | - |
 
@@ -42,6 +43,9 @@ Unknown keys are ignored. A missing, broken or mistyped value falls back to the 
 | `deliver-starter` | `mode` | `"interactive"` or `"unattended"` | `"interactive"` |
 | `deliver-starter` | `suggestLimit` | integer >= 1 | `100` |
 | `layout-bootstrap` | `testCommand` | non-empty string | none |
+| `repo-open` | `roots` | non-empty array of paths (absolute or `~/`) | `["~/Source"]` |
+| `repo-open` | `depth` | integer 1 to 10 | `3` |
+| `repo-open` | `tabs` | non-empty array of `{ label: string, command?: string, focus?: boolean }` | `terminal`, `agent` running `claude` with focus |
 
 `layout-bootstrap` also reads a layout file (`layout.json` in the config directory, or `.agents/herdr-layout.json` in the repository): `{ "panes": [{ "name", "command"?, "split": { "from"?, "direction": "right"|"down", "ratio"? } }] }`. Its keys and types are public with the same rules.
 

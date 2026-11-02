@@ -138,6 +138,15 @@ Action `open`; link handler `trailing-punct`.
 - [ ] Opening uses `open` on macOS, `xdg-open` on Linux and `rundll32` (default browser) on Windows (implemented in #84/#85). If opening fails, herdr shows a notification with the URL.
 - [ ] Uninstall: Ctrl+click on `...91)` opens the untrimmed URL again.
 
+## `repo-open`
+
+Action `open`, pane `picker` (popup).
+
+- [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/repo-open`.
+- [ ] Discovery: with the default config, the repositories below `~/Source` (up to 3 levels) are listed by name with their relative path; nested repositories, hidden directories and `node_modules` are not listed.
+- [ ] `config.json` with `{"roots":["~/other"],"depth":1}`: only the repositories directly below `~/other` are listed. An invalid value (`{"depth":0}`) shows the hint line `config.json: depth must be an integer from 1 to 10` and uses the default depth.
+- [ ] Uninstall: the action and pane are gone.
+
 ## `review-popup`
 
 Action `open`, pane `review` (popup).

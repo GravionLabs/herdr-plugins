@@ -1,0 +1,19 @@
+id = "repo-open"
+name = "repo-open"
+version = "0.4.0"
+min_herdr_version = "0.9.5"
+platforms = ["macos", "linux"]
+description = "Popup to search a repository and open it as a workspace with its tabs"
+
+[[actions]]
+id = "open"
+title = "Open a repository"
+command = ["node", "bin/open.ts"]
+
+[[panes]]
+id = "picker"
+title = "Open a repository"
+placement = "popup"
+width = "60%"
+height = "50%"
+command = ["node", "bin/picker.ts"]

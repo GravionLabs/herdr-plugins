@@ -17,6 +17,7 @@ body:
         - deliver-view
         - layout-bootstrap
         - link-trim
+        - repo-open
         - review-popup
         - worktree-cleanup
     validations:
