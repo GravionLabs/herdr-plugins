@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { describe, expect, it } from 'vitest';
+import type { ApplyIo } from '../scripts/lib/apply.ts';
 import { main, realDeps } from '../scripts/herdr-setup.ts';
 import { defaultConfigPath, readTable, readValue } from '../scripts/lib/config.ts';
 import { runDoctor, versionAtLeast, type Deps } from '../scripts/lib/doctor.ts';
@@ -33,7 +34,7 @@ const PLUGIN_JSON = JSON.stringify({
 const home = join('h', 'me');
 const skillDir = join(home, '.claude', 'skills', 'deliver');
 
-function deps(over: Partial<Deps> & { config?: string | null; tools?: Record<string, boolean>; herdrVersion?: string; skill?: boolean; pluginOut?: string } = {}): Deps {
+function deps(over: Partial<Deps> & { config?: string | null; tools?: Record<string, boolean>; herdrVersion?: string; skill?: boolean; pluginOut?: string } = {}): Deps & ApplyIo {
   const tools = { herdr: true, pwsh: true, gh: true, 'gh auth': true, ...over.tools };
   return {
     run: (command, args) => {
@@ -49,6 +50,9 @@ function deps(over: Partial<Deps> & { config?: string | null; tools?: Record<str
     home,
     nodeVersion: 'v26.1.0',
     cwd: '.',
+    writeFile: () => {},
+    confirm: () => false,
+    now: () => new Date(2026, 0, 2, 3, 4, 5),
     ...over,
   };
 }
@@ -157,7 +161,7 @@ describe('doctor checks', () => {
 });
 
 describe('herdr-setup cli', () => {
-  const run = (argv: string[], d: Deps = deps()) => {
+  const run = (argv: string[], d: Deps & ApplyIo = deps()) => {
     const lines: string[] = [];
     const code = main(argv, d, (t) => lines.push(t));
     return { code, text: lines.join('\n') };
@@ -170,9 +174,9 @@ describe('herdr-setup cli', () => {
   });
 
   it('rejects an unknown command', () => {
-    const r = run(['apply']);
+    const r = run(['frobnicate']);
     expect(r.code).toBe(1);
-    expect(r.text).toContain("unknown command 'apply'");
+    expect(r.text).toContain("unknown command 'frobnicate'");
   });
 
   it('prints one line per check and a hint for failures', () => {
