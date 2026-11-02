@@ -97,3 +97,44 @@ describe('README keybinding targets', () => {
     expect(targets('deliver-log/README.md')).toEqual(['deliver-log.toggle']);
   });
 });
+
+describe('keybindings page snippet', () => {
+  const page = readFileSync(new URL('docs/guide/keybindings.md', root), 'utf8');
+  const snippet = [...page.matchAll(/^```toml\n([\s\S]*?)^```$/gm)].map((m) => m[1]);
+  const blocks = [...snippet.join('\n').matchAll(/\[\[keys\.command\]\]\n((?:(?!\[\[)[^\n]*\n?)*)/g)].map((m) => m[1]);
+  const field = (block: string, name: string): string | undefined => block.match(new RegExp(`^${name} = "([^"]+)"$`, 'm'))?.[1];
+  const declared = (plugin: string): string[] =>
+    [...readFileSync(new URL(`${plugin}/herdr-plugin.toml`, root), 'utf8').matchAll(/^\[\[actions\]\]\nid = "([^"]+)"$/gm)].map(
+      (m) => m[1],
+    );
+
+  it('has exactly one toml block with a binding for every plugin that has an action recommended in a README', () => {
+    expect(snippet).toHaveLength(1);
+    const readmeTargets = pluginReadmes().flatMap((path) =>
+      [...readFileSync(new URL(path, root), 'utf8').matchAll(/^command = "([a-z-]+\.[a-z-]+)"$/gm)].map((m) => m[1]),
+    );
+    const pageTargets = blocks.map((b) => field(b, 'command'));
+    expect(pageTargets.sort()).toEqual([...readmeTargets].sort());
+  });
+
+  it('binds only actions the plugin manifest declares', () => {
+    const missing = blocks
+      .map((b) => field(b, 'command') ?? '')
+      .filter((target) => {
+        const [plugin, action] = target.split('.');
+        return !declared(plugin).includes(action);
+      });
+    expect(missing).toEqual([]);
+  });
+
+  it('binds no key twice and no herdr default key', () => {
+    const keys = blocks.map((b) => field(b, 'key') ?? '');
+    expect(keys.every((k) => k.length > 0)).toBe(true);
+    expect(new Set(keys).size).toBe(keys.length);
+    expect(keys.filter((k) => k in HERDR_DEFAULT_KEYS)).toEqual([]);
+  });
+
+  it('uses the plugin_action type in every binding', () => {
+    expect(blocks.map((b) => field(b, 'type'))).toEqual(blocks.map(() => 'plugin_action'));
+  });
+});

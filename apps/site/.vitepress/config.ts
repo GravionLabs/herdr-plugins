@@ -34,6 +34,7 @@ export default defineConfig({
           items: [
             { text: 'Overview', link: '/guide/' },
             { text: 'Getting started', link: '/guide/getting-started' },
+            { text: 'Keybindings', link: '/guide/keybindings' },
           ],
         },
         {
