@@ -37,7 +37,7 @@ node scripts/herdr-setup.ts install --ref v0.5.0    # a specific tag
 node scripts/herdr-setup.ts install --dry-run       # only show the plan
 ```
 
-It runs the `herdr plugin install -y --ref` command above for each plugin. Without the script, run that command once per plugin.
+It runs the `herdr plugin install -y --ref` command above for each plugin. A plugin that is not in the tag (for example `repo-open` at `v0.4.0`) is shown as `skipped (not in <tag>)` and left out without an error; naming such a plugin yourself exits 1. Without the script, run that command once per plugin.
 
 ## Update
 

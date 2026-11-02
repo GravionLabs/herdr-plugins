@@ -70,14 +70,14 @@ would change in ~/herdr-test.toml:
 
 ### install: install the plugins at a release tag
 
-`install [<plugin>...]` runs `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/<plugin>` for all or the named plugins. The tag is the latest GitHub release, or the one you pass with `--ref <tag>`. `--dry-run` only shows the plan and installs nothing.
+`install [<plugin>...]` runs `herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/<plugin>` for all or the named plugins. The tag is the latest GitHub release, or the one you pass with `--ref <tag>`. A plugin that does not exist at the tag (for example `repo-open` at `v0.4.0`) is listed as `skipped (not in <tag>)` and left out without an error; naming such a plugin yourself is an error and exits 1. `--dry-run` only shows the plan and installs nothing.
 
 ```text
 $ node scripts/herdr-setup.ts install --dry-run
 Plan: install at v0.5.0
   agent-notify: v0.5.0 -> v0.5.0
   ...
-  repo-open: not installed -> v0.5.0
+  link-trim: not installed -> v0.5.0
   ...
 dry run: nothing installed
 ```

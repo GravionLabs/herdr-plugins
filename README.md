@@ -40,7 +40,7 @@ Order and releases: [ROADMAP.md](ROADMAP.md).
 |:--|:--|
 | `node scripts/herdr-setup.ts doctor` | Nothing. Checks herdr, Node, `gh`, `pwsh`, the `deliver` skill, the settings below and the installed plugins. `--json` prints JSON. |
 | `node scripts/herdr-setup.ts apply` | Adds the missing `config.toml` blocks after a diff and a backup, then runs `herdr server reload-config`. Never overwrites a key you set. `--dry-run` only shows the diff, `--yes` skips the question. |
-| `node scripts/herdr-setup.ts install` | Runs `herdr plugin install -y --ref <tag>` per plugin at the latest release tag. `--ref <tag>` picks another tag, `--dry-run` only shows the plan. |
+| `node scripts/herdr-setup.ts install` | Runs `herdr plugin install -y --ref <tag>` per plugin at the latest release tag. `--ref <tag>` picks another tag, `--dry-run` only shows the plan. Plugins missing in the tag are skipped. |
 
 Example of `doctor`:
 
