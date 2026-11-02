@@ -22,16 +22,12 @@ Requirements:
 
 | Kind | Name | What it does |
 | --- | --- | --- |
-| Action | `link-trim.open` | Opens the trimmed URL. Run by the link handler. |
+| Action | `link-trim.open` | Opens the trimmed URL. Reads the clicked URL that herdr passes to the link handler. |
 | Link handler | `trailing-punct` | Routes http and https links ending in trailing punctuation to `link-trim.open`. |
 
 The plugin declares no panes and no events.
 
-Invoke the action without a click:
-
-```sh
-herdr plugin action invoke link-trim.open
-```
+The action `link-trim.open` is reachable only through the `trailing-punct` link handler, that is by Ctrl+click on a matching link. It has no input without a click, so `herdr plugin action invoke link-trim.open` by hand exits 1 and shows a "Could not open link" notification. Do not invoke it by hand.
 
 ## Keybinding
 

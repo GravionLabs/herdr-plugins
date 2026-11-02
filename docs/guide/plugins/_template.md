@@ -31,6 +31,11 @@ herdr plugin install GravionLabs/herdr-plugins/<plugin-id>
 | Event | `<event name>` | <when it runs> |
 | Link handler | `<handler-id>` | <which links it takes> |
 
+
+<!-- Keep this snippet only for an action that runs without input (no clicked URL or other
+payload from a link handler). For an action that needs a click or an event, delete the
+snippet and state in the table row how it is reached instead. -->
+
 Invoke an action without a keybinding:
 
 ```sh
