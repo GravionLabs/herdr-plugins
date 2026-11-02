@@ -12,7 +12,7 @@ The exact TOML syntax of the setting is not shown in the repository: not verifie
 
 - **Ctrl+click on a URL that ends in punctuation still opens the 404.** Only http and https URLs that end in `)`, `]`, `.`, `,`, `;`, `:`, `'` or `"` are routed to `link-trim`. Check that the link matches and that mouse capture is on ([link-trim](./plugins/link-trim.md)).
 - **Ctrl+click on a `file:` or path link opens as before.** This is expected. Those links do not match the handler ([link-trim](./plugins/link-trim.md)).
-- **Cmd+click in WezTerm still opens the URL with the punctuation.** WezTerm handles Cmd+click, and it never reaches herdr. Add the `hyperlink_rules` entry from the [link-trim page](./plugins/link-trim.md#clicking-with-cmd-outside-herdr) to `wezterm.lua`. The same entry is in [link-trim's README](https://github.com/GravionLabs/herdr-plugins/blob/main/link-trim/README.md).
+- **Cmd+click in WezTerm still opens the URL with the punctuation.** WezTerm handles Cmd+click, and it never reaches herdr. Add the `hyperlink_rules` entry from the [link-trim page](./plugins/link-trim.md#examples) to `wezterm.lua`. The same entry is in [link-trim's README](https://github.com/GravionLabs/herdr-plugins/blob/main/link-trim/README.md).
 - **Ctrl+click on an issue link does nothing.** Either `ui.mouse_capture` is off, or the link is not `https://github.com/<owner>/<repo>/issues/<nr>` with a valid owner and repository. Only owner and repository names with letters, digits, `-`, `.` and `_` are accepted (not `.` or `..`). The repository is the one of the focused pane, so click links of the repository you are in ([deliver-starter](./plugins/deliver-starter.md)).
 - **`link-trim.open` run by hand exits with an error.** It has no input without a click. It shows a "Could not open link" notification. Do not invoke it by hand ([link-trim](./plugins/link-trim.md)).
 
@@ -33,7 +33,7 @@ The notification is `<plugin>: gh is not logged in` with the body `Run \`gh auth
 
 GitHub's rate limit for the account is used up. There are two forms:
 
-- `GitHub rate limit exceeded, resets at HH:MM` (local time). This form appears when the reset time is known. A herdr notification is shown too. Wait until the reset time ([deliver-board](./plugins/deliver-board.md), [deliver-starter](./plugins/deliver-starter.md)).
+- `GitHub rate limit exceeded, resets at HH:MM. Wait until then, then try again.` (local time). This form appears when the reset time is known. A herdr notification is shown too. Wait until the reset time ([deliver-board](./plugins/deliver-board.md), [deliver-starter](./plugins/deliver-starter.md)).
 - `GitHub rate limit exceeded. Wait until it resets, then try again.` This form appears when the reset time is not known (from the cache code in `lib/ghcache.ts`).
 
 The plugins reduce the calls they make. The answers of the REST calls are cached for 30 seconds under `HERDR_PLUGIN_STATE_DIR/gh-cache`, and an older answer is revalidated with an ETag. A `304` answer costs no rate limit. The PR list of `deliver-board` uses GraphQL, which has no ETag, so it still counts against the rate limit even though it is cached for 30 seconds ([deliver-board](./plugins/deliver-board.md)).
@@ -64,7 +64,7 @@ The notification is `<plugin>: deliver skill not installed` (see [worktree-clean
 
 ### Node version
 
-The repository declares Node.js `>= 26` (`engines.node` in `package.json`, `.nvmrc` `26`, CI `node-version: '26'`). The runtime strips TypeScript types at run time, so the Node version is part of the contract ([compatibility](../compatibility.md)). [link-trim](./plugins/link-trim.md) and [deliver-view](./plugins/deliver-view.md) state Node 26.
+The repository declares Node.js `>= 26` (`engines.node` in `package.json`, `.nvmrc` `26`, CI `node-version: '26'`). The runtime strips TypeScript types at run time, so the Node version is part of the contract ([compatibility](../compatibility.md)). [deliver-view](./plugins/deliver-view.md) states Node 26, and the developer section of [link-trim's README](https://github.com/GravionLabs/herdr-plugins/blob/main/link-trim/README.md) does. The minimum is also in `engines.node` of `package.json`.
 
 Which error a plugin shows on an older Node: not verified. Check with `node --version`.
 
@@ -87,7 +87,7 @@ Windows is not a declared platform yet. The plugin manifests list only `macos` a
 
 | Plugin | Needs | Source |
 |:--|:--|:--|
-| [link-trim](./plugins/link-trim.md) | herdr with `ui.mouse_capture`, Node 26 | its page |
+| [link-trim](./plugins/link-trim.md) | herdr with `ui.mouse_capture`, Node 26 | its page for herdr; Node from [compatibility](../compatibility.md) and `engines.node` in `package.json` |
 | [deliver-board](./plugins/deliver-board.md) | `gh`, logged in | its page |
 | [deliver-starter](./plugins/deliver-starter.md) | herdr 0.9.5, `ui.mouse_capture` for the link handler; `gh` for suggestions; `pwsh` and the `deliver` skill for unattended mode | its page |
 | [deliver-log](./plugins/deliver-log.md) | PowerShell 7+ (`pwsh`), the `deliver` skill | its page |
