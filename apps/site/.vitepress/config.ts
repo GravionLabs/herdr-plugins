@@ -35,6 +35,7 @@ export default defineConfig({
             { text: 'Overview', link: '/guide/' },
             { text: 'Getting started', link: '/guide/getting-started' },
             { text: 'Keybindings', link: '/guide/keybindings' },
+            { text: 'Troubleshooting and FAQ', link: '/guide/troubleshooting' },
           ],
         },
         {
