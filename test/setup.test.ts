@@ -60,7 +60,7 @@ describe('repository setup', () => {
     expect(block, 'no dropdown with options').not.toBeNull();
     const options = block![1].trim().split('\n').map((line) => line.replace(/^\s*- /, '').trim());
     expect(options.sort()).toEqual(plugins);
-    expect(plugins).toHaveLength(10);
+    expect(plugins).toHaveLength(11);
     expect(form).toMatch(/^title: '\[Bug\] '$/m);
     expect(form).toMatch(/^labels: \[bug\]$/m);
     for (const id of ['plugin-version', 'herdr-version', 'node-version', 'os']) {
