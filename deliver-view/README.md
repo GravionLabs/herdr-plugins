@@ -34,15 +34,11 @@ Edit `view.json` in the plugin state directory to change the sort; the startup h
 
 ## Sidebar layout
 
-The view orders the agents; the sidebar shows a token only where a row names it as `$<name>`. This layout from the `deliver` skill (`references/herdr.md`, "Sidebar layout") names the space (one per repository, as `repo-open` creates it) and its state first, then the agent and its terminal title, and puts the tokens in their own row. The plugin never writes your config; copy it into `config.toml` if you want it:
+The view orders the agents; the sidebar shows a token only where a row names it as `$<name>`. This layout from the `deliver` skill (`references/herdr.md`, "Sidebar layout") puts the tokens in their own row. The plugin never writes your config; copy it into `config.toml` if you want it:
 
 ```toml
 [ui.sidebar.agents]
-rows = [
-  ["state_icon", { token = "workspace", bold = true }, { token = "state_text", rules = [{ equals = "done", fg = "#5f5" }, { equals = "blocked", fg = "#f55" }] }],
-  [{ token = "agent", dim = true }, "terminal_title_stripped"],
-  [{ token = "$deliver", bold = true }, { token = "$deliver_step", rules = [{ contains = "blocked", fg = "#f55" }, { contains = "merged", fg = "#5f5" }] }, "$deliver_pr"],
-]
+rows = [["state_icon", "agent", "state_text"], [{ token = "$deliver", bold = true }, { token = "$deliver_step", rules = [{ contains = "blocked", fg = "#f55" }, { contains = "merged", fg = "#5f5" }] }, "$deliver_pr"], ["workspace", "tab"]]
 ```
 
 ## Requirements
