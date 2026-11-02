@@ -168,3 +168,13 @@ describe('manifest', () => {
     expect(manifest).toMatch(/id = "apply"\ntitle = "[^"]+"\ncommand = \["node", "bin\/apply\.ts"\]/);
   });
 });
+
+describe('README sidebar layout (#160)', () => {
+  const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
+
+  it('names the space first and the agent with its terminal title second', () => {
+    expect(readme).toContain('rows = [\n  ["state_icon", { token = "workspace", bold = true }');
+    expect(readme).toContain('[{ token = "agent", dim = true }, "terminal_title_stripped"],');
+    expect(readme).not.toContain('["workspace", "tab"]');
+  });
+});
