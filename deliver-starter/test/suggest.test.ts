@@ -73,17 +73,47 @@ describe('loadIssues', () => {
     stderr,
   });
 
-  it('makes one gh call with the limit', async () => {
+  it('makes one REST call per page of 100 and skips pull requests', async () => {
     const calls: string[][] = [];
     const run = async (c: string, a: string[]): Promise<Result> => {
       calls.push([c, ...a]);
-      return { ok: true, stdout: recorded };
+      const body = JSON.stringify([...JSON.parse(recorded), { number: 99, title: '[PBI] A pull request', labels: [], pull_request: {} }]);
+      return { ok: true, stdout: `HTTP/2.0 200 OK\nEtag: "a"\n\n${body}` };
     };
     const loaded = await loadIssues(run, '/repo', 25);
-    expect(loaded.ok && loaded.issues.length).toBe(5);
-    expect(calls).toEqual([
-      ['gh', 'issue', 'list', '--state', 'open', '--json', 'number,title,labels,assignees,milestone', '--limit', '25'],
-    ]);
+    expect(loaded.ok && loaded.issues.map((i) => i.number)).toEqual([36, 12, 7, 40, 41]);
+    expect(calls).toEqual([['gh', 'api', '-i', 'repos/{owner}/{repo}/issues?state=open&per_page=25&page=1']]);
+  });
+
+  it('asks for the next page while pages are full and stops at the limit', async () => {
+    const calls: string[] = [];
+    const full = JSON.stringify(Array.from({ length: 100 }, (_, i) => ({ number: i + 1, title: `[PBI] n${i}`, labels: [] })));
+    const rest = JSON.stringify([{ number: 101, title: '[PBI] last', labels: [] }]);
+    const run = async (_c: string, a: string[]): Promise<Result> => {
+      const endpoint = a[a.length - 1]!;
+      calls.push(endpoint);
+      return { ok: true, stdout: `HTTP/2.0 200 OK\n\n${endpoint.endsWith('page=1') ? full : rest}` };
+    };
+    const loaded = await loadIssues(run, '/repo', 150);
+    expect(calls.map((c) => c.slice(-6))).toEqual(['page=1', 'page=2']);
+    expect(loaded.ok && loaded.issues.length).toBe(101);
+    expect((await loadIssues(run, '/repo', 100)).ok).toBe(true);
+    expect(calls.length).toBe(3);
+  });
+
+  it('reports a rate limit with its reset time and flag', async () => {
+    process.env.TZ = 'UTC';
+    const run = async (): Promise<Result> => ({
+      ok: false,
+      code: 1,
+      stdout: 'HTTP/2.0 403 Forbidden\nX-Ratelimit-Remaining: 0\nX-Ratelimit-Reset: 1793545500\n\n{"message":"API rate limit exceeded"}',
+      stderr: 'GitHub rate limit exceeded',
+    });
+    expect(await loadIssues(run, '/r', 5)).toEqual({
+      ok: false,
+      reason: 'GitHub rate limit exceeded, resets at 15:05. Wait until then, then try again.',
+      rateLimited: true,
+    });
   });
 
   it('reports failures as a reason', async () => {
@@ -92,7 +122,7 @@ describe('loadIssues', () => {
       ok: false,
       reason: 'dial tcp: no such host',
     });
-    expect(await loadIssues(ok('garbage'), '/r', 5)).toEqual({ ok: false, reason: 'unreadable gh output' });
+    expect(await loadIssues(ok('HTTP/2.0 200 OK\n\ngarbage'), '/r', 5)).toEqual({ ok: false, reason: 'unreadable gh output' });
   });
 });
 

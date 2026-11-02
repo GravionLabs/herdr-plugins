@@ -55,11 +55,11 @@ function parseArray(json: string, what: string): unknown[] {
   return data;
 }
 
-// `gh issue list --json number,title,assignees,labels,url`
+// The REST issues API (`repos/{owner}/{repo}/issues`; pull requests are skipped) or `gh issue list --json number,title,assignees,labels,url`
 export function parseIssues(json: string): Issue[] {
   return parseArray(json, 'issues')
     .filter(isObject)
-    .filter((item) => typeof item.number === 'number')
+    .filter((item) => typeof item.number === 'number' && item.pull_request === undefined)
     .map((item) => ({
       number: item.number as number,
       title: text(item.title),
@@ -71,7 +71,7 @@ export function parseIssues(json: string): Issue[] {
         .filter(isObject)
         .map((l) => text(l.name))
         .filter((name) => name !== ''),
-      url: text(item.url),
+      url: text(item.url) || text(item.html_url),
     }));
 }
 

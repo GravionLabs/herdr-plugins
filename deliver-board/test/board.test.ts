@@ -267,3 +267,15 @@ describe('buildRows', () => {
     expect(buildRows([], parsePullRequests(fixture('prs.json')), [])).toEqual([]);
   });
 });
+
+describe('parseIssues of the REST issues API', () => {
+  it('reads html_url and skips pull requests', () => {
+    const json = JSON.stringify([
+      { number: 5, title: '[PBI] a', assignees: [{ login: 'ann' }], labels: [{ name: 'pbi' }], html_url: 'https://github.com/o/r/issues/5' },
+      { number: 6, title: 'a pull request', labels: [], html_url: 'u', pull_request: {} },
+    ]);
+    expect(parseIssues(json)).toEqual([
+      { number: 5, title: '[PBI] a', assignees: ['ann'], labels: ['pbi'], url: 'https://github.com/o/r/issues/5' },
+    ]);
+  });
+});

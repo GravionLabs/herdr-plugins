@@ -1,6 +1,7 @@
 // Milestone picker for the popup: the open milestones from the GitHub API, the current one first. Pure except
 // `loadMilestones`.
 import { classifyFailure, describe } from './errors.ts';
+import { cachedApi, type CacheOptions } from './ghcache.ts';
 import { failureLine, type Run } from './run.ts';
 
 export type Milestone = {
@@ -11,7 +12,7 @@ export type Milestone = {
   due: string | null; // YYYY-MM-DD
   current: boolean;
 };
-export type LoadedMilestones = { ok: true; milestones: Milestone[] } | { ok: false; reason: string };
+export type LoadedMilestones = { ok: true; milestones: Milestone[] } | { ok: false; reason: string; rateLimited?: true };
 
 const count = (value: unknown): number => (Number.isInteger(value) && (value as number) >= 0 ? (value as number) : 0);
 
@@ -91,14 +92,15 @@ export function describeMilestone(m: Milestone): string {
   return `${m.title}  (${m.open} open, ${m.closed} closed${due})${m.current ? '  current' : ''}`;
 }
 
-// One `gh api` call in the repository; a failure becomes a readable reason, never a throw.
-export async function loadMilestones(run: Run, repo: string): Promise<LoadedMilestones> {
-  const args = ['api', 'repos/{owner}/{repo}/milestones', '-X', 'GET', '-f', 'state=open', '-f', 'per_page=100'];
-  const result = await run('gh', args, repo);
-  if (!result.ok) {
-    const found = classifyFailure('gh', result.code, result.stderr);
-    return { ok: false, reason: found ? describe(found) : failureLine(result) };
+// One `gh api` call in the repository (ETag-revalidated, cached in the state directory); a failure becomes a readable
+// reason, never a throw.
+export async function loadMilestones(run: Run, repo: string, cache: CacheOptions = { dir: undefined, ttlMs: 0 }): Promise<LoadedMilestones> {
+  const got = await cachedApi(run, repo, 'repos/{owner}/{repo}/milestones?state=open&per_page=100', cache);
+  if (!got.ok) {
+    if ('rateLimit' in got) return { ok: false, reason: got.rateLimit.message, rateLimited: true };
+    const found = classifyFailure('gh', got.failure.code, got.failure.stderr);
+    return { ok: false, reason: found ? describe(found) : failureLine({ ok: false, code: got.failure.code, stdout: '', stderr: got.failure.stderr }) };
   }
-  const milestones = parseMilestones(result.stdout);
+  const milestones = parseMilestones(got.body);
   return milestones ? { ok: true, milestones: orderMilestones(milestones) } : { ok: false, reason: 'unreadable gh output' };
 }

@@ -9,7 +9,7 @@ import { gitToplevel, notify } from '../lib/host.ts';
 import { configNotice, loadConfig, realDeps } from '../lib/runtime.ts';
 import { start, validate } from '../lib/start.ts';
 import { loadMilestones } from '../lib/milestones.ts';
-import { loadIssues } from '../lib/suggest.ts';
+import { loadIssues, stateCache } from '../lib/suggest.ts';
 
 const out = process.stdout;
 
@@ -72,13 +72,15 @@ async function main(): Promise<void> {
   process.stdin.resume();
   draw();
 
-  // Suggestions: one `gh issue list` and one `gh api .../milestones` per popup; a failure leaves the popup usable and is
+  // Suggestions: two cached REST calls per popup; a failure leaves the popup usable and is
   // shown next to the `#` or `@` list.
   if (!repo) return;
   const [loaded, milestones] = await Promise.all([
-    loadIssues(deps.run, repo, config.suggestLimit),
-    loadMilestones(deps.run, repo),
+    loadIssues(deps.run, repo, config.suggestLimit, stateCache()),
+    loadMilestones(deps.run, repo, stateCache()),
   ]);
+  const limited = !loaded.ok && loaded.rateLimited ? loaded.reason : !milestones.ok && milestones.rateLimited ? milestones.reason : null;
+  if (limited) await notify('deliver-starter: GitHub rate limit exceeded', limited).catch(() => undefined);
   form = loaded.ok ? { ...form, issues: loaded.issues } : { ...form, note: loaded.reason };
   form = milestones.ok ? { ...form, milestones: milestones.milestones } : { ...form, milestoneNote: milestones.reason };
   if (!busy) draw();

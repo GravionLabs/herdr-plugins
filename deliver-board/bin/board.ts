@@ -4,10 +4,11 @@
 import { execFile } from 'node:child_process';
 import { buildRows, parseIssues, parsePullRequests, parseRemoteHeads, type Row } from '../lib/board.ts';
 import { opener } from '../lib/open.ts';
+import { cachedApi, cachedCommand, DEFAULT_TTL_MS, type CacheOptions } from '../lib/ghcache.ts';
 import { cwdFromContext, ghErrorLine } from '../lib/context.ts';
 import { keyAction, moveSelection, renderBoard } from '../lib/view.ts';
 
-type Result = { ok: true; stdout: string } | { ok: false; code: string | number | null; stderr: string };
+type Result = { ok: true; stdout: string } | { ok: false; code: string | number | null; stdout: string; stderr: string };
 
 function run(command: string, args: string[], cwd: string): Promise<Result> {
   return new Promise((resolve) => {
@@ -17,6 +18,7 @@ function run(command: string, args: string[], cwd: string): Promise<Result> {
       resolve({
         ok: false,
         code: typeof code === 'string' || typeof code === 'number' ? code : null,
+        stdout: String(stdout ?? ''),
         stderr,
       });
     });
@@ -29,6 +31,15 @@ function openUrl(url: string): Promise<boolean> {
   return new Promise((resolve) => {
     execFile(open.command, open.args, (error) => resolve(!error));
   });
+}
+
+// Cache of the state directory (HERDR_PLUGIN_STATE_DIR); `r` (refresh) within the TTL reuses it, an older entry is
+// revalidated with its ETag.
+const cache: CacheOptions = { dir: process.env.HERDR_PLUGIN_STATE_DIR || undefined, ttlMs: DEFAULT_TTL_MS };
+
+// A rate limit shows a notification with the reset time instead of only failing; best effort.
+function notifyRateLimit(message: string): void {
+  execFile(process.env.HERDR_BIN_PATH || 'herdr', ['notification', 'show', 'deliver-board: GitHub rate limit exceeded', '--body', message], () => undefined);
 }
 
 const out = process.stdout;
@@ -68,49 +79,30 @@ async function main(): Promise<void> {
     status = 'Loading…';
     draw();
     const [issues, prs, heads] = await Promise.all([
-      run(
+      cachedApi(run, repo, 'repos/{owner}/{repo}/issues?labels=pbi&state=open&per_page=100', cache),
+      cachedCommand(
+        run,
         'gh',
-        [
-          'issue',
-          'list',
-          '--label',
-          'pbi',
-          '--state',
-          'open',
-          '--limit',
-          '200',
-          '--json',
-          'number,title,assignees,labels,url',
-        ],
+        ['pr', 'list', '--base', 'release/next', '--state', 'all', '--limit', '100', '--json', 'number,headRefName,state,url,statusCheckRollup'],
         repo,
-      ),
-      run(
-        'gh',
-        [
-          'pr',
-          'list',
-          '--base',
-          'release/next',
-          '--state',
-          'all',
-          '--limit',
-          '100',
-          '--json',
-          'number,headRefName,state,url,statusCheckRollup',
-        ],
-        repo,
+        cache,
       ),
       run('git', ['ls-remote', '--heads', 'origin'], repo),
     ]);
     const failed = !issues.ok ? issues : !prs.ok ? prs : null;
     if (failed && !failed.ok) {
       rows = [];
-      status = ghErrorLine(failed);
+      if ('rateLimit' in failed) {
+        status = failed.rateLimit.message;
+        notifyRateLimit(failed.rateLimit.message);
+      } else {
+        status = ghErrorLine(failed.failure);
+      }
     } else if (issues.ok && prs.ok) {
       try {
         rows = buildRows(
-          parseIssues(issues.stdout),
-          parsePullRequests(prs.stdout),
+          parseIssues(issues.body),
+          parsePullRequests(prs.body),
           heads.ok ? parseRemoteHeads(heads.stdout) : [],
         );
         status = `${repo}  ${rows.length} open PBIs  (updated ${new Date().toLocaleTimeString()})`;

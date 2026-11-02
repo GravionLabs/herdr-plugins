@@ -107,19 +107,19 @@ describe('loadMilestones', () => {
     const calls: string[][] = [];
     const run = async (c: string, a: string[], cwd: string): Promise<Result> => {
       calls.push([c, cwd, ...a]);
-      return { ok: true, stdout: recordedMilestones };
+      return { ok: true, stdout: `HTTP/2.0 200 OK\n\n${recordedMilestones}` };
     };
     const loaded = await loadMilestones(run, '/repo');
     expect(loaded.ok && loaded.milestones[0]!.title).toBe('0.5.0');
     expect(calls).toEqual([
-      ['gh', '/repo', 'api', 'repos/{owner}/{repo}/milestones', '-X', 'GET', '-f', 'state=open', '-f', 'per_page=100'],
+      ['gh', '/repo', 'api', '-i', 'repos/{owner}/{repo}/milestones?state=open&per_page=100'],
     ]);
   });
 
   it('reports failures as a reason', async () => {
     const fail = async (): Promise<Result> => ({ ok: false, code: 1, stdout: '', stderr: 'HTTP 404\n' });
     expect(await loadMilestones(fail, '/r')).toEqual({ ok: false, reason: 'HTTP 404' });
-    expect(await loadMilestones(async () => ({ ok: true, stdout: 'x' }), '/r')).toEqual({ ok: false, reason: 'unreadable gh output' });
+    expect(await loadMilestones(async () => ({ ok: true, stdout: 'HTTP/2.0 200 OK\n\nx' }), '/r')).toEqual({ ok: false, reason: 'unreadable gh output' });
   });
 });
 
