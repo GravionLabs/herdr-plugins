@@ -6,7 +6,7 @@ import { cwdFromContext } from '../lib/context.ts';
 import { applyKey, initialForm, render, type Form } from '../lib/form.ts';
 import { describe, noRepository, noticeFor } from '../lib/errors.ts';
 import { gitToplevel, notify } from '../lib/host.ts';
-import { loadConfig, realDeps } from '../lib/runtime.ts';
+import { configNotice, loadConfig, realDeps } from '../lib/runtime.ts';
 import { start, validate } from '../lib/start.ts';
 import { loadMilestones } from '../lib/milestones.ts';
 import { loadIssues } from '../lib/suggest.ts';
@@ -25,7 +25,7 @@ async function main(): Promise<void> {
   const cwd = process.env.DELIVER_STARTER_CWD || cwdFromContext(process.env.HERDR_PLUGIN_CONTEXT_JSON) || process.cwd();
   const repo = await gitToplevel(cwd);
 
-  let form: Form = initialForm(config.mode);
+  let form: Form = { ...initialForm(config.mode), message: configNotice() ?? '' };
   let busy = false;
   const draw = (): void => {
     out.write(`\x1b[H\x1b[2J${render(form).join('\r\n')}`);

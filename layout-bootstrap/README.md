@@ -39,7 +39,7 @@ Action `apply` works on the workspace of the focused pane. The repository root i
 
 An invalid layout file stops the action with a notification naming the file and the problem; it does not fall back.
 
-The `command` of the default `tests` pane is the `testCommand` string of `config.json` in the plugin config dir (for example `{"testCommand": "npm test -- --watch"}`). Without it the pane is created and left empty. The plugin does not detect the stack itself.
+The `command` of the default `tests` pane is the `testCommand` string of `config.json` in the plugin config dir (for example `{"testCommand": "npm test -- --watch"}`). Without it the pane is created and left empty. The plugin does not detect the stack itself. `config.json` is checked against `schema/config.schema.json`; an invalid value or unknown key shows the notification `layout-bootstrap: invalid config` naming file and key, and the layout is still applied.
 
 ## Layout schema
 
