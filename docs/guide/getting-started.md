@@ -45,7 +45,7 @@ ok   config: ~/.config/herdr/config.toml
 
 ### apply: add the config.toml blocks
 
-`apply` adds the blocks the plugins rely on to herdr's `config.toml`: toast delivery, the "repo first" sidebar rows and keys for `deliver-starter.start`, `deliver-log.toggle` and `command-palette.open`. It shows a diff, writes a backup `config.toml.bak-<timestamp>`, asks, writes, then runs `herdr server reload-config`. It never overwrites a key you already set (a different value is only a hint), except `ui.toast.delivery = "off"`.
+`apply` adds the blocks the plugins rely on to herdr's `config.toml`: toast delivery, the "space first" sidebar rows and keys for `deliver-starter.start`, `deliver-log.toggle` and `command-palette.open`. It shows a diff, writes a backup `config.toml.bak-<timestamp>`, asks, writes, then runs `herdr server reload-config`. It never overwrites a key you already set (a different value is only a hint), except `ui.toast.delivery = "off"`.
 
 - `--dry-run` shows the diff and changes nothing.
 - `--yes` skips the question.
@@ -55,7 +55,7 @@ The output of `HERDR_CONFIG_PATH=~/herdr-test.toml node scripts/herdr-setup.ts a
 ```text
 would change in ~/herdr-test.toml:
   - add [ui.toast] delivery = "herdr"
-  - add [ui.sidebar.agents] with the "repo first" rows
+  - add [ui.sidebar.agents] with the "space first" rows
   - bind prefix+d to deliver-starter.start
   - bind prefix+shift+o to deliver-log.toggle
   - bind prefix+a to command-palette.open

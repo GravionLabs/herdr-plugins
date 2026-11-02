@@ -36,8 +36,8 @@ export const KEY_SUGGESTIONS: KeySuggestion[] = [
 const SIDEBAR_ROWS = [
   '[ui.sidebar.agents]',
   'rows = [',
-  '  ["state_icon", { token = "tab", bold = true }, { token = "state_text", rules = [{ equals = "done", fg = "#5f5" }, { equals = "blocked", fg = "#f55" }] }],',
-  '  ["agent", "workspace"],',
+  '  ["state_icon", { token = "workspace", bold = true }, { token = "state_text", rules = [{ equals = "done", fg = "#5f5" }, { equals = "blocked", fg = "#f55" }] }],',
+  '  [{ token = "agent", dim = true }, "terminal_title_stripped"],',
   '  [{ token = "$deliver", bold = true }, { token = "$deliver_step", rules = [{ contains = "blocked", fg = "#f55" }, { contains = "merged", fg = "#5f5" }] }, "$deliver_pr"],',
   ']',
 ];
@@ -145,15 +145,15 @@ export function planApply(input: string): ApplyPlan {
   if (rows) {
     const next = Math.min(entries.find((e) => e.line > rows.line)?.line ?? lines.length, headers.find((h) => h.line > rows.line)?.line ?? lines.length);
     if (!/\$deliver/.test(lines.slice(rows.line, next).join('\n')))
-      hints.push('ui.sidebar.agents rows are already set and name no $deliver token: not changed, see the "repo first" layout in the README');
+      hints.push('ui.sidebar.agents rows are already set and name no $deliver token: not changed, see the "space first" layout in the README');
   } else if (sidebarHeader) {
     edits.push({ line: sidebarHeader.line + 1, remove: 0, insert: SIDEBAR_ROWS.slice(1) });
-    changes.push('add the "repo first" rows to [ui.sidebar.agents]');
+    changes.push('add the "space first" rows to [ui.sidebar.agents]');
   } else if (entries.some((e) => e.full.startsWith('ui.sidebar.agents'))) {
-    hints.push('ui.sidebar.agents is defined in a form this script does not edit: add the "repo first" rows by hand');
+    hints.push('ui.sidebar.agents is defined in a form this script does not edit: add the "space first" rows by hand');
   } else {
     appended.push(SIDEBAR_ROWS);
-    changes.push('add [ui.sidebar.agents] with the "repo first" rows');
+    changes.push('add [ui.sidebar.agents] with the "space first" rows');
   }
 
   // [[keys.command]] entries
