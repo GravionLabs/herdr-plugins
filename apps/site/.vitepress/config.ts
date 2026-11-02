@@ -30,10 +30,18 @@ export default defineConfig({
     sidebar: {
       '/guide/': [
         {
+          text: 'Getting started',
+          items: [
+            { text: 'Getting started', link: '/guide/getting-started' },
+            { text: 'Prerequisites', link: '/guide/prerequisites' },
+            { text: 'Install, update and uninstall', link: '/guide/install' },
+            { text: 'Quickstart', link: '/guide/quickstart' },
+          ],
+        },
+        {
           text: 'Guides',
           items: [
             { text: 'Overview', link: '/guide/' },
-            { text: 'Getting started', link: '/guide/getting-started' },
             { text: 'Keybindings', link: '/guide/keybindings' },
             { text: 'Troubleshooting and FAQ', link: '/guide/troubleshooting' },
             { text: 'Contributing', link: '/guide/contributing' },
