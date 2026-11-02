@@ -36,15 +36,15 @@ Edit `view.json` in the plugin state directory to change the sort; the startup h
 
 The view orders the agents; the sidebar shows a token only where a row names it as `$<name>`. Without such a row the `deliver` tokens are not shown at all. The plugin never writes your config; copy the recommended layout into `config.toml` if you want it.
 
-### Recommended layout ("repo first")
+### Recommended layout ("space first")
 
-Line 1 is the tab and the state, line 2 the agent and the workspace, line 3 the `deliver` tokens:
+Line 1 is the space (workspace) and the state, line 2 the agent and its terminal title, line 3 the `deliver` tokens. With `repo-open` every repository is its own space:
 
 ```toml
 [ui.sidebar.agents]
 rows = [
-  ["state_icon", { token = "tab", bold = true }, { token = "state_text", rules = [{ equals = "done", fg = "#5f5" }, { equals = "blocked", fg = "#f55" }] }],
-  ["agent", "workspace"],
+  ["state_icon", { token = "workspace", bold = true }, { token = "state_text", rules = [{ equals = "done", fg = "#5f5" }, { equals = "blocked", fg = "#f55" }] }],
+  [{ token = "agent", dim = true }, "terminal_title_stripped"],
   [{ token = "$deliver", bold = true }, { token = "$deliver_step", rules = [{ contains = "blocked", fg = "#f55" }, { contains = "merged", fg = "#5f5" }] }, "$deliver_pr"],
 ]
 ```
@@ -53,11 +53,11 @@ It looks like this for one `/deliver` session:
 
 ```
 ● herdr-plugins · idle
-  claude · Gravion
+  claude · <terminal title>
   #121 · merged · #139
 ```
 
-Alternatives: a compact two-line layout (keep the `tab` and state row and the tokens row, drop the `agent` and `workspace` row), the `deliver` line first (move the `$deliver` row above the tab row), or `row_gap = 1` under `[ui.sidebar.agents]` for a blank line between the rows. The full list of herdr settings the plugins rely on is in the [root README](../README.md#herdr-settings-the-plugins-rely-on).
+Alternatives: a compact two-line layout (keep the space and state row and the tokens row, drop the agent row), the `deliver` line first (move the `$deliver` row above the space row), or `row_gap = 1` under `[ui.sidebar.agents]` for a blank line between the rows. The full list of herdr settings the plugins rely on is in the [root README](../README.md#herdr-settings-the-plugins-rely-on).
 
 ## Requirements
 

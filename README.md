@@ -58,7 +58,7 @@ More output examples: [Getting started](https://gravionlabs.github.io/herdr-plug
 
 Some plugin features look broken when a herdr setting is off, and the cause is the setting, not the plugin. These settings live in herdr's `config.toml`; the plugins never write it. After a change, run `herdr server reload-config`.
 
-To add the missing blocks (toast delivery, the "repo first" sidebar rows, and keys for `deliver-starter.start`, `deliver-log.toggle` and `command-palette.open`), run `node scripts/herdr-setup.ts apply`. It shows a diff, writes a `config.toml.bak-<timestamp>` backup, asks, writes, and runs `herdr server reload-config`. It never changes a key you already set, except `ui.toast.delivery = "off"`. Use `--dry-run` to only see the diff and `--yes` to skip the question.
+To add the missing blocks (toast delivery, the "space first" sidebar rows, and keys for `deliver-starter.start`, `deliver-log.toggle` and `command-palette.open`), run `node scripts/herdr-setup.ts apply`. It shows a diff, writes a `config.toml.bak-<timestamp>` backup, asks, writes, and runs `herdr server reload-config`. It never changes a key you already set, except `ui.toast.delivery = "off"`. Use `--dry-run` to only see the diff and `--yes` to skip the question.
 
 To install the plugins at the latest release tag (not the default branch), run `node scripts/herdr-setup.ts install [<plugin>…] [--ref <tag>] [--dry-run]`.
 
@@ -82,15 +82,15 @@ mouse_capture = true
 
 The `[ui.sidebar.agents]` layout is in the next section.
 
-### Agents sidebar layout ("repo first")
+### Agents sidebar layout ("space first")
 
-The recommended layout puts the repository first: line 1 is the tab and the state, line 2 the agent and the workspace, line 3 the `deliver` tokens. It is the layout of the [deliver-view README](deliver-view/README.md#recommended-layout-repo-first).
+The recommended layout puts the space first (with `repo-open` every repository is its own space): line 1 is the space (workspace) and the state, line 2 the agent and its terminal title, line 3 the `deliver` tokens. It is the layout of the [deliver-view README](deliver-view/README.md#recommended-layout-space-first).
 
 ```toml
 [ui.sidebar.agents]
 rows = [
-  ["state_icon", { token = "tab", bold = true }, { token = "state_text", rules = [{ equals = "done", fg = "#5f5" }, { equals = "blocked", fg = "#f55" }] }],
-  ["agent", "workspace"],
+  ["state_icon", { token = "workspace", bold = true }, { token = "state_text", rules = [{ equals = "done", fg = "#5f5" }, { equals = "blocked", fg = "#f55" }] }],
+  [{ token = "agent", dim = true }, "terminal_title_stripped"],
   [{ token = "$deliver", bold = true }, { token = "$deliver_step", rules = [{ contains = "blocked", fg = "#f55" }, { contains = "merged", fg = "#5f5" }] }, "$deliver_pr"],
 ]
 ```
@@ -99,14 +99,14 @@ It looks like this for one `/deliver` session:
 
 ```
 ● herdr-plugins · idle
-  claude · Gravion
+  claude · <terminal title>
   #121 · merged · #139
 ```
 
 Alternatives:
 
-- Compact two-line layout: keep the `tab` and state row and the `deliver` tokens row, and drop the `agent` and `workspace` row.
-- `deliver` line first: move the `$deliver` row above the tab row.
+- Compact two-line layout: keep the space and state row and the `deliver` tokens row, and drop the agent row.
+- `deliver` line first: move the `$deliver` row above the space row.
 - Spacing: add `row_gap = 1` under `[ui.sidebar.agents]` for a blank line between the rows.
 
 ## Contributing

@@ -172,9 +172,11 @@ describe('manifest', () => {
 describe('README sidebar layout (#160)', () => {
   const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
 
-  it('names the tab and state first, then the agent and workspace, then the deliver tokens ("repo first")', () => {
-    expect(readme).toContain('rows = [\n  ["state_icon", { token = "tab", bold = true }');
-    expect(readme).toContain('  ["agent", "workspace"],\n  [{ token = "$deliver", bold = true }');
-    expect(readme).not.toContain('["workspace", "tab"]');
+  it('names the space and state first, then the agent and terminal title, then the deliver tokens ("space first")', () => {
+    expect(readme).toContain('rows = [\n  ["state_icon", { token = "workspace", bold = true }');
+    expect(readme).toContain('  [{ token = "agent", dim = true }, "terminal_title_stripped"],\n  [{ token = "$deliver", bold = true }');
+    expect(readme).not.toContain('token = "tab"');
+    expect(readme).not.toContain('repo first');
   });
+
 });

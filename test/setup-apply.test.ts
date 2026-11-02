@@ -15,8 +15,8 @@ delivery = "herdr"
 
 [ui.sidebar.agents]
 rows = [
-  ["state_icon", { token = "tab", bold = true }, { token = "state_text", rules = [{ equals = "done", fg = "#5f5" }, { equals = "blocked", fg = "#f55" }] }],
-  ["agent", "workspace"],
+  ["state_icon", { token = "workspace", bold = true }, { token = "state_text", rules = [{ equals = "done", fg = "#5f5" }, { equals = "blocked", fg = "#f55" }] }],
+  [{ token = "agent", dim = true }, "terminal_title_stripped"],
   [{ token = "$deliver", bold = true }, { token = "$deliver_step", rules = [{ contains = "blocked", fg = "#f55" }, { contains = "merged", fg = "#5f5" }] }, "$deliver_pr"],
 ]
 
@@ -94,7 +94,7 @@ describe('planApply', () => {
     const partial = `[ui]\nmouse_capture = true\n\n[ui.toast]\ndelivery = "all"\n\n[[keys.command]]\nkey = "prefix+d"\ncommand = "deliver-starter.start"\n`;
     const plan = planApply(partial);
     expect(plan.after.startsWith(partial)).toBe(true);
-    expect(plan.changes).toEqual(['add [ui.sidebar.agents] with the "repo first" rows', 'bind prefix+shift+o to deliver-log.toggle', 'bind prefix+a to command-palette.open']);
+    expect(plan.changes).toEqual(['add [ui.sidebar.agents] with the "space first" rows', 'bind prefix+shift+o to deliver-log.toggle', 'bind prefix+a to command-palette.open']);
   });
 
   it('turns delivery off into herdr in place and keeps the comment', () => {
