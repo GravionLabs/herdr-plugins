@@ -11,6 +11,7 @@ How to build a plugin in this repository: the runtime, the conventions, the test
 - Install: `npm install`
 - Type check: `npm run typecheck` runs `tsc` (TypeScript 7, native compiler) with `noEmit`. It runs in CI as the lint step.
 - Test: `npm test` runs Vitest from the repository root over every plugin directory (`<plugin>/**/*.test.ts`) and `test/`.
+- Setup check: `node scripts/herdr-setup.ts doctor` reports whether herdr and the machine are ready for the plugins (`--json` for data, `--help`); it changes nothing and exits 1 when a check fails.
 
 ## Conventions
 
