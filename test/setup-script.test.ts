@@ -200,15 +200,18 @@ describe('herdr-setup cli', () => {
       writeFileSync(file, GOOD_CONFIG);
       const r = spawnSync(process.execPath, [join(import.meta.dirname, '..', 'scripts', 'herdr-setup.ts'), 'doctor', '--json'], {
         encoding: 'utf8',
-        env: { ...process.env, HERDR_CONFIG_PATH: file },
+        // An empty PATH makes every host tool (herdr, gh, pwsh) missing, so the checks fail fast.
+        env: { ...process.env, PATH: dir, Path: dir, HERDR_CONFIG_PATH: file },
+        timeout: 25000,
       });
       const data = JSON.parse(r.stdout);
       expect(data.checks.find((c: { name: string }) => c.name === 'ui.toast.delivery')).toMatchObject({ ok: true, detail: 'all' });
-      expect(r.status).toBe(data.ok ? 0 : 1);
+      expect(data.ok).toBe(false);
+      expect(r.status).toBe(1);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
-  });
+  }, 30000);
 
   it('real deps read missing files as null', () => {
     expect(realDeps().readFile(join(tmpdir(), 'no-such-herdr-config.toml'))).toBeNull();
