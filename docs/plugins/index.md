@@ -19,3 +19,7 @@ Full pages, written from the same page template (`docs/guide/plugins/_template.m
 
 - [link-trim](../guide/plugins/link-trim.md)
 - [agent-notify](../guide/plugins/agent-notify.md)
+- [deliver-board](../guide/plugins/deliver-board.md)
+- [deliver-starter](../guide/plugins/deliver-starter.md)
+- [deliver-view](../guide/plugins/deliver-view.md)
+- [deliver-log](../guide/plugins/deliver-log.md)
