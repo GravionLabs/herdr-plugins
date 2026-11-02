@@ -1,6 +1,6 @@
 # Manual acceptance checklist
 
-Run this checklist on macOS, Linux and Windows before the release candidate and before the release. Windows is the target for 1.0, but it becomes a declared platform only when #86 adds `windows` to the `platforms` of every manifest; until then the Windows runs are pre-release checks, and `herdr plugin install` may refuse the plugin there. Windows results marked "Target behaviour" are not verified yet. The public surface (IDs, config keys, state files, event behaviour) is defined in [ADR 0001](adr/0001-public-api.md); every step below checks one item of it.
+Run this checklist on macOS, Linux and Windows before the release candidate and before the release. Windows is the target for 1.0, but it becomes a declared platform only when #86 adds `windows` to the `platforms` of every manifest; until then the Windows runs are pre-release checks, and `herdr plugin install` may refuse the plugin there. Windows results marked "Target behaviour" are not verified yet. The public surface (IDs, config keys, state files, event behaviour) is defined in [ADR 0001](https://github.com/GravionLabs/herdr-plugins/blob/main/docs/adr/0001-public-api.md); every step below checks one item of it.
 
 Running the checklist is tracked outside this file (#124 and each release). Record the result per plugin and OS in the release PR.
 

@@ -1,6 +1,6 @@
 # Security review: command execution and URL handling
 
-Review of every place where a plugin runs a command, opens a URL or reads or opens a file from input it does not fully control (#92). Reviewed on `release/next` after `0.4.0`. Report new problems privately as described in [SECURITY.md](../SECURITY.md).
+Review of every place where a plugin runs a command, opens a URL or reads or opens a file from input it does not fully control (#92). Reviewed on `release/next` after `0.4.0`. Report new problems privately as described in [SECURITY.md](https://github.com/GravionLabs/herdr-plugins/blob/main/SECURITY.md).
 
 ## Scope and threat model
 
