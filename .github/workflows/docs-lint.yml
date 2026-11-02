@@ -1,0 +1,47 @@
+name: Docs lint
+
+# Style and external links of the Markdown documents (README files, docs/, ADRs, templates).
+# Runs only when a Markdown file or the lint configuration changes. Its jobs are not required checks:
+# the rulesets require "Test" and "pr-checks / PR checks" only.
+# Relative links are checked by the VitePress build (pages.yml); this workflow checks the http(s) links.
+on:
+  pull_request:
+    branches: [main, 'release/**']
+    paths:
+      - '**/*.md'
+      - '.markdownlint-cli2.jsonc'
+      - 'lychee.toml'
+      - '.github/workflows/docs-lint.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  markdown-lint:
+    name: Markdown lint (markdownlint-cli2)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      # Rules and ignores live in .markdownlint-cli2.jsonc (the action reads it from the repository root).
+      - uses: DavidAnson/markdownlint-cli2-action@992badcdf24e3b8eb7e87ff9287fe931bcb00c6e # v20
+        with:
+          globs: '**/*.md'
+
+  link-check:
+    name: External link check (lychee)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      # Checks the README files and the documentation pages; node_modules and build output are not Markdown sources.
+      # Exclusions, accepted status codes and timeouts are in lychee.toml.
+      - uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --config lychee.toml "README.md" "**/README.md" "docs/**/*.md"
+          fail: true

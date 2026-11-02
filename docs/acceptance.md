@@ -171,7 +171,9 @@ Action `open`, pane `review` (popup).
   ```json
   {"pbi":12,"branch":"feat/12-example","sha":"0123abc","round":1,"unmet":["Criterion not met"],"review":{"blocking":[{"file":"src/a.ts","line":3,"title":"Missing check","why":"Input is not validated."}],"notes":["Rename x."]}}
   ```
- Expected: header `#12 round <round>`, unmet criteria, blocking findings as `file:line - title` with the reason below, and notes.
+
+  Expected: header `#12 round <round>`, unmet criteria, blocking findings as `file:line - title` with the reason below, and notes.
+
 - [ ] Another worktree of the same repository shows the same file.
 - [ ] A review whose `sha` differs from the HEAD of the branch is marked stale.
 - [ ] Keys: Up/Down (or `k`/`j`) select a blocking finding; Enter opens the file at the line in `$EDITOR` (`vi`/default when unset) in a new split pane; `q` and Escape close.
