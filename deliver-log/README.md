@@ -2,32 +2,42 @@
 
 Shows or hides the log pane of `Invoke-DeliverLoop.ps1`. herdr has no hide for a pane, so the `deliver` skill's `Switch-LogPane.ps1` closes and reopens it with the same content; this plugin binds that script to an action.
 
-Only `Invoke-DeliverLoop.ps1` writes the log (`.agents/deliver-loop.ansi.log`, else `.agents/deliver-loop.log`, under the repository of the focused pane). `/deliver` started in a chat session writes none; its progress is in that session's pane. Without a log the action opens no pane and shows a notification with the reason.
+Only `Invoke-DeliverLoop.ps1` writes the log (`.agents/deliver-loop.ansi.log`, else `.agents/deliver-loop.log`, under the repository of the focused pane). `/deliver` started in a chat session writes none; its progress is in that session's pane. Without a log the action opens no pane and shows a notification with the reason: the title is `deliver-log: no log to show`, the body names the reason. That notification needs herdr's `ui.toast.delivery` not to be `off` (see Requirements).
 
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/deliver-log
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-log
 ```
+
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Keybinding
 
-Bind the `toggle-log` action in herdr's `config.toml`, for example to `prefix+shift+o` (`prefix+shift+l` swaps panes):
+Bind the `toggle` action in herdr's `config.toml`, for example to `prefix+shift+o` (`prefix+shift+l` swaps panes):
 
 ```toml
 [[keys.command]]
 key = "prefix+shift+o"
 type = "plugin_action"
-command = "deliver-log.toggle-log"
+command = "deliver-log.toggle"
 description = "toggle the deliver log pane"
 ```
 
-Without a keybinding: `herdr plugin action invoke deliver-log.toggle-log`.
+Without a keybinding: `herdr plugin action invoke deliver-log.toggle`.
+
+The former action ID `toggle-log` still works as a deprecated alias and is removed in the next major version.
 
 ## Requirements
 
 - The `deliver` skill of [GravionLabs/skills](https://github.com/GravionLabs/skills): `npx skills add GravionLabs/skills --skill deliver`. The plugin runs `pwsh -NoProfile -File <deliver-skill>/scripts/Switch-LogPane.ps1` from the installed skill, looked up in this order: `<repo>/.claude/skills/deliver`, `<repo>/.agents/skills/deliver`, `~/.claude/skills/deliver`, `~/.agents/skills/deliver` (`<repo>` is the git toplevel of the focused pane's cwd). Without it a notification says how to install it. The plugin holds no copy of the script.
 - PowerShell 7+ (`pwsh`).
+- herdr's `ui.toast.delivery` must not be `off`, or the notifications of the plugin are not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
 
 ## Development
 

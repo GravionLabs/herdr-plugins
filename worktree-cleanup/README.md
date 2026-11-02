@@ -5,8 +5,10 @@ Removes the worktrees and local branches that merged PBIs left behind. `deliver`
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/worktree-cleanup
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/worktree-cleanup
 ```
+
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Keybinding
 
@@ -26,6 +28,12 @@ Without a keybinding: `herdr plugin action invoke worktree-cleanup.cleanup`.
 
 - The `deliver` skill of [GravionLabs/skills](https://github.com/GravionLabs/skills): `npx skills add GravionLabs/skills --skill deliver`. The plugin calls its installed `scripts/Remove-PbiWorktrees.ps1`, looked up in this order: `<repo>/.claude/skills/deliver`, `<repo>/.agents/skills/deliver`, `~/.claude/skills/deliver`, `~/.agents/skills/deliver` (`<repo>` is the git toplevel of the focused pane's cwd). Without it a notification says how to install it.
 - PowerShell 7+ (`pwsh`), [GitHub CLI](https://cli.github.com) `gh` logged in with `gh auth login`, and `git`.
+- herdr's `ui.toast.delivery` must not be `off`, or the notifications of the plugin are not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
 
 ## What it does
 
@@ -42,7 +50,7 @@ The result is a herdr notification `<n> removed, <m> left` (`n` counts removed w
 herdr plugin log list --plugin worktree-cleanup
 ```
 
-The event hook is silent when there is nothing to do (detached worktree, branch already gone or still checked out).
+The event hook is silent when there is nothing to do (detached worktree, branch already gone or still checked out). It deletes with `git branch -d -- <branch>` (no shell, `--` before the name); the `git branch -D` command it logs for a branch it leaves is shell-quoted when the name holds characters such as `;`, `&`, `$` or quotes, so it is safe to copy.
 
 ## Development
 

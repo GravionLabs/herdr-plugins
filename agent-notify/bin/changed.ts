@@ -1,13 +1,17 @@
 #!/usr/bin/env node
 // herdr event hook on `pane.agent_status_changed`: notifies when an agent pane turns done or blocked, once per pane
 // and state within 30 s. Input: HERDR_PLUGIN_EVENT_JSON; config: HERDR_PLUGIN_CONFIG_DIR/config.json.
-import { parseConfig } from '../lib/config.ts';
+import { configIssues, deprecations, parseConfig } from '../lib/config.ts';
 import { noticeFor } from '../lib/errors.ts';
 import { loadSeen, lookup, notifyError, readConfigFile, saveSeen, show } from '../lib/host.ts';
 import { handle } from '../lib/notify.ts';
 
 async function main(): Promise<void> {
-  const config = parseConfig(await readConfigFile());
+  const raw = await readConfigFile();
+  for (const line of deprecations(raw)) process.stderr.write(`agent-notify: ${line}\n`);
+  const issues = configIssues(raw);
+  if (issues.length > 0) await notifyError('agent-notify: invalid config', `${issues.join('; ')}; invalid keys use their defaults`);
+  const config = parseConfig(raw);
   await handle({ now: Date.now, loadSeen, saveSeen, lookup, show }, config, process.env.HERDR_PLUGIN_EVENT_JSON);
 }
 

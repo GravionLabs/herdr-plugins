@@ -32,6 +32,19 @@ function exact(obj: Record<string, unknown>, keys: string[], path: string): stri
   return extra ? `${path}: unexpected property "${extra}"` : null;
 }
 
+// The only place that lists the review schema versions this popup reads. A file without `schemaVersion` is version 1
+// (the schema copied from GravionLabs/skills at SKILLS_SCHEMA_SOURCE, which has no version property).
+export const SUPPORTED_SCHEMA_VERSIONS: readonly number[] = [1];
+export const SKILLS_SCHEMA_SOURCE = 'GravionLabs/skills commit d6953b2 (deliver skill)';
+
+// Null when the version is supported, else the hint naming the expected skills version.
+export function checkSchemaVersion(data: unknown): string | null {
+  if (!isObject(data) || !('schemaVersion' in data)) return null;
+  const version = data.schemaVersion;
+  if (typeof version === 'number' && SUPPORTED_SCHEMA_VERSIONS.includes(version)) return null;
+  return `Unsupported review schema version ${JSON.stringify(version)} (supported: ${SUPPORTED_SCHEMA_VERSIONS.join(', ')}). Use the deliver skill from ${SKILLS_SCHEMA_SOURCE} or compatible.`;
+}
+
 // Validation per deliver-review.schema.json and review.schema.json; returns the first error.
 export function validateReview(data: unknown): string | null {
   if (!isObject(data)) return 'review must be an object';
@@ -70,6 +83,9 @@ export function parseReview(text: string): Parsed {
   } catch (error) {
     return { ok: false, error: `not valid JSON: ${error instanceof Error ? error.message : String(error)}` };
   }
+  const unsupported = checkSchemaVersion(data);
+  if (unsupported) return { ok: false, error: unsupported };
+  if (isObject(data)) delete data.schemaVersion;
   const error = validateReview(data);
   return error ? { ok: false, error } : { ok: true, review: data as Review };
 }
@@ -81,20 +97,57 @@ export function isStale(sha: string, head: string): boolean {
   return !(b.startsWith(a) || a.startsWith(b));
 }
 
+// One review file of the repository, listed when the pane's branch has no PBI number (the deliver pane on release/next).
+// `review` is null for an unreadable or invalid file (`error` says why); `toplevel` is the worktree of its branch.
+export type Entry = {
+  pbi: number;
+  file: string;
+  review: Review | null;
+  error?: string;
+  stale: boolean;
+  toplevel: string | null;
+};
+
 export type State =
   | { kind: 'message'; lines: string[] }
-  | { kind: 'review'; review: Review; stale: boolean; selected: number };
+  // `back`: the list it was opened from; `toplevel`: where its findings open (else the pane's)
+  | { kind: 'review'; review: Review; stale: boolean; selected: number; back?: State; toplevel?: string | null }
+  // `from`: the pane's branch
+  | { kind: 'pick'; entries: Entry[]; selected: number; from: string };
 
 export const message = (...lines: string[]): State => ({ kind: 'message', lines });
 
 export const header = (review: Review, stale: boolean): string =>
   `#${review.pbi} round ${review.round}${stale ? `  STALE: reviewed ${review.sha.slice(0, 7)}, branch has moved on` : ''}`;
 
-// Rendered lines; blocking finding i is marked with `>` when selected.
+// One line of the list: `#<pbi>  round <n>  <branch>  [STALE]`, or the reason the file cannot be shown.
+export const entryLine = (e: Entry): string =>
+  e.review
+    ? `#${e.pbi}  round ${e.review.round}  ${e.review.branch}${e.stale ? '  STALE' : ''}`
+    : `#${e.pbi}  invalid: ${e.error ?? 'unreadable'}`;
+
+// Control characters of the review text (ESC, BEL, CR, ...) become `?`: a title written by an agent from untrusted
+// code must not reach the terminal as an escape sequence (cursor moves, OSC 52 clipboard writes, hyperlinks).
+export const printable = (text: string): string => text.replace(/[\x00-\x1f\x7f-\x9f]/g, '?');
+
+// Rendered lines, free of control characters; the selected list entry or blocking finding is marked with `>`.
 export function render(state: State, width = 100): string[] {
+  return layout(state, width).map(printable);
+}
+
+function layout(state: State, width: number): string[] {
   if (state.kind === 'message') return [...state.lines, '', 'Press q or Esc to close.'];
-  const { review, stale, selected } = state;
   const cut = (s: string): string => (s.length > width ? `${s.slice(0, Math.max(1, width - 1))}…` : s);
+  if (state.kind === 'pick') {
+    return [
+      cut(`deliver reviews in this repository (pane on ${state.from}, no PBI number), newest first`),
+      '',
+      ...state.entries.map((e, i) => cut(`${i === state.selected ? '>' : ' '} ${entryLine(e)}`)),
+      '',
+      'Up/Down: select, Enter: show, q: close.',
+    ];
+  }
+  const { review, stale, selected, back } = state;
   const lines = [header(review, stale), ''];
   const { blocking, notes } = review.review;
   lines.push(`Unmet criteria (${review.unmet.length})`);
@@ -107,27 +160,41 @@ export function render(state: State, width = 100): string[] {
   });
   lines.push('', `Notes (${notes.length})`);
   lines.push(...(notes.length ? notes.map((n) => cut(`  - ${n}`)) : ['  none']));
-  lines.push('', blocking.length ? 'Up/Down: select, Enter: open in $EDITOR, q: close.' : 'q or Esc: close.');
+  const keys = blocking.length ? 'Up/Down: select, Enter: open in $EDITOR, ' : '';
+  lines.push('', `${keys}${back ? 'b: back to the list, ' : ''}q${blocking.length ? '' : ' or Esc'}: close.`);
   return lines;
 }
 
-export type Key = 'quit' | 'up' | 'down' | 'open' | null;
+export type Key = 'quit' | 'up' | 'down' | 'open' | 'back' | null;
 
 export function keyAction(data: string): Key {
   if (data === 'q' || data === '\x1b' || data === '\x03') return 'quit';
   if (data === '\x1b[A' || data === 'k') return 'up';
   if (data === '\x1b[B' || data === 'j') return 'down';
   if (data === '\r' || data === '\n') return 'open';
+  if (data === 'b' || data === '\x7f' || data === '\b') return 'back';
   return null;
 }
 
 export function move(state: State, key: Key): State {
-  if (state.kind !== 'review' || (key !== 'up' && key !== 'down')) return state;
-  const count = state.review.review.blocking.length;
-  if (count === 0) return state;
+  if (key !== 'up' && key !== 'down') return state;
+  const count =
+    state.kind === 'review' ? state.review.review.blocking.length : state.kind === 'pick' ? state.entries.length : 0;
+  if (state.kind === 'message' || count === 0) return state;
   const selected = Math.min(count - 1, Math.max(0, state.selected + (key === 'up' ? -1 : 1)));
   return { ...state, selected };
 }
+
+// Enter on the list: the selected review, with the way back; an invalid entry stays in the list.
+export function choose(state: State): State {
+  if (state.kind !== 'pick') return state;
+  const entry = state.entries[state.selected];
+  if (!entry?.review) return state;
+  return { kind: 'review', review: entry.review, stale: entry.stale, selected: 0, back: state, toplevel: entry.toplevel };
+}
+
+// b/Backspace in a review opened from the list: the list again, same selection.
+export const back = (state: State): State => (state.kind === 'review' && state.back ? state.back : state);
 
 const quote = (s: string): string => `'${s.replace(/'/g, `'\\''`)}'`;
 

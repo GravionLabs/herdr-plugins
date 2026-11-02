@@ -5,8 +5,10 @@ Opens a project workspace with a fixed pane layout in one key: agent pane, test 
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/layout-bootstrap
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/layout-bootstrap
 ```
+
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Keybinding
 
@@ -39,7 +41,7 @@ Action `apply` works on the workspace of the focused pane. The repository root i
 
 An invalid layout file stops the action with a notification naming the file and the problem; it does not fall back.
 
-The `command` of the default `tests` pane is the `testCommand` string of `config.json` in the plugin config dir (for example `{"testCommand": "npm test -- --watch"}`). Without it the pane is created and left empty. The plugin does not detect the stack itself.
+The `command` of the default `tests` pane is the `testCommand` string of `config.json` in the plugin config dir (for example `{"testCommand": "npm test -- --watch"}`). Without it the pane is created and left empty. The plugin does not detect the stack itself. `config.json` is checked against `schema/config.schema.json`; an invalid value or unknown key shows the notification `layout-bootstrap: invalid config` naming file and key, and the layout is still applied.
 
 ## Layout schema
 
@@ -61,6 +63,15 @@ The `command` of the default `tests` pane is the `testCommand` string of `config
 | `split.from` | Name of an earlier pane to split. Default: the previous pane. |
 | `split.direction` | `right` or `down`. |
 | `split.ratio` | Between 0 and 1, default 0.5. Passed to `herdr pane split --ratio`: the share the split pane keeps. |
+
+## Requirements
+
+- herdr's `ui.toast.delivery` must not be `off`, or the notifications of the plugin are not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
 
 ## Development
 

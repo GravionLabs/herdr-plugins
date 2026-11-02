@@ -5,8 +5,10 @@ A popup to search and run plugin actions and own commands with one key. The `ope
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/command-palette
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/command-palette
 ```
+
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Keybinding
 
@@ -46,7 +48,7 @@ Own entries come from `$HERDR_PLUGIN_CONFIG_DIR/config.json` (`herdr plugin conf
 
 - `title`: non-empty string. `command`: non-empty array of strings, run without a shell. `cwd`: optional.
 - Enter runs the command via the detached runner in the entry `cwd`, else the cwd of `PALETTE_CONTEXT`, else `$HOME`. Output is discarded; a non-zero exit, timeout (10 s) or spawn error shows the notification `command-palette: <title> failed`.
-- A missing file is fine. Invalid JSON or an invalid entry shows one hint line `config.json: <problem>` (`(+N more)` for further problems) under the search field; valid entries still work.
+- A missing file is fine. Invalid JSON, an invalid entry or an unknown key (checked against `schema/config.schema.json`) shows one hint line `config.json: <problem>` (`(+N more)` for further problems) under the search field; valid entries still work.
 - Not supported: shell strings, per-entry environment variables, showing output.
 
 ## Recently used
@@ -61,6 +63,15 @@ One global history (all repositories) in `$HERDR_PLUGIN_STATE_DIR/recent.json`. 
 | Up, Down, Ctrl+P, Ctrl+N | move the selection |
 | Enter | run the selected entry, the popup closes |
 | Escape, Ctrl+C | close (exit code 0, cursor and screen restored) |
+
+## Requirements
+
+- herdr's `ui.toast.delivery` must not be `off`, or the notifications of the plugin are not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
 
 ## Development
 

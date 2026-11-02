@@ -192,6 +192,16 @@ export async function cleanup(run: Run, repo: string, script: string): Promise<R
   return { ...mergeResults(results), candidates, failed };
 }
 
+// A branch name as one argument for a POSIX shell: unchanged when it holds only safe characters, else single-quoted.
+// Git allows `;`, `&`, `$`, `|`, quotes and backticks in branch names; the `left` command is meant to be copy-pasted.
+export function shellArg(value: string): string {
+  return /^[A-Za-z0-9._/+@%=,:-]+$/.test(value) ? value : `'${value.replaceAll("'", `'\\''`)}'`;
+}
+
+// The command that deletes `branch` by hand; `--` keeps a branch named like an option (`-D`) a branch name.
+export const deleteBranchCommand = (branch: string): string =>
+  `git branch -D ${branch.startsWith('-') ? '-- ' : ''}${shellArg(branch)}`;
+
 // The `worktree.removed` hook: deletes the local `branch` of the removed worktree when it is orphaned (no worktree has
 // it checked out), not protected and every commit of it is on a remote branch. Local-only commits leave it in `left`.
 // Returns null when there is nothing to do.
@@ -209,18 +219,19 @@ export async function deleteOrphanedBranch(run: Run, repo: string, branch: strin
   const remote = await run('git', ['branch', '-r', '--contains', `refs/heads/${branch}`], repo);
   const onRemote = remote.ok && parseLines(remote.stdout).some((line) => !line.includes('->'));
   if (!onRemote) {
-    result.left.push({ branch, reason: 'commits not on any remote branch', command: `git branch -D ${branch}` });
+    result.left.push({ branch, reason: 'commits not on any remote branch', command: deleteBranchCommand(branch) });
     return result;
   }
   // `-d` first: a user git hook may block `-D`; `-D` when `-d` refuses a branch not merged into HEAD
-  const safe = await run('git', ['branch', '-d', branch], repo);
-  const forced = safe.ok ? safe : await run('git', ['branch', '-D', branch], repo);
+  // `--`: the branch name comes from the event payload and must never be read as an option
+  const safe = await run('git', ['branch', '-d', '--', branch], repo);
+  const forced = safe.ok ? safe : await run('git', ['branch', '-D', '--', branch], repo);
   if (forced.ok) result.branchesDeleted.push(branch);
   else
     result.left.push({
       branch,
       reason: `git branch -D failed: ${failureLine(forced)}`,
-      command: `git branch -D ${branch}`,
+      command: deleteBranchCommand(branch),
     });
   return result;
 }

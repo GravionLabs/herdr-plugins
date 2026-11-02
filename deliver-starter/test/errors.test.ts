@@ -110,7 +110,8 @@ describe('deliver-starter errors', () => {
     expect(await loadIssues(failing(4, ''), '/r', 5)).toEqual({ ok: false, reason: 'gh is not logged in. Run `gh auth login`.' });
     expect(await loadIssues(failing(1, 'API rate limit exceeded'), '/r', 5)).toEqual({
       ok: false,
-      reason: 'GitHub rate limit exceeded. Wait until the GitHub rate limit resets, then try again.',
+      reason: 'GitHub rate limit exceeded. Wait until it resets, then try again.',
+      rateLimited: true,
     });
   });
 

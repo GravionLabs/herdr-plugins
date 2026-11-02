@@ -9,8 +9,10 @@ The same pane and state notify once within 30 s.
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/agent-notify
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/agent-notify
 ```
+
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Config
 
@@ -18,13 +20,24 @@ herdr plugin install GravionLabs/herdr-plugins/agent-notify
 
 ```json
 {
-  "system_notification": false,
+  "systemNotification": false,
   "sound": false
 }
 ```
 
-- `system_notification`: also a system notification: `osascript` on macOS, `notify-send` on Linux, a WinRT toast through `powershell.exe` on Windows. A missing tool leaves only the herdr notification.
+- `systemNotification`: also a system notification: `osascript` on macOS, `notify-send` on Linux, a WinRT toast through `powershell.exe` on Windows. A missing tool leaves only the herdr notification. The old spelling `system_notification` still works but is deprecated (a warning goes to stderr) and is removed in the next major version.
 - `sound`: herdr plays its `done` sound (state done) or `request` sound (state blocked) with the notification.
+
+The file is checked against `schema/config.schema.json` (no runtime dependency). An invalid value, an unknown key or broken JSON shows the notification `agent-notify: invalid config` naming file and key; the invalid keys use their defaults.
+
+## Requirements
+
+- herdr's `ui.toast.delivery` must not be `off`, or the notifications of the plugin are not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
 
 ## Development
 

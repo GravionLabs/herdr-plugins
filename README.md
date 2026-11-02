@@ -1,10 +1,18 @@
 # herdr-plugins
 
+[![CI](https://github.com/GravionLabs/herdr-plugins/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/GravionLabs/herdr-plugins/actions/workflows/release.yml)
+[![Release](https://img.shields.io/github/v/release/GravionLabs/herdr-plugins)](https://github.com/GravionLabs/herdr-plugins/releases/latest)
+[![License: MIT](https://img.shields.io/github/license/GravionLabs/herdr-plugins)](LICENSE)
+
+Documentation: <https://gravionlabs.github.io/herdr-plugins/>
+
 [herdr](https://herdr.dev) plugins for the GravionLabs agent workflow (the `deliver` skill of [GravionLabs/skills](https://github.com/GravionLabs/skills), successor of the archived apm-hub). Each plugin lives in its own directory with a `herdr-plugin.toml` and installs on its own:
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/<plugin>
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/<plugin>
 ```
+
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](docs/guide/install.md).
 
 ## Plugins
 
@@ -20,32 +28,89 @@ herdr plugin install GravionLabs/herdr-plugins/<plugin>
 | `deliver-view` | Agent view with the `deliver` sessions first, blocked ones on top | available |
 | `deliver-log` | Shows or hides the log pane of `Invoke-DeliverLoop.ps1` | available |
 | `command-palette` | Popup to search and run plugin actions and own commands with one key | available |
+| `repo-open` | Popup to search a repository and open it as a workspace with its tabs | available |
 
 Order and releases: [ROADMAP.md](ROADMAP.md).
 
-## Development
+## Setup script
 
-- Runtime: Node 26 (`engines.node` `>=26`, see `.nvmrc`). No runtime dependencies and no build step.
-- Language: TypeScript. Node 26 strips the types of `.ts` files at run time, so a plugin's `herdr-plugin.toml` runs its entry point directly, e.g. `command = ["node", "bin/open.ts"]`. Type stripping does not apply under `node_modules`, and herdr installs plugins from git, so plugin code stays out of `node_modules`.
-- Erasable syntax only (`erasableSyntaxOnly`): no `enum`, no `namespace`, no parameter properties. Use plain objects, unions and classes with explicit fields.
-- Imports: relative imports carry the `.ts` extension (`import { x } from '../lib/trim.ts'`); type-only imports use `import type`, which `verbatimModuleSyntax` enforces.
-- Install: `npm install`
-- Type check: `npm run typecheck` runs `tsc` (TypeScript 7, native compiler) with `noEmit`. It runs in CI as the lint step.
-- Test: `npm test` runs Vitest from the repository root over every plugin directory (`<plugin>/**/*.test.ts`) and `test/`.
+`scripts/herdr-setup.ts` (Node 26) checks the machine and sets herdr up for the plugins. Run it from a clone of this repository:
 
-## Conventions
+| Command | What it changes |
+|:--|:--|
+| `node scripts/herdr-setup.ts doctor` | Nothing. Checks herdr, Node, `gh`, `pwsh`, the `deliver` skill, the settings below and the installed plugins. `--json` prints JSON. |
+| `node scripts/herdr-setup.ts apply` | Adds the missing `config.toml` blocks after a diff and a backup, then runs `herdr server reload-config`. Never overwrites a key you set. `--dry-run` only shows the diff, `--yes` skips the question. |
+| `node scripts/herdr-setup.ts install` | Runs `herdr plugin install -y --ref <tag>` per plugin at the latest release tag. `--ref <tag>` picks another tag, `--dry-run` only shows the plan. Plugins missing in the tag are skipped. |
 
-- Plugin authoring: [herdr plugin docs](https://herdr.dev/docs/plugins/). Commands call herdr through `HERDR_BIN_PATH`; state goes to `HERDR_PLUGIN_STATE_DIR`, user config to `HERDR_PLUGIN_CONFIG_DIR`.
-- Issues: `[Epic]`, `[Feature]`, `[PBI]`, `[Task]`, `[Bug]` titles, native sub-issues.
-- Branches: work branches from and into `release/next`, release PR into `main`; conventional commits.
+Example of `doctor`:
 
-## Releases
+```text
+$ node scripts/herdr-setup.ts doctor
+ok   herdr: 0.9.5
+ok   node: v26.13.0
+ok   gh login: logged in
+ok   ui.toast.delivery: herdr
+ok   config: ~/.config/herdr/config.toml
+...
+```
 
-- Work branches merge into `release/next`; the `Release branch` workflow keeps the release PR `release/next` → `main` open and current (`github-release` skill).
-- Work PRs into `release/**` are **squash** merged; their PR title must be a Conventional Commit (`pr-checks` title job) and becomes the one commit of the change.
-- A release is made by merging that release PR into `main` with a **merge commit, never squash** (the `main` ruleset allows only merge commits), so GitVersion sees every commit. A hotfix PR into `main` is merged the same way, and every commit of it must be a Conventional Commit.
-- The version comes from Conventional Commits (`versioning/determine-version` of GravionLabs/ci, `GitVersion.yml`): `fix:`/`perf:`/`revert:` → patch, `feat:` → minor, `type!:` or `BREAKING CHANGE:` → major. A release with only fixes is a patch, one with a `feat:` a minor.
-- While the version is 0.x, use **no** `!` and no `BREAKING CHANGE:` until 1.0 is intended: either one jumps the version to 1.0.0.
-- On the push to `main`, `.github/workflows/release.yml` runs the tests, determines the version, commits `CHANGELOG.md` (git-cliff, `cliff.toml`) to `main`, tags `v<version>`, creates the GitHub Release and closes the issues the release delivered. The changelog commit is pushed with the `GH_PAT` secret (a repository admin, bypass actor of the `main` ruleset).
-- Tags are `v<major>.<minor>.<patch>`, as in the other GravionLabs repositories.
-- `v0.1.0` and `v0.2.0` were tagged by the release workflow; the GitHub milestones carry the same names as the tags (released content: [ROADMAP.md](ROADMAP.md#releases)).
+More output examples: [Getting started](https://gravionlabs.github.io/herdr-plugins/guide/getting-started).
+
+## herdr settings the plugins rely on
+
+Some plugin features look broken when a herdr setting is off, and the cause is the setting, not the plugin. These settings live in herdr's `config.toml`; the plugins never write it. After a change, run `herdr server reload-config`.
+
+To add the missing blocks (toast delivery, the "space first" sidebar rows, and keys for `deliver-starter.start`, `deliver-log.toggle` and `command-palette.open`), run `node scripts/herdr-setup.ts apply`. It shows a diff, writes a `config.toml.bak-<timestamp>` backup, asks, writes, and runs `herdr server reload-config`. It never changes a key you already set, except `ui.toast.delivery = "off"`. Use `--dry-run` to only see the diff and `--yes` to skip the question.
+
+To install the plugins at the latest release tag (not the default branch), run `node scripts/herdr-setup.ts install [<plugin>…] [--ref <tag>] [--dry-run]`.
+
+| Setting | Why it matters | Needed by |
+|:--|:--|:--|
+| `ui.toast.delivery` must not be `off` | Notifications. With `off`, `herdr notification show` still answers `shown`, but no notification appears. | agent-notify, command-palette, deliver-log, deliver-starter, layout-bootstrap, link-trim, repo-open, review-popup, worktree-cleanup |
+| `ui.mouse_capture` on | Link handlers. A Ctrl+click reaches a plugin only with mouse capture on. | link-trim (Ctrl+click), deliver-starter (Ctrl+click on an issue link) |
+| `[ui.sidebar.agents]` row with `$deliver`, `$deliver_step`, `$deliver_pr` | The `deliver` tokens show in the Agents sidebar only where a row names them. | deliver-view, and the `deliver` skill, which reports the tokens |
+
+Snippets for `config.toml`:
+
+```toml
+[ui.toast]
+delivery = "herdr"
+```
+
+```toml
+[ui]
+mouse_capture = true
+```
+
+The `[ui.sidebar.agents]` layout is in the next section.
+
+### Agents sidebar layout ("space first")
+
+The recommended layout puts the space first (with `repo-open` every repository is its own space): line 1 is the space (workspace) and the state, line 2 the agent and its terminal title, line 3 the `deliver` tokens. It is the layout of the [deliver-view README](deliver-view/README.md#recommended-layout-space-first).
+
+```toml
+[ui.sidebar.agents]
+rows = [
+  ["state_icon", { token = "workspace", bold = true }, { token = "state_text", rules = [{ equals = "done", fg = "#5f5" }, { equals = "blocked", fg = "#f55" }] }],
+  [{ token = "agent", dim = true }, "terminal_title_stripped"],
+  [{ token = "$deliver", bold = true }, { token = "$deliver_step", rules = [{ contains = "blocked", fg = "#f55" }, { contains = "merged", fg = "#5f5" }] }, "$deliver_pr"],
+]
+```
+
+It looks like this for one `/deliver` session:
+
+```
+● herdr-plugins · idle
+  claude · <terminal title>
+  #121 · merged · #139
+```
+
+Alternatives:
+
+- Compact two-line layout: keep the space and state row and the `deliver` tokens row, and drop the agent row.
+- `deliver` line first: move the `$deliver` row above the space row.
+- Spacing: add `row_gap = 1` under `[ui.sidebar.agents]` for a blank line between the rows.
+
+## Contributing
+
+How to build a plugin, the conventions, the tests and the release flow are in the [contributor guide](https://gravionlabs.github.io/herdr-plugins/guide/contributing) (also readable on GitHub: [docs/guide/contributing.md](docs/guide/contributing.md)).

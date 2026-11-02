@@ -5,8 +5,10 @@ A popup with the delivery state of the current repository: the open PBIs, who cl
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/deliver-board
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-board
 ```
+
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Keybinding
 
@@ -33,7 +35,7 @@ One row per open issue labelled `pbi`, ordered by number:
 
 | Column | Source |
 |:--|:--|
-| PBI, Title | `gh issue list --label pbi` |
+| PBI, Title | REST issues API filtered by label `pbi` (cached, ETag) |
 | Assignee | the claim: the issue's assignees |
 | Labels | `needs-decision`, `in-progress` and `merged`; other labels are left out |
 | Branch | the pushed `<type>/<nr>-*` branch (`git ls-remote --heads origin`), or the PR's head branch |
@@ -52,3 +54,7 @@ One row per open issue labelled `pbi`, ordered by number:
 ## Development
 
 Parsing of the `gh` and `git` output lives in `lib/board.ts`, the repository lookup and error wording in `lib/context.ts`, keys and rendering in `lib/view.ts`; all run without herdr. The action entry point is `bin/open.ts`, which opens the `board` pane (`bin/board.ts`) as a popup and passes the focused pane's cwd on. The tests in `test/` run against `gh` JSON recorded in `test/fixtures/`. Run them from the repository root with `npm test`.
+
+## API load
+
+The open PBIs come from the REST issues API (`gh api repos/{owner}/{repo}/issues?labels=pbi`), revalidated with an ETag; the PR list (`gh pr list`, GraphQL) is cached. Both are cached for 30 seconds under `HERDR_PLUGIN_STATE_DIR/gh-cache`, so `r` within that time makes no call. When the rate limit is exhausted, the board shows `GitHub rate limit exceeded, resets at HH:MM` (local time) and a herdr notification. `lib/ghcache.ts` is copied into `deliver-starter`; a test keeps the copies equal.

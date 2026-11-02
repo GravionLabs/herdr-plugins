@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-// herdr pane `review` (popup): last deliver review of the PBI behind the focused pane's branch. Reads only.
+// herdr pane `review` (popup): last deliver review of the PBI behind the focused pane's branch; on a branch without
+// PBI number (the deliver pane on release/next) a list of all reviews to choose from. Reads only.
 // Input: REVIEW_POPUP_CWD / REVIEW_POPUP_PANE (set by the `open` action) or HERDR_PLUGIN_CONTEXT_JSON.
 import { cwdFromContext } from '../lib/context.ts';
 import { noticeFor } from '../lib/errors.ts';
 import { herdrBin, notify } from '../lib/host.ts';
 import { load, realRead } from '../lib/load.ts';
-import { keyAction, move, render, type State } from '../lib/review.ts';
+import { back, choose, keyAction, move, render, type State } from '../lib/review.ts';
 import { run } from '../lib/run.ts';
 import { openFinding } from '../lib/split.ts';
 
@@ -37,10 +38,22 @@ async function main(): Promise<void> {
       notice = '';
       return draw();
     }
+    if (key === 'back') {
+      state = back(state);
+      notice = '';
+      return draw();
+    }
+    if (key === 'open' && state.kind === 'pick') {
+      const entry = state.entries[state.selected];
+      state = choose(state);
+      notice = entry && !entry.review ? `Cannot show #${entry.pbi}: ${entry.file}` : '';
+      return draw();
+    }
     if (key === 'open' && state.kind === 'review') {
       const finding = state.review.review.blocking[state.selected];
-      if (!finding || !toplevel) return;
-      const reason = await openFinding(run, herdrBin(), toplevel, pane, process.env.EDITOR, finding);
+      const dir = state.toplevel ?? toplevel;
+      if (!finding || !dir) return;
+      const reason = await openFinding(run, herdrBin(), dir, pane, process.env.EDITOR, finding);
       if (reason === null) exit(0);
       notice = reason;
       draw();

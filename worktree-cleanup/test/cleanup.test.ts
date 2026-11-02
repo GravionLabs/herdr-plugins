@@ -1,16 +1,40 @@
 import { describe, expect, it } from 'vitest';
 import {
   cleanup,
+  deleteBranchCommand,
   logLines,
   mergeResults,
   parseMergedPullRequests,
   parseScriptResult,
   parseWorktrees,
   selectCandidates,
+  shellArg,
   summaryBody,
   summaryTitle,
 } from '../lib/cleanup.ts';
 import type { Result, Run } from '../lib/run.ts';
+
+describe('deleteBranchCommand', () => {
+  it('leaves a plain branch name unquoted', () => {
+    expect(deleteBranchCommand('feat/7-x.y_z')).toBe('git branch -D feat/7-x.y_z');
+  });
+
+  it.each([
+    ['feat/7-a;rm', "git branch -D 'feat/7-a;rm'"],
+    ['feat/7-a&b', "git branch -D 'feat/7-a&b'"],
+    ['feat/7-$(id)', "git branch -D 'feat/7-$(id)'"],
+    ["feat/7-it's", "git branch -D 'feat/7-it'\\''s'"],
+    ['feat/7-"x"', `git branch -D 'feat/7-"x"'`],
+    ['-D', 'git branch -D -- -D'],
+    ['-f;id', "git branch -D -- '-f;id'"],
+  ])('quotes %j for the shell', (branch, command) => {
+    expect(deleteBranchCommand(branch)).toBe(command);
+  });
+
+  it('shellArg single-quotes the empty string', () => {
+    expect(shellArg('')).toBe("''");
+  });
+});
 
 describe('parseMergedPullRequests', () => {
   it('keeps number and head branch', () => {

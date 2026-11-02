@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { classifyFailure, type Classified } from './errors.ts';
-import { parseConfig, type ParsedConfig } from './config.ts';
+import { parseConfig, schemaProblems, type ParsedConfig } from './config.ts';
 
 // HERDR_PLUGIN_CONFIG_DIR/config.json; a missing file or variable gives no entries and no problem.
 export function loadConfig(): ParsedConfig {
@@ -15,7 +15,9 @@ export function loadConfig(): ParsedConfig {
   } catch {
     return parseConfig(null);
   }
-  return parseConfig(text);
+  const parsed = parseConfig(text);
+  if (parsed.problems.length === 0) parsed.problems.push(...schemaProblems(text));
+  return parsed;
 }
 
 export const herdrBin = (): string => process.env.HERDR_BIN_PATH || 'herdr';

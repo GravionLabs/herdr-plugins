@@ -15,7 +15,7 @@ describe('review-popup manifest', () => {
   it('declares the top-level id, name, version, min_herdr_version and platforms', () => {
     expect(manifest).toMatch(/^id = "review-popup"$/m);
     expect(manifest).toMatch(/^name = "review-popup"$/m);
-    expect(manifest).toMatch(/^version = "0\.1\.0"$/m);
+    expect(manifest).toMatch(/^version = "\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?"$/m); // the release writes it (scripts/set-version.ts)
     expect(manifest).toMatch(/^min_herdr_version = "0\.9\.5"$/m);
     expect(manifest).toMatch(/^platforms = \["macos", "linux"\]$/m);
   });
@@ -31,7 +31,7 @@ describe('review-popup manifest', () => {
   });
 
   it('documents the install command and a keybinding for the open action in the README', () => {
-    expect(readme).toContain('herdr plugin install GravionLabs/herdr-plugins/review-popup');
+    expect(readme).toContain('herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/review-popup');
     expect(readme).toContain('command = "review-popup.open"');
     expect(readme).toContain('type = "plugin_action"');
   });

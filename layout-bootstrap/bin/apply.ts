@@ -4,6 +4,7 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { applyLayout } from '../lib/apply.ts';
+import { configIssues } from '../lib/config.ts';
 import { CONFIG_FILE, CONFIG_LAYOUT_FILE, REPO_LAYOUT_FILE, resolveLayout } from '../lib/layout.ts';
 import { run } from '../lib/run.ts';
 
@@ -38,10 +39,13 @@ async function main(): Promise<void> {
   const repo = top.stdout.trim();
 
   const configDir = process.env.HERDR_PLUGIN_CONFIG_DIR ?? '';
+  const config = configDir ? await read(join(configDir, CONFIG_FILE)) : null;
+  const issues = configIssues(config);
+  if (issues.length > 0) await notify('layout-bootstrap: invalid config', `${issues.join('; ')}; invalid keys are ignored`);
   const { layout, source } = resolveLayout({
     repoLayout: await read(join(repo, REPO_LAYOUT_FILE)),
     configLayout: configDir ? await read(join(configDir, CONFIG_LAYOUT_FILE)) : null,
-    config: configDir ? await read(join(configDir, CONFIG_FILE)) : null,
+    config,
   });
   const outcome = await applyLayout(run, herdr, layout, repo, paneId, workspaceId);
   process.stdout.write(

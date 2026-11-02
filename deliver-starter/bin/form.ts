@@ -6,9 +6,10 @@ import { cwdFromContext } from '../lib/context.ts';
 import { applyKey, initialForm, render, type Form } from '../lib/form.ts';
 import { describe, noRepository, noticeFor } from '../lib/errors.ts';
 import { gitToplevel, notify } from '../lib/host.ts';
-import { loadConfig, realDeps } from '../lib/runtime.ts';
+import { configNotice, loadConfig, realDeps } from '../lib/runtime.ts';
 import { start, validate } from '../lib/start.ts';
-import { loadIssues } from '../lib/suggest.ts';
+import { loadMilestones } from '../lib/milestones.ts';
+import { loadIssues, stateCache } from '../lib/suggest.ts';
 
 const out = process.stdout;
 
@@ -24,7 +25,7 @@ async function main(): Promise<void> {
   const cwd = process.env.DELIVER_STARTER_CWD || cwdFromContext(process.env.HERDR_PLUGIN_CONTEXT_JSON) || process.cwd();
   const repo = await gitToplevel(cwd);
 
-  let form: Form = initialForm(config.mode);
+  let form: Form = { ...initialForm(config.mode), message: configNotice() ?? '' };
   let busy = false;
   const draw = (): void => {
     out.write(`\x1b[H\x1b[2J${render(form).join('\r\n')}`);
@@ -71,12 +72,18 @@ async function main(): Promise<void> {
   process.stdin.resume();
   draw();
 
-  // Suggestions: one `gh issue list` per popup; a failure leaves the popup usable and is shown next to the `#` list.
-  const loaded = repo ? await loadIssues(deps.run, repo, config.suggestLimit) : null;
-  if (loaded) {
-    form = loaded.ok ? { ...form, issues: loaded.issues } : { ...form, note: loaded.reason };
-    draw();
-  }
+  // Suggestions: two cached REST calls per popup; a failure leaves the popup usable and is
+  // shown next to the `#` or `@` list.
+  if (!repo) return;
+  const [loaded, milestones] = await Promise.all([
+    loadIssues(deps.run, repo, config.suggestLimit, stateCache()),
+    loadMilestones(deps.run, repo, stateCache()),
+  ]);
+  const limited = !loaded.ok && loaded.rateLimited ? loaded.reason : !milestones.ok && milestones.rateLimited ? milestones.reason : null;
+  if (limited) await notify('deliver-starter: GitHub rate limit exceeded', limited).catch(() => undefined);
+  form = loaded.ok ? { ...form, issues: loaded.issues } : { ...form, note: loaded.reason };
+  form = milestones.ok ? { ...form, milestones: milestones.milestones } : { ...form, milestoneNote: milestones.reason };
+  if (!busy) draw();
 }
 
 main().catch(async (error: unknown) => {

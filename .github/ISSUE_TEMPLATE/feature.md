@@ -20,11 +20,11 @@ Parent Epic: #NNN
 
 ## Scope
 
-**In scope**
+### In scope
 
 -
 
-**Out of scope**
+### Out of scope
 
 -
 

@@ -7,20 +7,28 @@ Only URLs that match the `trailing-punct` link handler (http or https, ending in
 ## Install
 
 ```bash
-herdr plugin install GravionLabs/herdr-plugins/link-trim
+herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/link-trim
 ```
+
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Requirements
 
 - `ui.mouse_capture` must be on in herdr's `config.toml`. Without mouse capture herdr does not see the click and the link handler never runs.
-- Click with **Ctrl+click**, also on macOS. herdr handles Ctrl+click on links.
+- Click with **Ctrl+click**, also on macOS. Shift+click and Cmd+click do not reach the link handler in herdr; Cmd+click only matters in WezTerm, see below.
+- herdr's `ui.toast.delivery` must not be `off`, or the notifications of the plugin are not shown. Set it in herdr's `config.toml` and run `herdr server reload-config`:
+
+  ```toml
+  [ui.toast]
+  delivery = "herdr"
+  ```
 
 ## What it trims
 
 - Trailing `.`, `,`, `;`, `:`, `'` and `"` are removed, repeatedly.
 - A trailing `)` or `]` is removed only when the URL has no opening partner. `https://en.wikipedia.org/wiki/Foo_(bar)` stays unchanged.
 
-The trimmed URL opens with `open` on macOS and `xdg-open` on Linux. If opening fails, herdr shows a notification with the URL.
+The trimmed URL opens with `open` on macOS and `xdg-open` on Linux, as one argument and without a shell. Only absolute `http`/`https` URLs without whitespace or control characters are opened; anything else (`file:`, `javascript:`, a path, a leading `-`) is not passed to the opener. If opening fails or the URL is refused, herdr shows a notification with the URL.
 
 ## Clicking with Cmd outside herdr
 

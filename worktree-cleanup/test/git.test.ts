@@ -85,6 +85,36 @@ describe('deleteOrphanedBranch (worktree.removed)', () => {
     expect(localBranches()).toContain(branch);
   });
 
+  it('deletes a pushed branch with ; & $() and quotes in its name as exactly that branch', async () => {
+    const branch = "feat/9-a;touch${IFS}pwned&$(id)'x`id`";
+    removedWorktree(branch, true);
+    expect((await deleteOrphanedBranch(run, fx.repo, branch))?.branchesDeleted).toEqual([branch]);
+    expect(localBranches()).toEqual(['main']);
+    expect(existsSync(join(fx.repo, 'pwned'))).toBe(false);
+  });
+
+  it('deletes a branch named like an option (-D) and nothing else', async () => {
+    fx.git('branch', '--quiet', 'feat/10-keep');
+    fx.git('update-ref', 'refs/heads/-D', 'HEAD');
+    fx.git('push', '--quiet', 'origin', 'refs/heads/-D:refs/heads/-D');
+    expect((await deleteOrphanedBranch(run, fx.repo, '-D'))?.branchesDeleted).toEqual(['-D']);
+    expect(localBranches()).toEqual(['feat/10-keep', 'main']);
+  });
+
+  it('lists a local-only hostile branch with a copy-paste command that deletes only it', async () => {
+    const branch = "feat/11-x;touch${IFS}pwned&'q'";
+    removedWorktree(branch, false);
+    const left = (await deleteOrphanedBranch(run, fx.repo, branch))?.left;
+    expect(left).toEqual([
+      { branch, reason: 'commits not on any remote branch', command: `git branch -D 'feat/11-x;touch\${IFS}pwned&'\\''q'\\'''` },
+    ]);
+    // the plugins run on macOS and Linux only; the Windows CI runner has no POSIX sh on every image
+    if (process.platform === 'win32') return;
+    execFileSync('sh', ['-c', left?.[0]?.command ?? 'false'], { cwd: fx.repo, stdio: 'ignore' });
+    expect(localBranches()).toEqual(['main']);
+    expect(existsSync(join(fx.repo, 'pwned'))).toBe(false);
+  });
+
   it('never deletes the default branch of origin', async () => {
     fx.git('branch', '--quiet', 'trunk');
     fx.git('push', '--quiet', 'origin', 'trunk');
@@ -163,12 +193,24 @@ e2e('cleanup with the installed Remove-PbiWorktrees.ps1', () => {
     mkdirSync(bin);
     const head = fx.git('rev-parse', 'main').trim();
     writeFileSync(join(fx.root, 'prs.json'), JSON.stringify([{ number: 50, headRefName: 'feat/7-done' }]));
+    // the script reads the PR over REST: `gh api repos/{owner}/{repo}/pulls/<pr>` and `.../pulls/<pr>/commits?per_page=100`
     writeFileSync(
-      join(fx.root, 'pr.json'),
-      JSON.stringify({ headRefName: 'feat/7-done', baseRefName: 'release/next', commits: [{ oid: head }] }),
+      join(fx.root, 'pull.json'),
+      JSON.stringify({ head: { ref: 'feat/7-done' }, base: { ref: 'release/next' } }),
     );
-    // gh pr list → prs.json, gh pr view → pr.json
-    const gh = `#!/bin/sh\nif [ "$2" = "list" ]; then cat "${fx.root}/prs.json"; else cat "${fx.root}/pr.json"; fi\n`;
+    writeFileSync(join(fx.root, 'commits.json'), JSON.stringify([{ sha: head }]));
+    // gh pr list → prs.json, gh api …/commits… → commits.json, gh api …/pulls/50 → pull.json
+    const gh = [
+      '#!/bin/sh',
+      `if [ "$1" = "pr" ] && [ "$2" = "list" ]; then cat "${fx.root}/prs.json"`,
+      `elif [ "$1" = "api" ]; then case "$2" in`,
+      `  repos/*/pulls/50/commits*) cat "${fx.root}/commits.json" ;;`,
+      `  repos/*/pulls/50) cat "${fx.root}/pull.json" ;;`,
+      '  *) echo "unexpected gh api $2" >&2; exit 1 ;;',
+      'esac',
+      'else echo "unexpected gh $*" >&2; exit 1; fi',
+      '',
+    ].join('\n');
     writeFileSync(join(bin, 'gh'), gh);
     chmodSync(join(bin, 'gh'), 0o755);
     process.env.PATH = `${bin}${delimiter}${path}`;

@@ -58,7 +58,7 @@ describe('trailing-punct link handler pattern', () => {
   it('declares the top-level id, name, version and min_herdr_version', () => {
     expect(manifest).toMatch(/^id = "link-trim"$/m);
     expect(manifest).toMatch(/^name = "link-trim"$/m);
-    expect(manifest).toMatch(/^version = "0\.1\.0"$/m);
+    expect(manifest).toMatch(/^version = "\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?"$/m); // the release writes it (scripts/set-version.ts)
     expect(manifest).toMatch(/^min_herdr_version = "0\.9\.5"$/m);
   });
 

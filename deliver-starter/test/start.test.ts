@@ -34,7 +34,8 @@ describe('issue check', () => {
 
   it('rejects closed issues and other levels', () => {
     expect(checkIssue(3, issue('CLOSED', '[PBI] x'))).toBe('#3 is closed');
-    expect(checkIssue(3, issue('OPEN', '[Task] x'))).toBe('#3 is not a PBI, Feature or Epic');
+    expect(checkIssue(3, issue('OPEN', '[Task] x'))).toBe('#3 is not a PBI, Bug, Feature or Epic');
+    expect(checkIssue(3, issue('OPEN', '[Bug] fix: x'))).toBeNull();
     expect(checkIssue(3, 'nope')).toBe('#3: unreadable gh output');
   });
 });
