@@ -112,4 +112,44 @@ describe('install', () => {
     expect(main(['install', '--dry-run', 'link-trim'], f.deps as never, (t) => lines.push(t))).toBe(0);
     expect(lines.join('\n')).toContain('Plan: install at v0.4.0');
   });
+
+  describe('flags around the command', () => {
+    const go = (argv: string[]) => {
+      const f = fake();
+      const lines: string[] = [];
+      const code = main(argv, f.deps as never, (t) => lines.push(t));
+      return { code, text: lines.join('\n'), f };
+    };
+
+    it('honours --dry-run before the command and installs nothing', () => {
+      const r = go(['--dry-run', 'install']);
+      expect(r.code).toBe(0);
+      expect(r.text).toContain('Plan: install at v0.4.0');
+      expect(r.f.installs()).toHaveLength(0);
+    });
+
+    it('takes --ref <tag> before the command', () => {
+      const r = go(['--ref', 'v0.5.0', 'install', 'link-trim']);
+      expect(r.code).toBe(0);
+      expect(r.f.installs()).toEqual([['herdr', 'plugin', 'install', '-y', '--ref', 'v0.5.0', 'GravionLabs/herdr-plugins/link-trim']]);
+    });
+
+    it('treats install --dry-run like --dry-run install', () => {
+      const r = go(['install', '--dry-run']);
+      expect(r.text).toContain('Plan: install at v0.4.0');
+      expect(r.f.installs()).toHaveLength(0);
+    });
+
+    it('takes a plugin followed by --ref after the command', () => {
+      const r = go(['install', 'link-trim', '--ref', 'v1']);
+      expect(r.f.installs().map((c) => c.slice(4))).toEqual([['--ref', 'v1', 'GravionLabs/herdr-plugins/link-trim']]);
+    });
+
+    it('still rejects an unknown command, also after a --ref value', () => {
+      const r = go(['--ref', 'v1', 'frobnicate']);
+      expect(r.code).toBe(1);
+      expect(r.text).toContain("unknown command 'frobnicate'");
+      expect(r.f.installs()).toHaveLength(0);
+    });
+  });
 });

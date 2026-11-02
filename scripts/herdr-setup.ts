@@ -1,4 +1,5 @@
-// Usage: node scripts/herdr-setup.ts <command> [--json] [--yes] [--dry-run] [--help]
+// Usage: node scripts/herdr-setup.ts <command> [<plugin>...] [--ref <tag>] [--json] [--yes] [--dry-run] [--help]
+//        (options may come before or after the command)
 // Commands: install (installs the plugins at a release tag),
 //           doctor (reports whether herdr and the machine are ready for the plugins; changes nothing),
 //           apply (adds the config.toml blocks the plugins rely on, after a diff and a backup).
@@ -85,16 +86,31 @@ export function format(checks: Check[]): string {
     .join('\n');
 }
 
+// The command is the first known command that is no flag value; else the first positional (reported as unknown).
+function findCommand(argv: string[]): number {
+  let firstPositional = -1;
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i]!;
+    if (a === '--ref') i++;
+    else if (!a.startsWith('-')) {
+      if (['install', 'doctor', 'apply'].includes(a)) return i;
+      if (firstPositional < 0) firstPositional = i;
+    }
+  }
+  return firstPositional;
+}
+
 export function main(argv: string[], deps: Deps & ApplyIo, out: (text: string) => void): number {
   if (argv.includes('--help') || argv.includes('-h') || argv.length === 0) {
     out(HELP);
     return argv.length === 0 ? 1 : 0;
   }
-  const command = argv.find((a) => !a.startsWith('--'));
+  const commandIndex = findCommand(argv);
+  const command = argv[commandIndex];
   if (command === 'apply') {
     return runApply(deps, defaultConfigPath(deps.platform, deps.env, deps.home), { yes: argv.includes('--yes'), dryRun: argv.includes('--dry-run') }, out);
   }
-  if (command === 'install') return runInstall(deps, argv.slice(argv.indexOf('install') + 1), out);
+  if (command === 'install') return runInstall(deps, argv.filter((_, i) => i !== commandIndex), out);
   if (command !== 'doctor') {
     out(`unknown command '${command ?? ''}'\n\n${HELP}`);
     return 1;
