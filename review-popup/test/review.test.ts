@@ -10,6 +10,7 @@ import {
   keyAction,
   move,
   parseReview,
+  SUPPORTED_SCHEMA_VERSIONS,
   pbiFromBranch,
   render,
   validateReview,
@@ -314,5 +315,34 @@ describe('opening a finding', () => {
     expect(await openFinding(async () => ok('{}'), 'herdr', '/r', undefined, 'vi', finding)).toBe(
       'herdr pane split returned no pane',
     );
+  });
+});
+
+describe('review schema version', () => {
+  it('lists the supported versions in one place', () => {
+    expect(SUPPORTED_SCHEMA_VERSIONS).toEqual([1]);
+  });
+
+  it('accepts a file without schemaVersion as version 1', () => {
+    expect(parseReview(fixture('valid')).ok).toBe(true);
+  });
+
+  it('accepts a supported version', () => {
+    const parsed = parseReview(fixture('versioned'));
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) expect(parsed.review.pbi).toBe(4);
+  });
+
+  it('rejects an unsupported version naming the expected skills version', () => {
+    const parsed = parseReview(fixture('unsupported-version'));
+    expect(parsed).toEqual({
+      ok: false,
+      error: expect.stringContaining('Unsupported review schema version 99 (supported: 1)'),
+    });
+    if (!parsed.ok) expect(parsed.error).toContain('d6953b2');
+  });
+
+  it('rejects a non-numeric version', () => {
+    expect(parseReview('{"schemaVersion":"x"}').ok).toBe(false);
   });
 });
