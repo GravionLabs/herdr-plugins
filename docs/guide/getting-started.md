@@ -10,7 +10,7 @@ This section takes you from nothing to a working command palette and deliver boa
 
 Each plugin in this repository is a separate herdr plugin that you install on its own. They add actions (run from a keybinding, the command palette or `herdr plugin action invoke <plugin>.<action>`), popups and panes to herdr. [Plugins](../plugins/index.md) lists them and each has its own page under [Plugin pages](./plugins/link-trim.md).
 
-The plugins version independently and are released together as repository tags such as `v0.4.0`. Always install a release tag. Without a tag, herdr installs the default branch, which is unreleased.
+The plugins version independently and are released together as repository tags such as `v0.5.0`. Always install a release tag. Without a tag, herdr installs the default branch, which is unreleased.
 
 ## The shortcut: the setup script
 
@@ -39,7 +39,7 @@ ok   deliver skill: ~/.claude/skills/deliver
 ok   ui.toast.delivery: herdr
 ok   ui.mouse_capture: true
 ok   sidebar rows: name $deliver
-ok   plugins: agent-notify enabled v0.4.0; command-palette enabled v0.4.0; ...
+ok   plugins: agent-notify enabled v0.5.0; command-palette enabled v0.5.0; ...
 ok   config: ~/.config/herdr/config.toml
 ```
 
@@ -74,10 +74,10 @@ would change in ~/herdr-test.toml:
 
 ```text
 $ node scripts/herdr-setup.ts install --dry-run
-Plan: install at v0.4.0
-  agent-notify: v0.4.0 -> v0.4.0
+Plan: install at v0.5.0
+  agent-notify: v0.5.0 -> v0.5.0
   ...
-  repo-open: not installed -> v0.4.0
+  repo-open: not installed -> v0.5.0
   ...
 dry run: nothing installed
 ```

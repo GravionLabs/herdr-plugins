@@ -8,7 +8,7 @@ Starts `/deliver` from herdr: a popup asks for the arguments and the mode, and a
 herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-starter
 ```
 
-`<tag>` is a release tag, for example `v0.4.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Keybinding
 

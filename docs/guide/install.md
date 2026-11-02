@@ -9,10 +9,11 @@ Check the [prerequisites](./prerequisites.md) first.
 ## Install a single plugin
 
 ```sh
-herdr plugin install -y --ref v0.4.0 GravionLabs/herdr-plugins/<plugin>
+herdr plugin install -y --ref v0.5.0 GravionLabs/herdr-plugins/<plugin>
 ```
 
-- Replace `v0.4.0` with the [release](https://github.com/GravionLabs/herdr-plugins/releases) you want, and `<plugin>` with a plugin name such as `command-palette`.
+- Replace `v0.5.0` with the [release](https://github.com/GravionLabs/herdr-plugins/releases) you want, and `<plugin>` with a plugin name such as `command-palette`.
+- `v0.5.0` is the first release with `repo-open`, the setup script and `deliver-log.toggle`; older tags lack them.
 - Do not leave out `--ref`. Without it herdr installs the default branch, which is unreleased.
 - The `<plugin>@<ref>` shorthand does not work. Use `--ref`.
 - `--ref` takes a tag, a branch or a full 40-character commit SHA. A short SHA fails.
@@ -32,7 +33,7 @@ With the setup script (from a clone of this repository, Node 26):
 ```sh
 node scripts/herdr-setup.ts install                 # all plugins at the latest release tag
 node scripts/herdr-setup.ts install link-trim       # only the named plugins
-node scripts/herdr-setup.ts install --ref v0.4.0    # a specific tag
+node scripts/herdr-setup.ts install --ref v0.5.0    # a specific tag
 node scripts/herdr-setup.ts install --dry-run       # only show the plan
 ```
 

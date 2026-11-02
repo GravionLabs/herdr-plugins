@@ -8,7 +8,7 @@ Removes the worktrees and local branches that merged PBIs left behind. `deliver`
 herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/worktree-cleanup
 ```
 
-`<tag>` is a release tag, for example `v0.4.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](https://gravionlabs.github.io/herdr-plugins/guide/install).
 
 ## Keybinding
 

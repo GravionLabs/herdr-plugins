@@ -12,7 +12,7 @@ Only `Invoke-DeliverLoop.ps1` writes the log (`.agents/deliver-loop.ansi.log`, e
 herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-log
 ```
 
-`<tag>` is a release tag, for example `v0.4.0`; see [Install](../install.md).
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](../install.md).
 
 Requirements:
 

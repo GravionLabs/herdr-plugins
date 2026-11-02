@@ -10,7 +10,7 @@
 herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/repo-open
 ```
 
-`<tag>` is a release tag, for example `v0.4.0`; see [Install](../install.md).
+`<tag>` is a release tag, for example `v0.5.0`; see [Install](../install.md). repo-open needs release `v0.5.0` or newer; earlier releases do not contain it.
 
 Requirements:
 
