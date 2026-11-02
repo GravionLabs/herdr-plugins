@@ -2,7 +2,7 @@
 # Relative links and anchors are not checked here: the VitePress build (pages.yml) fails on dead internal links.
 
 # Only web links; mailto:, file: and other schemes are not fetched.
-schemes = ["http", "https"]
+scheme = ["http", "https"]
 
 # Ignore links to the local machine (http://localhost:5173 and the like in the docs).
 exclude_loopback = true
@@ -17,7 +17,7 @@ exclude = [
 
 # Status codes that do not mean a dead link: 403 and 429 are what GitHub, npm and docs hosts return to
 # anonymous CI runners (rate limits and bot protection). Real 404s and 5xx still fail the job.
-accept = [200, 201, 202, 203, 204, 206, 301, 302, 303, 307, 308, 403, 429]
+accept = ["200", "201", "202", "203", "204", "206", "301", "302", "303", "307", "308", "403", "429"]
 
 timeout = 20
 max_retries = 3
