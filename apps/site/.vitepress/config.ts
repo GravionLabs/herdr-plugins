@@ -46,6 +46,7 @@ export default defineConfig({
             { text: 'Compatibility', link: '/compatibility' },
             { text: 'Security review', link: '/security-review' },
             { text: 'Manual acceptance', link: '/acceptance' },
+            { text: 'Publishing the site', link: '/reference/publishing-the-site' },
           ],
         },
       ],
