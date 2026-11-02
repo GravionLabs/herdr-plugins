@@ -144,6 +144,9 @@ Action `open`, pane `picker` (popup).
 
 - [ ] Install: `herdr plugin install GravionLabs/herdr-plugins/repo-open`.
 - [ ] Discovery: with the default config, the repositories below `~/Source` (up to 3 levels) are listed by name with their relative path; nested repositories, hidden directories and `node_modules` are not listed.
+- [ ] Action: `herdr plugin action invoke repo-open.open`, or the bound key. Expected: a popup with a search field and the repositories as `<name>  <relative path>`.
+- [ ] Filter: type `hp`. Expected: `herdr-plugins` is listed (word starts), filtering is live and case-insensitive; Backspace widens the list again. Up, Down, Ctrl+P and Ctrl+N move the selection.
+- [ ] Close: Escape and Ctrl+C close the popup, the terminal is restored.
 - [ ] `config.json` with `{"roots":["~/other"],"depth":1}`: only the repositories directly below `~/other` are listed. An invalid value (`{"depth":0}`) shows the hint line `config.json: depth must be an integer from 1 to 10` and uses the default depth.
 - [ ] Uninstall: the action and pane are gone.
 

@@ -22,6 +22,23 @@ description = "open a repository"
 
 Without a keybinding: `herdr plugin action invoke repo-open.open`, or the entry `repo-open · Open a repository` in `command-palette`.
 
+## Popup
+
+Action `open` opens the popup `picker` with a search field over the discovered repositories. If the popup cannot be opened, the action exits with code 1 and shows the notification "Could not open the repository picker". Enter closes the popup and opens the selected repository.
+
+| Key | Action |
+|:--|:--|
+| type, Backspace | filter live, case-insensitive, on the name or the relative path (prefix first, then word starts such as `hp` for `herdr-plugins`, then scattered letters) |
+| Up, Down, Ctrl+P, Ctrl+N | move the selection |
+| Enter | open the selected repository, the popup closes |
+| Escape, Ctrl+C | close (exit code 0, cursor and screen restored) |
+
+Without any repository the list shows `No repositories below <roots>`.
+
+## Recently opened
+
+`$HERDR_PLUGIN_STATE_DIR/recent.json` holds `{ "<repository path>": { "count", "last" } }`. With an empty search, opened repositories come first by frecency (count, halved every 7 days since the last open), the others follow by name. With a search, usage only breaks ties between equal match quality. A missing or corrupt file counts as empty.
+
 ## Repositories
 
 Every directory below a root that contains `.git` (a directory, or a file for a worktree or submodule) is a repository, up to `depth` levels below the root. A repository is not searched for nested repositories; hidden directories, `node_modules` and symlinks are skipped, unreadable directories are ignored. A root that is itself a repository is listed too. Each repository shows its name and its path relative to the root.
@@ -51,4 +68,4 @@ Every directory below a root that contains `.git` (a directory, or a file for a 
 
 ## Development
 
-Config parsing is in `lib/config.ts`, the discovery in `lib/discover.ts`. Run the tests from the repository root with `npm test`.
+Config parsing is in `lib/config.ts`, the discovery in `lib/discover.ts`, filter, keys, view and history of the popup in `lib/filter.ts`, `lib/keys.ts`, `lib/view.ts` and `lib/recent.ts`; `bin/picker.ts` is the popup loop. Run the tests from the repository root with `npm test`.

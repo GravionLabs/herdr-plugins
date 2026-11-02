@@ -55,6 +55,7 @@ Unknown keys are ignored. A missing, broken or mistyped value falls back to the 
 | --- | --- | --- |
 | `agent-notify` | `seen.json` | object, pane-and-state key to timestamp (number) |
 | `command-palette` | `recent.json` | object, entry key to `{ count: number, last: number }` |
+| `repo-open` | `recent.json` | object, repository path to `{ count: number, last: number }` |
 | `deliver-view` | `view.json` | the saved herdr agent view object |
 
 Newer versions must read files written by older 1.x versions. A reader may ignore unknown fields and may reset a file it cannot read.
