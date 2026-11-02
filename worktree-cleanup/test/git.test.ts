@@ -193,12 +193,24 @@ e2e('cleanup with the installed Remove-PbiWorktrees.ps1', () => {
     mkdirSync(bin);
     const head = fx.git('rev-parse', 'main').trim();
     writeFileSync(join(fx.root, 'prs.json'), JSON.stringify([{ number: 50, headRefName: 'feat/7-done' }]));
+    // the script reads the PR over REST: `gh api repos/{owner}/{repo}/pulls/<pr>` and `.../pulls/<pr>/commits?per_page=100`
     writeFileSync(
-      join(fx.root, 'pr.json'),
-      JSON.stringify({ headRefName: 'feat/7-done', baseRefName: 'release/next', commits: [{ oid: head }] }),
+      join(fx.root, 'pull.json'),
+      JSON.stringify({ head: { ref: 'feat/7-done' }, base: { ref: 'release/next' } }),
     );
-    // gh pr list → prs.json, gh pr view → pr.json
-    const gh = `#!/bin/sh\nif [ "$2" = "list" ]; then cat "${fx.root}/prs.json"; else cat "${fx.root}/pr.json"; fi\n`;
+    writeFileSync(join(fx.root, 'commits.json'), JSON.stringify([{ sha: head }]));
+    // gh pr list → prs.json, gh api …/commits… → commits.json, gh api …/pulls/50 → pull.json
+    const gh = [
+      '#!/bin/sh',
+      `if [ "$1" = "pr" ] && [ "$2" = "list" ]; then cat "${fx.root}/prs.json"`,
+      `elif [ "$1" = "api" ]; then case "$2" in`,
+      `  repos/*/pulls/50/commits*) cat "${fx.root}/commits.json" ;;`,
+      `  repos/*/pulls/50) cat "${fx.root}/pull.json" ;;`,
+      '  *) echo "unexpected gh api $2" >&2; exit 1 ;;',
+      'esac',
+      'else echo "unexpected gh $*" >&2; exit 1; fi',
+      '',
+    ].join('\n');
     writeFileSync(join(bin, 'gh'), gh);
     chmodSync(join(bin, 'gh'), 0o755);
     process.env.PATH = `${bin}${delimiter}${path}`;
