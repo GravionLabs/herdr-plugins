@@ -1,8 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { load } from '../lib/load.ts';
+import { type ListDir, load, worktreeOf } from '../lib/load.ts';
 import {
+  back,
+  choose,
   editorCommand,
   isStale,
   keyAction,
@@ -27,7 +29,16 @@ const ok = (stdout: string): Result => ({ ok: true, stdout });
 const fail = (stderr: string): Result => ({ ok: false, code: 1, stdout: '', stderr });
 
 // Fake git: answers by arguments.
-function fakeRun(opts: { branch?: string; head?: string; common?: string; notRepo?: boolean }): Run {
+// `branchHead`: head of refs/heads/feat/4-show-review-result-popup (missing: the branch is gone);
+// `worktrees`: output of `git worktree list --porcelain`.
+function fakeRun(opts: {
+  branch?: string;
+  head?: string;
+  common?: string;
+  notRepo?: boolean;
+  branchHead?: string;
+  worktrees?: string;
+}): Run {
   return async (_cmd, args) => {
     if (opts.notRepo) return fail('fatal: not a git repository');
     const joined = args.join(' ');
@@ -35,9 +46,28 @@ function fakeRun(opts: { branch?: string; head?: string; common?: string; notRep
     if (joined === 'rev-parse --show-toplevel') return ok('/repo/wt\n');
     if (joined === 'rev-parse --abbrev-ref HEAD') return ok(`${opts.branch ?? 'feat/4-show-review-result-popup'}\n`);
     if (joined === 'rev-parse HEAD') return ok(`${opts.head ?? 'abc1234ffff'}\n`);
+    if (joined === 'rev-parse --verify --quiet refs/heads/feat/4-show-review-result-popup') {
+      return opts.branchHead ? ok(`${opts.branchHead}\n`) : fail('');
+    }
+    if (joined === 'worktree list --porcelain') return ok(opts.worktrees ?? '');
     return fail('unexpected');
   };
 }
+
+// Fake state directory: the review files with their modification times.
+const listing = (entries: { name: string; mtimeMs: number }[]): ListDir => async (dir) =>
+  dir.replaceAll('\\', '/').endsWith('/repo/.git/.agents/state') ? entries : [];
+
+const PORCELAIN = [
+  'worktree /repo',
+  'HEAD 1111111111111111111111111111111111111111',
+  'branch refs/heads/release/next',
+  '',
+  'worktree /tmp/wt/feat-4',
+  'HEAD abc1234000000000000000000000000000000000',
+  'branch refs/heads/feat/4-show-review-result-popup',
+  '',
+].join('\n');
 const reading = (text: string | null) => async (path: string): Promise<string> => {
   if (text === null || !path.replaceAll('\\', '/').endsWith('/.agents/state/review-4.json')) throw new Error('ENOENT');
   return text;
@@ -127,9 +157,74 @@ describe('load', () => {
     const { state } = await load(fakeRun({ common: '.git' }), reading(null), '/repo');
     expect(state.kind === 'message' && state.lines[0]).toContain(p('/repo/.git/.agents/state/review-4.json'));
   });
-  it('says so for a branch without a PBI number', async () => {
-    const { state } = await load(fakeRun({ branch: 'main' }), reading(fixture('valid')), '/repo');
-    expect(state.kind === 'message' && state.lines[0]).toContain('no PBI number');
+  describe('on a branch without PBI number (the deliver pane on release/next)', () => {
+    const files = [
+      { name: 'review-3.json', mtimeMs: 100 },
+      { name: 'review-4.json', mtimeMs: 300 },
+      { name: 'claims.json', mtimeMs: 900 },
+    ];
+    const three = fixture('valid').replace('"pbi":4', '"pbi":3').replace('feat/4-show-review-result-popup', 'fix/3-gone');
+    const both = (four: string) => async (path: string): Promise<string> => {
+      const name = path.replaceAll('\\', '/').split('/').pop();
+      if (name === 'review-4.json') return four;
+      if (name === 'review-3.json') return three;
+      throw new Error('ENOENT');
+    };
+    const pick = async (opts: Parameters<typeof fakeRun>[0], four = fixture('valid')) =>
+      (await load(fakeRun({ branch: 'release/next', ...opts }), both(four), '/repo', listing(files))).state;
+
+    it('lists every review newest first, with its PBI number, and keeps the pane toplevel', async () => {
+      const { state, toplevel } = await load(
+        fakeRun({ branch: 'release/next', branchHead: 'abc1234ffff', worktrees: PORCELAIN }),
+        both(fixture('valid')),
+        '/repo',
+        listing(files),
+      );
+      expect(toplevel).toBe('/repo/wt');
+      expect(state.kind === 'pick' && state.entries.map((e) => [e.pbi, e.toplevel])).toEqual([
+        [4, '/tmp/wt/feat-4'],
+        [3, null],
+      ]);
+      expect(render(state)).toEqual([
+        'deliver reviews in this repository (pane on release/next, no PBI number), newest first',
+        '',
+        '> #4  round 2  feat/4-show-review-result-popup',
+        '  #3  round 2  fix/3-gone',
+        '',
+        'Up/Down: select, Enter: show, q: close.',
+      ]);
+    });
+    it('is stale against the head of the review branch, not the pane head', async () => {
+      const state = await pick({ head: 'abc1234ffff', branchHead: 'fff0000aaaa' });
+      expect(state.kind === 'pick' && state.entries.map((e) => e.stale)).toEqual([true, false]);
+      expect(render(state)[2]).toBe('> #4  round 2  feat/4-show-review-result-popup  STALE');
+    });
+    it('opens the chosen review with its worktree and goes back to the list', async () => {
+      const list = move(await pick({ worktrees: PORCELAIN }), 'down');
+      expect(choose(move(list, 'up'))).toMatchObject({ kind: 'review', review: { pbi: 4 }, toplevel: '/tmp/wt/feat-4' });
+      const opened = choose(list);
+      expect(opened).toMatchObject({ kind: 'review', review: { pbi: 3 }, toplevel: null });
+      expect(render(opened).at(-1)).toBe('Up/Down: select, Enter: open in $EDITOR, b: back to the list, q: close.');
+      expect(back(opened)).toBe(list);
+    });
+    it('lists an invalid file with its error and does not open it', async () => {
+      const state = await pick({}, fixture('invalid'));
+      expect(render(state)[2]).toBe('> #4  invalid: round must be an integer >= 1');
+      expect(choose(state)).toBe(state);
+    });
+    it('says so when the repository has no review yet', async () => {
+      const { state } = await load(fakeRun({ branch: 'release/next' }), reading(null), '/repo', listing([]));
+      expect(state).toEqual({
+        kind: 'message',
+        lines: ['No deliver review in this repository yet (pane on release/next).', 'deliver writes it after a review round.'],
+      });
+    });
+  });
+  describe('worktreeOf', () => {
+    it('finds the worktree of a branch, else null', () => {
+      expect(worktreeOf(PORCELAIN, 'feat/4-show-review-result-popup')).toBe('/tmp/wt/feat-4');
+      expect(worktreeOf(PORCELAIN, 'feat/4')).toBeNull();
+    });
   });
   it('says so outside a repository', async () => {
     const { state, toplevel } = await load(fakeRun({ notRepo: true }), reading(null), '/tmp/x');
