@@ -1,6 +1,13 @@
 // HERDR_PLUGIN_CONFIG_DIR/config.json: `{ "roots": ["~/Source"], "depth": 3, "tabs": [{ "label", "command"?, "focus"? }] }`.
 // Pure parse; an invalid field is a problem and falls back to its default, valid fields are kept.
 import { isAbsolute, join } from 'node:path';
+import configSchema from '../schema/config.schema.json' with { type: 'json' };
+import { configProblems, type Schema } from './schema.ts';
+
+// Schema violations of config.json (`schema/config.schema.json`) as messages naming file and key; none for a missing file.
+export function configIssues(json: string | null | undefined): string[] {
+  return configProblems(json, configSchema as unknown as Schema);
+}
 
 export type Tab = { label: string; command: string | null; focus: boolean };
 export type Config = { roots: string[]; depth: number; tabs: Tab[] };
@@ -96,6 +103,8 @@ export function parseConfig(json: string | null | undefined, home: string): Pars
   if (record.roots !== undefined) config.roots = parseRoots(record.roots, home, problems) ?? config.roots;
   if (record.depth !== undefined) config.depth = parseDepth(record.depth, problems) ?? config.depth;
   if (record.tabs !== undefined) config.tabs = parseTabs(record.tabs, problems) ?? config.tabs;
+  // The schema also catches what the field parsers ignore, such as an unknown key.
+  if (problems.length === 0) problems.push(...configIssues(json).map((p) => p.replace(/^config\.json: /, '')));
   return { config, problems };
 }
 

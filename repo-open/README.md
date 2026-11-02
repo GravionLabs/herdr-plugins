@@ -73,7 +73,7 @@ Every directory below a root that contains `.git` (a directory, or a file for a 
 | `depth` | integer from 1 to 10 | `3` |
 | `tabs` | non-empty array of `{ "label", "command"?, "focus"? }`, labels unique | `terminal`, then `agent` with `claude` and `focus` |
 
-`command` is typed into the tab's shell when the tab is created. The first tab marked `focus` is focused after opening, else the first tab. A missing file uses the defaults. Invalid JSON or an invalid value shows one hint line `config.json: <problem>` (`(+N more)` for further problems) in the popup; that key falls back to its default, the other keys still apply.
+`command` is typed into the tab's shell when the tab is created. The first tab marked `focus` is focused after opening, else the first tab. A missing file uses the defaults. Invalid JSON or an invalid value shows one hint line `config.json: <problem>` (`(+N more)` for further problems) in the popup; that key falls back to its default, the other keys still apply. The file is checked against `schema/config.schema.json` (no runtime dependency), which also reports unknown keys.
 
 ## Development
 

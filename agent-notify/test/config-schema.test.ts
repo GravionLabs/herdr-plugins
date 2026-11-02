@@ -27,7 +27,7 @@ describe('configIssues', () => {
 describe('validator copies', () => {
   it('are identical in every plugin', () => {
     const copy = (plugin: string): string => readFileSync(new URL(`../../${plugin}/lib/schema.ts`, import.meta.url), 'utf8');
-    for (const plugin of ['command-palette', 'deliver-starter', 'layout-bootstrap']) {
+    for (const plugin of ['command-palette', 'deliver-starter', 'layout-bootstrap', 'repo-open']) {
       expect(copy(plugin)).toBe(copy('agent-notify'));
     }
   });
