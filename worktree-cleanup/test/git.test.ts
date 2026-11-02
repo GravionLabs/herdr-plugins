@@ -85,6 +85,36 @@ describe('deleteOrphanedBranch (worktree.removed)', () => {
     expect(localBranches()).toContain(branch);
   });
 
+  it('deletes a pushed branch with ; & $() and quotes in its name as exactly that branch', async () => {
+    const branch = "feat/9-a;touch${IFS}pwned&$(id)'x`id`";
+    removedWorktree(branch, true);
+    expect((await deleteOrphanedBranch(run, fx.repo, branch))?.branchesDeleted).toEqual([branch]);
+    expect(localBranches()).toEqual(['main']);
+    expect(existsSync(join(fx.repo, 'pwned'))).toBe(false);
+  });
+
+  it('deletes a branch named like an option (-D) and nothing else', async () => {
+    fx.git('branch', '--quiet', 'feat/10-keep');
+    fx.git('update-ref', 'refs/heads/-D', 'HEAD');
+    fx.git('push', '--quiet', 'origin', 'refs/heads/-D:refs/heads/-D');
+    expect((await deleteOrphanedBranch(run, fx.repo, '-D'))?.branchesDeleted).toEqual(['-D']);
+    expect(localBranches()).toEqual(['feat/10-keep', 'main']);
+  });
+
+  it('lists a local-only hostile branch with a copy-paste command that deletes only it', async () => {
+    const branch = "feat/11-x;touch${IFS}pwned&'q'";
+    removedWorktree(branch, false);
+    const left = (await deleteOrphanedBranch(run, fx.repo, branch))?.left;
+    expect(left).toEqual([
+      { branch, reason: 'commits not on any remote branch', command: `git branch -D 'feat/11-x;touch\${IFS}pwned&'\\''q'\\'''` },
+    ]);
+    // the plugins run on macOS and Linux only; the Windows CI runner has no POSIX sh on every image
+    if (process.platform === 'win32') return;
+    execFileSync('sh', ['-c', left?.[0]?.command ?? 'false'], { cwd: fx.repo, stdio: 'ignore' });
+    expect(localBranches()).toEqual(['main']);
+    expect(existsSync(join(fx.repo, 'pwned'))).toBe(false);
+  });
+
   it('never deletes the default branch of origin', async () => {
     fx.git('branch', '--quiet', 'trunk');
     fx.git('push', '--quiet', 'origin', 'trunk');

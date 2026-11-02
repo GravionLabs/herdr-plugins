@@ -126,8 +126,16 @@ export const entryLine = (e: Entry): string =>
     ? `#${e.pbi}  round ${e.review.round}  ${e.review.branch}${e.stale ? '  STALE' : ''}`
     : `#${e.pbi}  invalid: ${e.error ?? 'unreadable'}`;
 
-// Rendered lines; the selected list entry or blocking finding is marked with `>`.
+// Control characters of the review text (ESC, BEL, CR, ...) become `?`: a title written by an agent from untrusted
+// code must not reach the terminal as an escape sequence (cursor moves, OSC 52 clipboard writes, hyperlinks).
+export const printable = (text: string): string => text.replace(/[\x00-\x1f\x7f-\x9f]/g, '?');
+
+// Rendered lines, free of control characters; the selected list entry or blocking finding is marked with `>`.
 export function render(state: State, width = 100): string[] {
+  return layout(state, width).map(printable);
+}
+
+function layout(state: State, width: number): string[] {
   if (state.kind === 'message') return [...state.lines, '', 'Press q or Esc to close.'];
   const cut = (s: string): string => (s.length > width ? `${s.slice(0, Math.max(1, width - 1))}…` : s);
   if (state.kind === 'pick') {

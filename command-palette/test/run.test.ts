@@ -129,6 +129,23 @@ describe.skipIf(process.platform === 'win32')('bin/run.ts with a config command'
     expect(readFileSync(log, 'utf8')).toBe('notification show command-palette: t failed\n');
   });
 
+  it('passes ; & $() quotes and .. as literal arguments, never through a shell', () => {
+    const { bin } = notifier();
+    const dir = mkdtempSync(join(tmpdir(), 'palette-'));
+    const out = join(dir, 'argv.json');
+    const hostile = ['a;touch pwned', 'b&touch pwned&', '$(touch pwned)', "'\"`touch pwned`\"'", '../../etc/passwd'];
+    const script = "require('node:fs').writeFileSync(process.argv[1], JSON.stringify(process.argv.slice(2)))";
+    const command = [process.execPath, '-e', script, out, ...hostile];
+    const result = spawnSync(
+      process.execPath,
+      [runner, JSON.stringify({ id: 'config.0', group: 'config', title: 't', run: { kind: 'command', command, cwd: dir } })],
+      { env: { ...process.env, HERDR_BIN_PATH: bin } },
+    );
+    expect(result.status).toBe(0);
+    expect(JSON.parse(readFileSync(out, 'utf8'))).toEqual(hostile);
+    expect(existsSync(join(dir, 'pwned'))).toBe(false);
+  });
+
   it('notifies on a spawn error', () => {
     const { bin, log } = notifier();
     expect(start(['/nonexistent/binary'], bin).status).toBe(1);
