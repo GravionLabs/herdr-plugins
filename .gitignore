@@ -1,3 +1,5 @@
 node_modules/
 coverage/
 test-results/
+apps/site/.vitepress/cache/
+apps/site/.vitepress/dist/

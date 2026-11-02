@@ -1,6 +1,6 @@
 # Compatibility matrix and deprecation policy
 
-This page lists what each release of this repository supports and how a deprecation is announced and removed. The public surface itself (IDs, config keys, state files, event behaviour) is defined in [ADR 0001](adr/0001-public-api.md); the bump rules are in its "Versioning rules" table.
+This page lists what each release of this repository supports and how a deprecation is announced and removed. The public surface itself (IDs, config keys, state files, event behaviour) is defined in [ADR 0001](https://github.com/GravionLabs/herdr-plugins/blob/main/docs/adr/0001-public-api.md); the bump rules are in its "Versioning rules" table.
 
 ## Compatibility matrix
 
@@ -16,13 +16,13 @@ Notes on the rows:
 - **herdr**: `0.9.5` is the minimum any plugin declares. Plugins do not declare a maximum.
 - **Node.js**: the runtime strips TypeScript types at run time, so the Node version is part of the contract. The `engines` field, `.nvmrc` and CI must name the same major version.
 - **OS**: `platforms` in the manifests is what `herdr plugin install` checks. Windows is not a declared platform yet; see the Windows note in [acceptance.md](acceptance.md).
-- **GravionLabs/skills**: only the `deliver` skill is used at run time (by `deliver-log`, `deliver-starter` in unattended mode, and the `deliver` pane tokens read by `deliver-view`). `review-popup` uses JSON schemas copied from GravionLabs/skills at the commit named in [`review-popup/schema/SOURCE.md`](../review-popup/schema/SOURCE.md); they are not fetched at build time. The supported review schema versions are listed in `SUPPORTED_SCHEMA_VERSIONS` in `review-popup/lib/review.ts` (currently `1`; a review file without `schemaVersion` is version 1), and the popup names the expected skills version when a file has another one. No skills version is pinned in the plugin manifests, so a skills release is compatible when it keeps the `deliver` skill's scripts and pane tokens and the review schemas this repository copied.
+- **GravionLabs/skills**: only the `deliver` skill is used at run time (by `deliver-log`, `deliver-starter` in unattended mode, and the `deliver` pane tokens read by `deliver-view`). `review-popup` uses JSON schemas copied from GravionLabs/skills at the commit named in [`review-popup/schema/SOURCE.md`](https://github.com/GravionLabs/herdr-plugins/blob/main/review-popup/schema/SOURCE.md); they are not fetched at build time. The supported review schema versions are listed in `SUPPORTED_SCHEMA_VERSIONS` in `review-popup/lib/review.ts` (currently `1`; a review file without `schemaVersion` is version 1), and the popup names the expected skills version when a file has another one. No skills version is pinned in the plugin manifests, so a skills release is compatible when it keeps the `deliver` skill's scripts and pane tokens and the review schemas this repository copied.
 
 When a release changes any cell, update the row of that release in the same pull request and name the change in the release notes.
 
 ## Deprecation policy
 
-The rules come from [ADR 0001](adr/0001-public-api.md):
+The rules come from [ADR 0001](https://github.com/GravionLabs/herdr-plugins/blob/main/docs/adr/0001-public-api.md):
 
 1. A public item (plugin, action, pane, event or link handler ID, `config.json` key, state file, or documented event behaviour) is removed or renamed only in a **major** release.
 2. A deprecation is announced in a **minor** release. The old name keeps working for at least one minor release before the major that removes it.

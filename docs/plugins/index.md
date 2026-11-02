@@ -1,0 +1,16 @@
+# Plugins
+
+| Plugin | Purpose |
+| --- | --- |
+| `agent-notify` | Notify when an agent changes status |
+| `command-palette` | Run configured commands from a palette |
+| `deliver-board` | Board of open work items |
+| `deliver-log` | Toggle the delivery log |
+| `deliver-starter` | Start a delivery from an issue |
+| `deliver-view` | Apply the delivery sidebar layout |
+| `layout-bootstrap` | Bootstrap a workspace layout |
+| `link-trim` | Trim trailing punctuation from links |
+| `review-popup` | Review popup |
+| `worktree-cleanup` | Clean up removed worktrees |
+
+Actions, panes and config keys of each plugin: [Public names](../naming.md).
