@@ -10,6 +10,9 @@ exclude_loopback = true
 exclude = [
   # The documentation site is not live yet (Settings → Pages is switched on later); the URL is in the README and the docs.
   '^https://gravionlabs\.github\.io/herdr-plugins/',
+  # Links to files of this repo on main that are not there yet: release/next content reaches main only with the
+  # release PR. Local file links are checked by the VitePress build (pages.yml), so nothing is lost here.
+  '^https://github\.com/GravionLabs/herdr-plugins/blob/main/',
 ]
 
 # Status codes that do not mean a dead link: 403 and 429 are what GitHub, npm and docs hosts return to
@@ -20,5 +23,3 @@ timeout = 20
 max_retries = 3
 retry_wait_time = 5
 max_concurrency = 8
-
-# Use the workflow token for github.com links (lychee-action passes GITHUB_TOKEN); it avoids anonymous rate limits.
