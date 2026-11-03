@@ -5,6 +5,12 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.6.0] — 2026-11-03
+
+### Features
+- **deliver-board**: Data action with the board as versioned JSON (#215) (#216)
+
+
 ## [0.5.0] — 2026-11-02
 
 ### Bug Fixes
@@ -37,6 +43,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - Getting started (#97) (#192)
 - Document the setup script (#149) (#193)
 - **deliver-view**: Sync the README and its test with release/next (#160) (#195)
+- Update CHANGELOG.md for v0.5.0 [skip ci]
 
 
 ### Features
