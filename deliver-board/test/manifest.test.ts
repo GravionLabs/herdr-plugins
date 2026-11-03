@@ -30,6 +30,10 @@ describe('deliver-board manifest', () => {
     expect(table('actions', 'open')).toMatch(/^command = \["node", "bin\/open\.ts"\]$/m);
   });
 
+  it('declares the action data run by Node', () => {
+    expect(table('actions', 'data')).toMatch(/^command = \["node", "bin\/data\.ts"\]$/m);
+  });
+
   it('documents the install command and a keybinding for the open action in the README', () => {
     expect(readme).toContain('herdr plugin install -y --ref <tag> GravionLabs/herdr-plugins/deliver-board');
     expect(readme).toContain('command = "deliver-board.open"');
