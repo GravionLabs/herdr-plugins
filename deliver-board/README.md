@@ -51,9 +51,38 @@ One row per open issue labelled `pbi`, ordered by number:
 | `r` | refresh |
 | `q`, Escape | close |
 
+## The data action
+
+`herdr plugin action invoke` is for people; programs (poimen's native deliver board) run the `data` action's command from `plugin.list` directly: `node bin/data.ts --cwd <repository>` in the plugin directory. It prints one JSON document on stdout and uses the same rows, `gh` calls and 30 s cache as the popup. It runs no write command.
+
+```json
+{
+  "version": 1,
+  "plugin": "deliver-board",
+  "generated": "2026-11-02T10:00:00.000Z",
+  "data": {
+    "repo": "GravionLabs/poimen",
+    "rows": [
+      {
+        "number": 42, "title": "...", "url": "https://github.com/GravionLabs/poimen/issues/42",
+        "assignee": "jkaufmann", "labels": ["in-progress"], "branch": "docs/42-adr",
+        "pr": { "number": 150, "url": "...", "state": "OPEN",
+                "checks": { "state": "pending", "passed": 3, "failed": 0, "pending": 1, "skipped": 0 } }
+      }
+    ]
+  }
+}
+```
+
+- `version` is the major version of the contract (`1`). Fields are only added within a version; a change that removes or renames a field raises it.
+- `repo` is `owner/name` of `origin`, or `null` when it is not a GitHub remote. `rows` is ordered by PBI number.
+- `assignee` is the comma-separated claim (`""` when unclaimed); `labels` only `needs-decision`, `in-progress`, `merged`; `branch` and `pr` are `null` when there is none. The row `url` is the PR when there is one, else the issue.
+- `pr.state` is `OPEN`, `MERGED` or `CLOSED`; `checks.state` is `passing`, `failing`, `pending` or `none`.
+- On failure the exit code is 1 and the output is `{ "version": 1, "plugin": "deliver-board", "error": { "code": "...", "message": "..." } }`. Codes: `invalid_arguments`, `not_a_repository`, `gh_failed`, `rate_limited`, `invalid_gh_output`.
+
 ## Development
 
-Parsing of the `gh` and `git` output lives in `lib/board.ts`, the repository lookup and error wording in `lib/context.ts`, keys and rendering in `lib/view.ts`; all run without herdr. The action entry point is `bin/open.ts`, which opens the `board` pane (`bin/board.ts`) as a popup and passes the focused pane's cwd on. The tests in `test/` run against `gh` JSON recorded in `test/fixtures/`. Run them from the repository root with `npm test`.
+Parsing of the `gh` and `git` output lives in `lib/board.ts`, the repository lookup and error wording in `lib/context.ts`, keys and rendering in `lib/view.ts`; all run without herdr. The `data` action is `bin/data.ts` with `lib/data.ts`. The action entry point is `bin/open.ts`, which opens the `board` pane (`bin/board.ts`) as a popup and passes the focused pane's cwd on. The tests in `test/` run against `gh` JSON recorded in `test/fixtures/`. Run them from the repository root with `npm test`.
 
 ## API load
 

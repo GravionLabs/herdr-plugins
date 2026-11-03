@@ -10,6 +10,11 @@ id = "open"
 title = "Open the deliver board"
 command = ["node", "bin/open.ts"]
 
+[[actions]]
+id = "data"
+title = "Print the deliver board as JSON"
+command = ["node", "bin/data.ts"]
+
 [[panes]]
 id = "board"
 title = "Deliver board"
